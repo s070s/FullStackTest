@@ -7,5 +7,6 @@ namespace Api.Models
         public string Email { get; set; } = null!;
         public DateTime CreatedUtc { get; set; }
         public bool IsActive { get; set; }
+    public string PasswordHash { get; set; } = null!;
     }
 }

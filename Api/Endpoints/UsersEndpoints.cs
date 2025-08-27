@@ -3,6 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Api.Data;
 using Api.Models;
 using Api.Dtos;
+using BCrypt.Net;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Api.Endpoints
 {
@@ -10,6 +15,55 @@ namespace Api.Endpoints
 	{
 		public static void MapUserEndpoints(this WebApplication app)
 		{
+			// Use default authorization (JWT)
+			// Register
+			app.MapPost("/register", async (RegisterUserDto dto, AppDbContext db, IConfiguration config) =>
+			{
+				var exists = await db.Users.AnyAsync(u => u.Username == dto.Username || u.Email == dto.Email);
+				if (exists) return Results.Conflict("Username or Email already exists.");
+
+				var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+				var user = new User
+				{
+					Username = dto.Username,
+					Email = dto.Email,
+					PasswordHash = passwordHash,
+					CreatedUtc = DateTime.UtcNow,
+					IsActive = true
+				};
+				db.Users.Add(user);
+				await db.SaveChangesAsync();
+				return Results.Created($"/users/{user.Id}", new UserDto(user.Id, user.Username, user.Email, user.CreatedUtc, user.IsActive));
+			});
+
+			// Login
+			app.MapPost("/login", async (LoginDto dto, AppDbContext db, IConfiguration config) =>
+			{
+				var user = await db.Users.SingleOrDefaultAsync(u => u.Username == dto.Username);
+				if (user is null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+					return Results.Unauthorized();
+
+				// Create JWT token
+				var jwtKey = config["Jwt:Key"] ?? "the-much-longer-secret-key-which-is-at-least-32-characters-long!";
+				var jwtIssuer = config["Jwt:Issuer"] ?? "TestApi";
+				var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+				var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+				var claims = new[]
+				{
+					new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+					new Claim(JwtRegisteredClaimNames.Email, user.Email),
+					new Claim("userid", user.Id.ToString()),
+				};
+				var token = new JwtSecurityToken(
+					issuer: jwtIssuer,
+					audience: null,
+					claims: claims,
+					expires: DateTime.UtcNow.AddHours(2),
+					signingCredentials: credentials
+				);
+				var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+				return Results.Ok(new { token = tokenString });
+			});
 			// Create
 			app.MapPost("/users", async (CreateUserDto dto, AppDbContext db) =>
 			{
@@ -20,20 +74,20 @@ namespace Api.Endpoints
 				db.Users.Add(user);
 				await db.SaveChangesAsync();
 				return Results.Created($"/users/{user.Id}", new UserDto(user.Id, user.Username, user.Email, user.CreatedUtc, user.IsActive));
-			});
+			}).RequireAuthorization();
 
 			// Read (all)
 			app.MapGet("/users", async (AppDbContext db) =>
 				Results.Ok(await db.Users.OrderBy(u => u.Id)
 					.Select(u => new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive))
-					.ToListAsync()));
+					.ToListAsync())).RequireAuthorization();
 
 			// Read (one)
 			app.MapGet("/users/{id:int}", async (int id, AppDbContext db) =>
 			{
 				var u = await db.Users.FindAsync(id);
 				return u is null ? Results.NotFound() : Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive));
-			});
+			}).RequireAuthorization();
 
 			// Update
 			app.MapPut("/users/{id:int}", async (int id, UpdateUserDto dto, AppDbContext db) =>
@@ -52,7 +106,7 @@ namespace Api.Endpoints
 
 				await db.SaveChangesAsync();
 				return Results.NoContent();
-			});
+			}).RequireAuthorization();
 
 			// Delete
 			app.MapDelete("/users/{id:int}", async (int id, AppDbContext db) =>
@@ -62,7 +116,7 @@ namespace Api.Endpoints
 				db.Users.Remove(u);
 				await db.SaveChangesAsync();
 				return Results.NoContent();
-			});
+			}).RequireAuthorization();
 		}
 	}
 }

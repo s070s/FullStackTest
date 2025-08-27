@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Api.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,12 +25,42 @@ builder.Services.AddCors(options =>
         });
 });
 
+// JWT Authentication configuration
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "super_secret_key_123!"; // Use a secure key in production
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "TestApi";
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+
+// Register authorization services
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
 //Use CORS before MapGet/MapPost calls
+
 app.UseCors("AllowSpecificOrigin");
 
+// Enable authentication middleware
+app.UseAuthentication();
+
+// Enable authorization middleware
+app.UseAuthorization();
 
 //Apply any pending EF Core migrations at startup (dev convenience)
 using (var scope = app.Services.CreateScope())
