@@ -1,22 +1,26 @@
 using Microsoft.EntityFrameworkCore;
+using Api.Models;
 
-public class AppDbContext : DbContext
+namespace Api.Data
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-    public DbSet<User> Users => Set<User>();
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public class AppDbContext : DbContext
     {
-        var user = modelBuilder.Entity<User>();
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public DbSet<User> Users => Set<User>();
 
-        user.ToTable("Users");
-        user.HasKey(u => u.Id);
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            var user = modelBuilder.Entity<User>();
 
-        user.Property(u => u.Username).IsRequired().HasMaxLength(64);
-        user.Property(u => u.Email).IsRequired().HasMaxLength(256);
-        user.Property(u => u.CreatedUtc).IsRequired();
+            user.ToTable("Users");
+            user.HasKey(u => u.Id);
 
-        user.HasIndex(u => u.Username).IsUnique();
-        user.HasIndex(u => u.Email).IsUnique();
+            user.Property(u => u.Username).IsRequired().HasMaxLength(64);
+            user.Property(u => u.Email).IsRequired().HasMaxLength(256);
+            user.Property(u => u.CreatedUtc).IsRequired();
+
+            user.HasIndex(u => u.Username).IsUnique();
+            user.HasIndex(u => u.Email).IsUnique();
+        }
     }
 }
