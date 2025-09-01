@@ -5,3 +5,12 @@
   text-align: center;
 }
 
+.top-right-title {
+  position: absolute;
+  font-size: clamp(13px, 14px, 20px);
+  top: 1vh;
+  right: clamp(3vw, 4vw, 5vw);
+  margin: 0;
+  z-index: 1000;
+}
+

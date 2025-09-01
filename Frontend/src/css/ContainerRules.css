@@ -1,0 +1,44 @@
+/* Equally spaced grid for direct children */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    /* Adjust spacing between items */
+    width: 100%;
+    padding: 16px;
+    /* Optional: space around grid */
+    box-sizing: border-box;
+}
+
+.nav-menu {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 200px;
+    height: 100vh;
+    background: #fff;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.nav-menu--hidden {
+    transform: translateX(-180px);
+}
+
+.nav-menu__handle {
+    position: absolute;
+    left: 180px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 40px;
+    background: #007bff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+}

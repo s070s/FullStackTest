@@ -1,15 +1,22 @@
-import CreateUserForm from "./components/CreateUserForm"
-import GetUserList from "./components/GetUserList";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import NavMenu from "./components/NavMenu";
+import CreateUserForm from "./pages/CreateUserForm"
+import GetUserList from "./pages/GetUserList";
 import './App.css'
 
 function App() {
 
   return (
     <>
-<h1>My App</h1>
-      <CreateUserForm />
-      <hr />
-      <GetUserList />
+      <Router>
+        <h1 className="top-right-title">User Management</h1>
+        <NavMenu />
+        <hr />
+        <Routes>
+          <Route path="/create-user" element={<CreateUserForm />} />
+          <Route path="/user-list" element={<GetUserList />} />
+        </Routes>
+      </Router>
     </>
   )
 }

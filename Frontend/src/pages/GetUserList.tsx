@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAllUsers } from "../api/api";
 import type { UserDto } from "../api/api";
+import "../css/ButtonRules.css";
 
 export default function UserList() {
 
@@ -29,7 +30,7 @@ if (error) return <p>❌ Error: {error}</p>;
   return (
     <div>
       <h2>Users</h2>
-      <button onClick={loadUsers} style={{ marginBottom: '1em' }}>Refresh</button>
+      <button className="secondary-button" onClick={loadUsers}>Refresh</button>
       <ul>
         {users.map((u) => (
           <li key={u.id}>

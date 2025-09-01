@@ -1,0 +1,27 @@
+/* Removed overlapping global button rules. Use classes for custom button variants. */
+
+/* Example: Custom button variant */
+.secondary-button {
+  background-color: #FFB300; /* Accent Yellow/Orange */
+  color: #212121;
+  border-radius: 12px;
+  font-weight: bold;
+  padding: 0.7em 1.5em;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  border: 2px solid #1976D2;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.secondary-button:hover,
+.secondary-button:focus {
+  background-color: #1976D2; /* Secondary Blue */
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.16);
+}
+
+.secondary-button:disabled {
+  background-color: #bdbdbd;
+  color: #757575;
+  cursor: not-allowed;
+  box-shadow: none;
+}
