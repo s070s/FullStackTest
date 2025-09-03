@@ -1,5 +1,4 @@
 1.Clone the repo </br>
-2.If there are issues with the verification of the certification run this dotnet dev-certs https --trust</br>
 2.If using VSCode use this .vscode/tasks.json
 
 ```json
