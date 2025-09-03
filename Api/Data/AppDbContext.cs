@@ -18,7 +18,11 @@ namespace Api.Data
             user.Property(u => u.Username).IsRequired().HasMaxLength(64);
             user.Property(u => u.Email).IsRequired().HasMaxLength(256);
             user.Property(u => u.CreatedUtc).IsRequired();
-                user.Property(u => u.PasswordHash).IsRequired();
+            user.Property(u => u.PasswordHash).IsRequired();
+            user.Property(u => u.Role)
+                .IsRequired()
+                .HasConversion<string>()
+                .HasMaxLength(16);
 
             user.HasIndex(u => u.Username).IsUnique();
             user.HasIndex(u => u.Email).IsUnique();

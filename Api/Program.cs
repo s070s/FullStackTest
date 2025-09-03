@@ -26,8 +26,13 @@ builder.Services.AddCors(options =>
 });
 
 // JWT Authentication configuration
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "super_secret_key_123!"; // Use a secure key in production
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "TestApi";
+var jwtKey = builder.Configuration["Jwt:Key"];// Use a secure key in production
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+if (string.IsNullOrWhiteSpace(jwtKey) || string.IsNullOrWhiteSpace(jwtIssuer))
+{
+    throw new InvalidOperationException("JWT configuration missing: Jwt:Key or Jwt:Issuer is not set.");
+}
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -48,7 +53,12 @@ builder.Services.AddAuthentication(options =>
     });
 
 // Register authorization services
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("Trainer", policy => policy.RequireRole("Trainer"));
+    options.AddPolicy("Client", policy => policy.RequireRole("Client"));
+});
 
 var app = builder.Build();
 
@@ -69,7 +79,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-app.MapGet("/", () => $"Hello User! {DateTime.Now}");
+app.MapGet("/", () => $"This server is running and ready to accept requests");
 // Register user endpoints from UsersEndpoints
 Api.Endpoints.UsersEndpoints.MapUserEndpoints(app);
 

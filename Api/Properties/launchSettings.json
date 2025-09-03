@@ -7,7 +7,9 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:5204;http://localhost:5203",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Jwt:Key": "the-much-longer-secret-key-which-is-at-least-32-characters-long!",
+        "Jwt:Issuer": "TestApi"
       }
     }
   }
