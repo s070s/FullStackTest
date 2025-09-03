@@ -60,7 +60,6 @@
             "options": {
                 "cwd": "${workspaceFolder}/Api"
             },
-            "problemMatcher": []
         },
         {
             "label": "CleanFrontend",
@@ -69,7 +68,6 @@
             "options": {
                 "cwd": "${workspaceFolder}/Frontend"
             },
-            "problemMatcher": []
         },
         {
             "label": "CleanAll",
