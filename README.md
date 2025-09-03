@@ -5,14 +5,13 @@
 {
     "version": "2.0.0",
     "tasks": [
-      {
+        {
             "label": "InstallAndBuildAPI",
             "type": "shell",
             "command": "dotnet restore; dotnet build",
             "options": {
-                "cwd": "${workspaceFolder}/API"
-            },
-            "problemMatcher": []
+                "cwd": "${workspaceFolder}/Api"
+            }
         },
         {
             "label": "InstallAndBuildFrontend",
@@ -20,8 +19,7 @@
             "command": "npm install; npm run build",
             "options": {
                 "cwd": "${workspaceFolder}/Frontend"
-            },
-            "problemMatcher": []
+            }
         },
         {
             "label": "InstallAndBuildAll",
@@ -36,7 +34,7 @@
             "type": "shell",
             "command": "dotnet run",
             "options": {
-                "cwd": "${workspaceFolder}/API"
+                "cwd": "${workspaceFolder}/Api"
             }
         },
         {
@@ -82,32 +80,29 @@
             "dependsOrder": "parallel"
         },
         {
-            "label": "ReinitDB",
-            "type": "shell",
-            "command": "Remove-Item -Recurse -Force Migrations -ErrorAction SilentlyContinue; dotnet ef migrations add InitialCreate; dotnet ef database update",
-            "options": {
-                "cwd": "${workspaceFolder}/API"
-            },
-            "problemMatcher": []
-        },
-        {
             "label": "CleanMigrationsAndDB",
             "type": "shell",
             "command": "Remove-Item -Recurse -Force Migrations -ErrorAction SilentlyContinue; Remove-Item -Force *.db,*.sqlite -ErrorAction SilentlyContinue",
             "options": {
-                "cwd": "${workspaceFolder}/API"
-            },
-            "problemMatcher": []
+                "cwd": "${workspaceFolder}/Api"
+            }
         },
         {
             "label": "UpdateDatabase",
             "type": "shell",
             "command": "dotnet ef database update",
             "options": {
-                "cwd": "${workspaceFolder}/API"
-            },
-            "problemMatcher": []
-        }
+                "cwd": "${workspaceFolder}/Api"
+            }
+        },
+        {
+            "label": "InitialMigrationAndUpdateDB",
+            "type": "shell",
+            "command": "dotnet ef migrations add InitialCreate; dotnet ef database update",
+            "options": {
+                "cwd": "${workspaceFolder}/Api"
+            }
+        },
     ]
 }
 ```
