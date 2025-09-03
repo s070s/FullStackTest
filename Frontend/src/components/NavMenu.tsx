@@ -18,12 +18,13 @@ function NavMenu() {
             onMouseEnter={() => setHidden(false)}
         >
             <div className="grid-container">
-                <Button onClick={() => handleNavigate("/create-user")}>
-                    Create User
+                <Button onClick={() => handleNavigate("/login")}>
+                    Login
                 </Button>
-                <Button onClick={() => handleNavigate("/user-list")}>
-                    User List
+                <Button onClick={() => handleNavigate("/register")}>
+                    Register
                 </Button>
+
             </div>
             {hidden && (
                 <div
