@@ -14,6 +14,7 @@ namespace Api.Endpoints
 	{
 		public static void MapUserEndpoints(this WebApplication app)
 		{
+			#region Registration
 			// Use default authorization (JWT)
 			// Register
 			app.MapPost("/register", async (RegisterUserDto dto, AppDbContext db, IConfiguration config) =>
@@ -72,6 +73,9 @@ namespace Api.Endpoints
 				var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 				return Results.Ok(new { token = tokenString });
 			});
+			#endregion
+
+			#region Admin Operations
 			// Create (admin only)
 			app.MapPost("/users", async (CreateUserDto dto, AppDbContext db) =>
 			{
@@ -134,6 +138,8 @@ namespace Api.Endpoints
 				await db.SaveChangesAsync();
 				return Results.Ok(new { message = $"Successfully deleted user{u.Username} with id {id}"});
 			}).RequireAuthorization("Admin");
+			#endregion
+
 		}
 	}
 }
