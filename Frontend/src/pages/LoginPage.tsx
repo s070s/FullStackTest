@@ -1,23 +1,26 @@
+// TODO: TEST THIS PAGE ALONG THE API
+
 import React, { useState } from 'react';
+import { loginUser } from '../api/api'; // Import the loginUser function
 
 const LoginPage: React.FC = () => {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        // Replace with your actual login logic
-        if (!email || !password) {
-            setError('Please enter both email and password.');
+        if (!username || !password) {
+            setError('Please enter both username and password.');
             return;
         }
         try {
-            // Example: await login(email, password);
-            alert('Logged in!');
-        } catch (err) {
-            setError('Invalid credentials.');
+            const result = await loginUser({ username, password });
+            // You can store the token in localStorage or context if needed
+            alert('Logged in! Token: ' + result.token);
+        } catch (err: any) {
+            setError(err.message || 'Invalid credentials.');
         }
     };
 
@@ -26,12 +29,12 @@ const LoginPage: React.FC = () => {
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: 16 }}>
-                    <label htmlFor="email">Email</label>
+                    <label htmlFor="username">Username</label>
                     <input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
+                        id="username"
+                        type="text"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
                         style={{ width: '100%', padding: 8, marginTop: 4 }}
                         required
                     />
