@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Api.Services;
 
 namespace Api.Endpoints
 {
@@ -17,8 +18,12 @@ namespace Api.Endpoints
 			#region Registration
 			// Use default authorization (JWT)
 			// Register
-			app.MapPost("/register", async (RegisterUserDto dto, AppDbContext db, IConfiguration config) =>
+			app.MapPost("/register", async (IValidationService validator, RegisterUserDto dto, AppDbContext db, IConfiguration config) =>
 			{
+				if (!validator.IsValidEmail(dto.Email))
+					return Results.BadRequest("Invalid email format.");
+				if (!validator.IsValidPassword(dto.Password))
+					return Results.BadRequest("Password must be at least 8 characters, include letters and numbers.");
 				var exists = await db.Users.AnyAsync(u => u.Username == dto.Username || u.Email == dto.Email);
 				if (exists) return Results.Conflict("Username or Email already exists.");
 
@@ -43,8 +48,10 @@ namespace Api.Endpoints
 			});
 
 			// Login
-			app.MapPost("/login", async (LoginDto dto, AppDbContext db, IConfiguration config) =>
+			app.MapPost("/login", async (IJwtService jwtService, IValidationService validator, LoginDto dto, AppDbContext db, IConfiguration config) =>
 			{
+				if (!validator.IsValidPassword(dto.Password))
+					return Results.BadRequest("Invalid password format.");
 				var user = await db.Users.SingleOrDefaultAsync(u => u.Username == dto.Username);
 				if (user is null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
 					return Results.Unauthorized();
@@ -54,23 +61,8 @@ namespace Api.Endpoints
 				var jwtIssuer = config["Jwt:Issuer"];
 				if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
 					return Results.Problem("JWT configuration missing.");
-				var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-				var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-				var claims = new[]
-				{
-					new Claim(JwtRegisteredClaimNames.Sub, user.Username),
-					new Claim(JwtRegisteredClaimNames.Email, user.Email),
-					new Claim("userid", user.Id.ToString()),
-					new Claim(ClaimTypes.Role, user.Role.ToString())
-				};
-				var token = new JwtSecurityToken(
-					issuer: jwtIssuer,
-					audience: null,
-					claims: claims,
-					expires: DateTime.UtcNow.AddHours(2),
-					signingCredentials: credentials
-				);
-				var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+				var tokenString = jwtService.GenerateToken(user, jwtKey, jwtIssuer);
 				return Results.Ok(new { token = tokenString });
 			});
 			#endregion
@@ -82,7 +74,7 @@ namespace Api.Endpoints
 				var exists = await db.Users.AnyAsync(u => u.Username == dto.Username || u.Email == dto.Email);
 				if (exists) return Results.Conflict("Username or Email already exists.");
 
-				
+
 
 				var user = new User
 				{
@@ -136,7 +128,7 @@ namespace Api.Endpoints
 				if (u is null) return Results.NotFound();
 				db.Users.Remove(u);
 				await db.SaveChangesAsync();
-				return Results.Ok(new { message = $"Successfully deleted user{u.Username} with id {id}"});
+				return Results.Ok(new { message = $"Successfully deleted user{u.Username} with id {id}" });
 			}).RequireAuthorization("Admin");
 			#endregion
 

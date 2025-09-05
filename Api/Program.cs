@@ -3,6 +3,7 @@ using Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +60,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Trainer", policy => policy.RequireRole("Trainer"));
     options.AddPolicy("Client", policy => policy.RequireRole("Client"));
 });
+
+// Register ValidationService
+builder.Services.AddScoped<IValidationService, ValidationService>();
+// Register JwtService
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 var app = builder.Build();
 
