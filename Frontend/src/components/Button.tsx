@@ -1,6 +1,5 @@
 import React from "react";
 
-
 type ButtonProps = {
     children: React.ReactNode;
     onClick?: () => void;
@@ -8,7 +7,7 @@ type ButtonProps = {
     className?: string;
 };
 
-function Button({ children, onClick, disabled, className }: ButtonProps) {
+const Button: React.FC<ButtonProps> = ({ children, onClick, disabled, className }) => {
     return (
         <button
             onClick={onClick}
@@ -18,6 +17,6 @@ function Button({ children, onClick, disabled, className }: ButtonProps) {
             {children}
         </button>
     );
-}
+};
 
 export default Button;

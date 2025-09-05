@@ -78,6 +78,14 @@
             "dependsOrder": "parallel"
         },
         {
+            "label": "RecreateDatabase",
+            "dependsOn": [
+                "CleanMigrationsAndDB",
+                "AddMigrationAndUpdate"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
             "label": "CleanMigrationsAndDB",
             "type": "shell",
             "command": "Remove-Item -Recurse -Force Migrations -ErrorAction SilentlyContinue; Remove-Item -Force *.db,*.sqlite -ErrorAction SilentlyContinue",
@@ -94,14 +102,22 @@
             }
         },
         {
-            "label": "InitialMigrationAndUpdateDB",
+            "label": "AddMigrationAndUpdate",
             "type": "shell",
-            "command": "dotnet ef migrations add InitialCreate; dotnet ef database update",
+            "command": "dotnet ef migrations add ${input:migrationName}; dotnet ef database update",
             "options": {
                 "cwd": "${workspaceFolder}/Api"
             }
-        },
-    ]
+        }
+    ],
+    "inputs": [
+    {
+      "id": "migrationName",
+      "type": "promptString",
+      "description": "Enter the migration name",
+      "default": "NewMigration"
+    }
+  ]
 }
 ```
 

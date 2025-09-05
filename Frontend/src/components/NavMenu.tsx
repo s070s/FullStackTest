@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 import "../css/ContainerRules.css";
 
-function NavMenu() {
+const NavMenu: React.FC = () => {
     const [hidden, setHidden] = useState(false);
     const navigate = useNavigate();
 

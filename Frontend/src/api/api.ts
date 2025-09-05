@@ -27,7 +27,7 @@ export type RegisterUserDto = {
 
 
 // Base URL of your API (adjust as needed)
-const API_BASE_URL = "http://localhost:5203"; // change to your API port 5203 is the http
+const API_BASE_URL = "http://localhost:5203"; // change to your API http port
 
 export async function registerUser(data: RegisterUserDto): Promise<UserDto> {
   const response = await fetch(`${API_BASE_URL}/register`, {

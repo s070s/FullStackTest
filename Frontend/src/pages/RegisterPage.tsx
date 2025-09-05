@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { registerUser } from "../api/api";
 import type { RegisterUserDto } from "../api/api";
 
-export default function RegisterPage() {
+const RegisterPage: React.FC = () => {
   const [form, setForm] = useState<RegisterUserDto>({
     username: "",
     email: "",
@@ -67,4 +67,6 @@ export default function RegisterPage() {
       {error && <div style={{ color: "red" }}>{error}</div>}
     </div>
   );
-}
+};
+
+export default RegisterPage;
