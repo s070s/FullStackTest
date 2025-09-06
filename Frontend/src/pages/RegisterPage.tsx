@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { registerUser } from "../api/api";
 import type { RegisterUserDto } from "../api/api";
+import Button from "../components/Button";
+import InputField from "../components/InputField";
+import ErrorMessage from "../components/ErrorMessage";
+import "../css/ContainerRules.css"; // Import CSS
 
 const RegisterPage: React.FC = () => {
+  // States
   const [form, setForm] = useState<RegisterUserDto>({
     username: "",
     email: "",
@@ -12,10 +17,11 @@ const RegisterPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
 
+  // Handle input changes for form fields
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -28,43 +34,57 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="form-container">
       <h2>Account Registration</h2>
       {success ? (
         <div>Success! You can now log in.</div>
       ) : (
         <form onSubmit={handleSubmit}>
-          <input
+          <InputField
+            label="Username"
             name="username"
-            placeholder="Username"
             value={form.username}
             onChange={handleChange}
             required
+            placeholder="Enter your username"
           />
-          <input
+          <InputField
+            label="Email"
             name="email"
             type="email"
-            placeholder="Email"
             value={form.email}
             onChange={handleChange}
             required
+            placeholder="Enter your email"
           />
-          <input
+          <InputField
+            label="Password"
             name="password"
             type="password"
-            placeholder="Password"
             value={form.password}
             onChange={handleChange}
             required
+            placeholder="Enter your password"
           />
-          <select name="role" value={form.role} onChange={handleChange}>
-            <option value="Client">Client</option>
-            <option value="Trainer">Trainer</option>
-          </select>
-          <button type="submit">Register</button>
+          <div style={{ marginBottom: 16 }}>
+            <label htmlFor="role">Role</label>
+            <select
+              id="role"
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              style={{ width: "100%", padding: 8, marginTop: 4 }}
+            >
+              <option value="Client">Client</option>
+              <option value="Trainer">Trainer</option>
+            </select>
+          </div>
+          <Button type="submit" className="primary-button full-width">
+            Register
+          </Button>
         </form>
       )}
-      {error && <div style={{ color: "red" }}>{error}</div>}
+      {error && <ErrorMessage message={error} />}
     </div>
   );
 };

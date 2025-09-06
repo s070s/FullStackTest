@@ -120,4 +120,40 @@
   ]
 }
 ```
+<br>
+3.launch.json
+
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+                "name": "C#: Launch API (Backend)",
+                "type": "dotnet",
+                "request": "launch",
+                "projectPath": "${workspaceFolder}/Api/Api.csproj",
+                "preLaunchTask": "RunAPI"
+        },
+        {
+                "name": "Vite: Frontend Dev Server",
+                "type": "node",
+                "request": "launch",
+                "cwd": "${workspaceFolder}/Frontend",
+                "runtimeExecutable": "npm",
+                "runtimeArgs": [
+                    "run",
+                    "dev"
+                ],
+        },
+        {
+                "name": "Vite: Frontend Debug (Chrome)",
+                "type": "chrome",
+                "request": "launch",
+                "url": "http://localhost:5173",
+                "webRoot": "${workspaceFolder}/Frontend/src",
+        }
+    ]
+}
+```
 

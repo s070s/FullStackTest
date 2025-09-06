@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 import "../css/ContainerRules.css";
+import { useAuth } from "../contexts/AuthContext";
 
 const NavMenu: React.FC = () => {
     const [hidden, setHidden] = useState(false);
     const navigate = useNavigate();
+    const { isLoggedIn, logout } = useAuth();
 
     const handleNavigate = (path: string) => {
         setHidden(true);
@@ -18,13 +20,26 @@ const NavMenu: React.FC = () => {
             onMouseEnter={() => setHidden(false)}
         >
             <div className="grid-container">
-                <Button onClick={() => handleNavigate("/login")}>
-                    Login
-                </Button>
-                <Button onClick={() => handleNavigate("/register")}>
-                    Register
-                </Button>
-
+                {!isLoggedIn && (
+                    <>
+                        <Button onClick={() => handleNavigate("/login")}>
+                            Login
+                        </Button>
+                        <Button onClick={() => handleNavigate("/register")}>
+                            Register
+                        </Button>
+                    </>
+                )}
+                {isLoggedIn && (
+                    <>
+                        <Button onClick={() => handleNavigate("/dashboard")}>
+                            Dashboard
+                        </Button>
+                        <Button onClick={logout}>
+                            Logout
+                        </Button>
+                    </>
+                )}
             </div>
             {hidden && (
                 <div
