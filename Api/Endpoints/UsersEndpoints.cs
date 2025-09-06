@@ -3,10 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Api.Data;
 using Api.Models;
 using Api.Dtos;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Api.Services;
 
 namespace Api.Endpoints
