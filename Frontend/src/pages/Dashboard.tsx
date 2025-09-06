@@ -31,7 +31,34 @@ const Dashboard: React.FC = () => {
             <div>
                 <h2>Client Dashboard</h2>
                 <p>Welcome to your fitness dashboard!</p>
-                {/* Add client-specific features here */}
+                {/* Client Skeleton */}
+                <section>
+                    <h3>Profile</h3>
+                    <div>
+                        <span>Name: [Your Name]</span><br />
+                        <span>Email: [Your Email]</span>
+                    </div>
+                </section>
+                <section>
+                    <h3>Progress</h3>
+                    <div>
+                        <span>Workouts Completed: [0]</span><br />
+                        <span>Calories Burned: [0]</span>
+                    </div>
+                </section>
+                <section>
+                    <h3>Upcoming Workouts</h3>
+                    <ul>
+                        <li>[Workout Name] - [Date]</li>
+                        <li>[Workout Name] - [Date]</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Messages</h3>
+                    <div>
+                        <span>No new messages.</span>
+                    </div>
+                </section>
             </div>
         );
     } else if (role === 'Trainer') {
@@ -39,7 +66,27 @@ const Dashboard: React.FC = () => {
             <div>
                 <h2>Trainer Dashboard</h2>
                 <p>Welcome, trainer! Manage your clients and workouts here.</p>
-                {/* Add trainer-specific features here */}
+                {/* Trainer Skeleton */}
+                <section>
+                    <h3>Your Clients</h3>
+                    <ul>
+                        <li>[Client Name] - [Status]</li>
+                        <li>[Client Name] - [Status]</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Workouts</h3>
+                    <ul>
+                        <li>[Workout Name] - [Date]</li>
+                        <li>[Workout Name] - [Date]</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Messages</h3>
+                    <div>
+                        <span>No new messages.</span>
+                    </div>
+                </section>
             </div>
         );
     } else {

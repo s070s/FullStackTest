@@ -1,5 +1,3 @@
-// TODO: TEST THIS PAGE ALONG THE API
-
 import React, { useState } from 'react';
 import { loginUser } from '../api/api';
 import Button from '../components/Button';
@@ -63,6 +61,7 @@ const LoginPage: React.FC = () => {
                         onChange={e => setPassword(e.target.value)}
                         required
                         placeholder="Enter your password"
+                        showPasswordToggle={true}
                     />
                     <ErrorMessage message={error ?? ""} />
                     <Button type="submit">

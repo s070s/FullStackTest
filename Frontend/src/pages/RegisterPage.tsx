@@ -65,6 +65,7 @@ const RegisterPage: React.FC = () => {
             onChange={handleChange}
             required
             placeholder="Enter your password"
+            showPasswordToggle={true}
           />
           <div style={{ marginBottom: 16 }}>
             <label htmlFor="role">Role</label>
