@@ -6,10 +6,17 @@ namespace Api.Data
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        //User Table
         public DbSet<User> Users => Set<User>();
+        //Trainer Table
+        public DbSet<Trainer> Trainers => Set<Trainer>();
+
+        //Client Table
+        public DbSet<Client> Clients => Set<Client>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //Configure User entity and its relationships
             var user = modelBuilder.Entity<User>();
 
             user.ToTable("Users");
@@ -26,6 +33,22 @@ namespace Api.Data
 
             user.HasIndex(u => u.Username).IsUnique();
             user.HasIndex(u => u.Email).IsUnique();
+
+            //Configure Trainer entity and its relationships
+            modelBuilder.Entity<Trainer>()
+            .HasOne(t => t.User)
+            .WithOne(u => u.TrainerProfile)
+            .HasForeignKey<Trainer>(t => t.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            //Configure Client entity and its relationships
+            modelBuilder.Entity<Client>()
+            .HasOne(c => c.User)
+            .WithOne(u => u.ClientProfile)
+            .HasForeignKey<Client>(c => c.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            
         }
     }
 }

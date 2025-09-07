@@ -1,0 +1,13 @@
+namespace Api.Models
+{
+    public class Trainer
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public User User { get; set; } = null!;
+
+        // Add trainer-specific properties
+        public string? Bio { get; set; }
+        public string? Specialization { get; set; }
+    }
+}

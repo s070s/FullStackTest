@@ -1,0 +1,1 @@
+public record ClientDto(int Id, int UserId, string Username, string? Bio, string? Goals, string? Experience, string? MedicalInformation);

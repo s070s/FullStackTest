@@ -1,0 +1,1 @@
+public record TrainerDto(int Id, int UserId, string Username, string? Bio, string? Specialization);

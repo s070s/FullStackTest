@@ -8,7 +8,10 @@ namespace Api.Models
         public string Email { get; set; } = null!;
         public DateTime CreatedUtc { get; set; }
         public bool IsActive { get; set; }
-
         public string PasswordHash { get; set; } = null!;
+        public string? ProfilePhotoUrl { get; set; }
+
+        public Trainer? TrainerProfile { get; set; }
+        public Client? ClientProfile { get; set; }
     }
 }

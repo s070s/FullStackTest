@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Api.Services;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 //Database Connection String
@@ -61,10 +62,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Client", policy => policy.RequireRole("Client"));
 });
 
-// Register ValidationService
-builder.Services.AddScoped<IValidationService, ValidationService>();
+
 // Register JwtService
 builder.Services.AddScoped<IJwtService, JwtService>();
+// Register ValidationService
+builder.Services.AddScoped<IValidationService, ValidationService>();
 
 var app = builder.Build();
 

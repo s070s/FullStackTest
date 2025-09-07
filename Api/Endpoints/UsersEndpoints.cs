@@ -11,7 +11,7 @@ namespace Api.Endpoints
 	{
 		public static void MapUserEndpoints(this WebApplication app)
 		{
-			#region Registration
+			#region User Registration
 			// Use default authorization (JWT)
 			// Register
 			app.MapPost("/register", async (IValidationService validator, RegisterUserDto dto, AppDbContext db, IConfiguration config) =>
