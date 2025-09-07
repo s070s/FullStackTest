@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button";
-import "../css/ContainerRules.css";
 import { useAuth } from "../contexts/AuthContext";
 
 const NavMenu: React.FC = () => {

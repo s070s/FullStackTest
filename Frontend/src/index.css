@@ -1,3 +1,4 @@
+/* ---Global CSS--- */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -20,35 +21,88 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: var(--secondary-blue);
-  text-decoration: inherit;
-}
-a:hover {
-  color: var(--accent-yellow);
+/* Reset box-sizing for all elements */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-body {
+/* Remove default margin and padding */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+main, menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
   margin: 0;
-  display: flex;
-  place-items: center;
+  padding: 0;
+  border: 0;
+  vertical-align: baseline;
+  font-size: 100%;
+  font: inherit;
+}
+
+/* Set base body styles */
+body {
   min-width: 320px;
   min-height: 100vh;
   background: var(--background-light);
   color: var(--text-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Remove list styles */
+ul, ol {
+  list-style: none;
+}
+
+/* Remove default link styles */
+a {
+  font-weight: 500;
+  color: var(--secondary-blue);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover, a:focus {
+  color: var(--accent-yellow);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
   color: var(--primary-green);
+  margin-bottom: 0.5em;
+  line-height: 1.1;
+}
+h1 { font-size: 2.5em; }
+h2 { font-size: 2em; }
+h3 { font-size: 1.5em; }
+h4 { font-size: 1.2em; }
+h5 { font-size: 1em; }
+h6 { font-size: 0.9em; }
+
+/* Paragraphs */
+p {
+  margin-bottom: 1em;
 }
 
-button {
-  border-radius: 5%;
+/* --- Buttons --- */
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  border-radius: 8px;
   border: 1px solid transparent;
-  padding: 0.2em 0.6em;
+  padding: 0.5em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
@@ -57,27 +111,269 @@ button {
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s, border-color 0.25s;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  outline: none;
+  margin: 0.2em 0;
+  display: inline-block;
 }
-button:hover {
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover {
   background-color: var(--accent-yellow);
   color: var(--text-dark);
   border-color: var(--secondary-blue);
 }
 button:focus,
-button:focus-visible {
-  outline: 4px auto var(--secondary-blue);
+button:focus-visible,
+input[type="button"]:focus,
+input[type="submit"]:focus,
+input[type="reset"]:focus {
+  outline: 3px solid var(--secondary-blue);
 }
-button:active {
+button:active,
+input[type="button"]:active,
+input[type="submit"]:active,
+input[type="reset"]:active {
   background-color: var(--secondary-blue);
   color: #fff;
 }
-button:disabled {
+button:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+input[type="reset"]:disabled {
   background-color: #bdbdbd;
   color: #757575;
   cursor: not-allowed;
   box-shadow: none;
 }
 
+/* --- Custom Button Variants --- */
+.primary-button {
+  background-color: var(--secondary-blue);
+  color: #fff;
+  border-radius: 12px;
+  font-weight: bold;
+  padding: 0.7em 1.5em;
+  box-shadow: 0 4px 12px rgba(33,33,33,0.12);
+  border: 2px solid var(--secondary-blue);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.primary-button.full-width {
+  width: 100%;
+  padding: 10px;
+}
+.primary-button:hover,
+.primary-button:focus {
+  background-color: var(--accent-yellow);
+  color: var(--text-dark);
+  box-shadow: 0 6px 16px rgba(33,33,33,0.16);
+}
+.primary-button:disabled {
+  background-color: #bdbdbd;
+  color: #757575;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.secondary-button {
+  background-color: var(--accent-yellow);
+  color: var(--text-dark);
+  border-radius: 12px;
+  font-weight: bold;
+  padding: 0.7em 1.5em;
+  box-shadow: 0 4px 12px rgba(33,33,33,0.12);
+  border: 2px solid var(--secondary-blue);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.secondary-button:hover,
+.secondary-button:focus {
+  background-color: var(--secondary-blue);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(33,33,33,0.16);
+}
+.secondary-button:disabled {
+  background-color: #bdbdbd;
+  color: #757575;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* --- Containers & Layout --- */
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.form-container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 24px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.welcome-Page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: hsla(0, 0%, 96%, 0.00);
+}
+
+/* --- Navigation Menu --- */
+.nav-menu {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 200px;
+  height: 100vh;
+  background: var(--background-light);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 0 8px rgba(33,33,33,0.10);
+  z-index: 100;
+}
+.nav-menu--hidden {
+  transform: translateX(-180px);
+}
+.nav-menu__handle {
+  position: absolute;
+  left: 180px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 40px;
+  background: var(--secondary-blue);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+}
+
+/* --- Inputs & Forms --- */
+input, textarea, select {
+  font-family: inherit;
+  font-size: 1em;
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text-dark);
+  margin-bottom: 1em;
+  transition: border-color 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--secondary-blue);
+  outline: none;
+}
+
+/* --- Images --- */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* --- Utility Classes --- */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 1em; }
+.mb-1 { margin-bottom: 1em; }
+.p-1 { padding: 1em; }
+.rounded { border-radius: 12px; }
+
+/* --- InputField Component Styles --- */
+.input-field-container {
+  margin-bottom: 0;
+  position: relative;
+}
+
+.input-field-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.input-field-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text-dark);
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.input-field-input:focus {
+  border-color: var(--secondary-blue);
+  outline: none;
+}
+
+.input-field-password-toggle {
+  position: absolute;
+  right: 2%;
+  top: 36%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0;
+  font-size: 18px;
+  transition: background 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.input-field-password-toggle:hover,
+.input-field-password-toggle:focus {
+  background: #f0f0f0;
+}
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+  #root {
+    padding: 1rem;
+  }
+  .form-container {
+    padding: 12px;
+    margin: 20px auto;
+  }
+  .grid-container {
+    gap: 8px;
+    padding: 8px;
+  }
+  .nav-menu {
+    width: 140px;
+  }
+  .nav-menu__handle {
+    left: 120px;
+    width: 20px;
+    height: 36px;
+  }
+}
+
+/* --- Color Scheme --- */
 @media (prefers-color-scheme: light) {
   :root {
     color: var(--text-dark);

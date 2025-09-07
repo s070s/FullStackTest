@@ -3,7 +3,6 @@ import { loginUser } from '../api/api';
 import Button from '../components/Button';
 import InputField from '../components/InputField';
 import ErrorMessage from '../components/ErrorMessage';
-import '../css/ContainerRules.css'; // Import CSS
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../contexts/AuthContext";
 

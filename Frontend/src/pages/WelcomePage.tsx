@@ -1,5 +1,4 @@
 import React from 'react';
-import "../css/ContainerRules.css";
 
 const WelcomePage: React.FC = () => {
     return (

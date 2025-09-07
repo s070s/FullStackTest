@@ -26,8 +26,8 @@ const InputField: React.FC<InputFieldProps> = ({
   const [showPassword, setShowPassword] = React.useState(false);
   const isPassword = type === "password";
   return (
-    <div style={{ marginBottom: 16, position: "relative" }}>
-      {label && <label htmlFor={name}>{label}</label>}
+    <div className="input-field-container" style={style}>
+      {label && <label htmlFor={name} className="input-field-label">{label}</label>}
       <input
         id={name}
         name={name}
@@ -36,32 +36,13 @@ const InputField: React.FC<InputFieldProps> = ({
         onChange={onChange}
         required={required}
         placeholder={placeholder}
-        style={{ width: "100%", padding: 8, marginTop: 4, ...style }}
+        className="input-field-input"
       />
       {isPassword && showPasswordToggle && (
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
-          style={{
-            position: "absolute",
-            right: 0,
-            top: 30,
-            width: 32,
-            height: 32,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "transparent",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-            padding: 0,
-            fontSize: 18,
-            transition: "background 0.2s",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-          }}
-          onMouseOver={e => e.currentTarget.style.background = "#f0f0f0"}
-          onMouseOut={e => e.currentTarget.style.background = "transparent"}
+          className="input-field-password-toggle"
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
           <i className={showPassword ? "fa fa-eye-slash" : "fa fa-eye"}></i>

@@ -4,7 +4,6 @@ import type { RegisterUserDto } from "../api/api";
 import Button from "../components/Button";
 import InputField from "../components/InputField";
 import ErrorMessage from "../components/ErrorMessage";
-import "../css/ContainerRules.css"; // Import CSS
 
 const RegisterPage: React.FC = () => {
   // States
@@ -68,7 +67,7 @@ const RegisterPage: React.FC = () => {
             showPasswordToggle={true}
           />
           <div style={{ marginBottom: 16 }}>
-            <label htmlFor="role">Role</label>
+            <label className="input-field-label" htmlFor="role">Role</label>
             <select
               id="role"
               name="role"
