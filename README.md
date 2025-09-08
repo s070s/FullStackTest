@@ -121,7 +121,7 @@
 }
 ```
 <br>
-3.launch.json
+3..vscode/launch.json
 
 ```json
 {
