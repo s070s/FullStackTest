@@ -6,7 +6,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "InstallAndBuildAPI",
+            "label": "API-InstallAndBuild",
             "type": "shell",
             "command": "dotnet restore; dotnet build",
             "options": {
@@ -14,7 +14,7 @@
             }
         },
         {
-            "label": "InstallAndBuildFrontend",
+            "label": "Frontend-InstallAndBuild",
             "type": "shell",
             "command": "npm install; npm run build",
             "options": {
@@ -22,15 +22,15 @@
             }
         },
         {
-            "label": "InstallAndBuildAll",
+            "label": "Both-InstallAndBuild",
             "dependsOn": [
-                "InstallAndBuildAPI",
-                "InstallAndBuildFrontend"
+                "API-InstallAndBuild",
+                "Frontend-InstallAndBuild"
             ],
             "dependsOrder": "parallel"
         },
         {
-            "label": "RunAPI",
+            "label": "API-Run",
             "type": "shell",
             "command": "dotnet run",
             "options": {
@@ -38,7 +38,7 @@
             }
         },
         {
-            "label": "RunFrontend",
+            "label": "Frontend-Run",
             "type": "shell",
             "command": "npm run dev",
             "options": {
@@ -46,15 +46,15 @@
             }
         },
         {
-            "label": "RunBoth",
+            "label": "Both-Run",
             "dependsOn": [
-                "RunAPI",
-                "RunFrontend"
+                "API-Run",
+                "Frontend-Run"
             ],
             "dependsOrder": "parallel"
         },
         {
-            "label": "CleanAPI",
+            "label": "API-Clean",
             "type": "shell",
             "command": "Remove-Item -Recurse -Force obj -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force bin -ErrorAction SilentlyContinue",
             "options": {
@@ -62,7 +62,7 @@
             },
         },
         {
-            "label": "CleanFrontend",
+            "label": "Frontend-Clean",
             "type": "shell",
             "command": "Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue",
             "options": {
@@ -70,23 +70,23 @@
             },
         },
         {
-            "label": "CleanAll",
+            "label": "Both-Clean",
             "dependsOn": [
-                "CleanAPI",
-                "CleanFrontend"
+                "API-Clean",
+                "Frontend-Clean"
             ],
             "dependsOrder": "parallel"
         },
         {
-            "label": "RecreateDatabase",
+            "label": "DB-Recreate",
             "dependsOn": [
-                "CleanMigrationsAndDB",
-                "AddMigrationAndUpdate"
+                "DB-CleanDbAndMigrations",
+                "DB-AddMigrationAndUpdate"
             ],
             "dependsOrder": "sequence"
         },
         {
-            "label": "CleanMigrationsAndDB",
+            "label": "DB-CleanDbAndMigrations",
             "type": "shell",
             "command": "Remove-Item -Recurse -Force Migrations -ErrorAction SilentlyContinue; Remove-Item -Force *.db,*.sqlite -ErrorAction SilentlyContinue",
             "options": {
@@ -94,7 +94,7 @@
             }
         },
         {
-            "label": "UpdateDatabase",
+            "label": "DB-UpdateDatabase",
             "type": "shell",
             "command": "dotnet ef database update",
             "options": {
@@ -102,22 +102,88 @@
             }
         },
         {
-            "label": "AddMigrationAndUpdate",
+            "label": "DB-AddMigrationAndUpdate",
             "type": "shell",
             "command": "dotnet ef migrations add ${input:migrationName}; dotnet ef database update",
             "options": {
                 "cwd": "${workspaceFolder}/Api"
             }
-        }
+        },
+        {
+            "label": "List-NpmPackages",
+            "type": "shell",
+            "command": "npm list --depth=0",
+            "options": {
+                "cwd": "${workspaceFolder}/Frontend"
+            }
+        },
+        {
+            "label": "List-GlobalNpmPackages",
+            "type": "shell",
+            "command": "npm list -g --depth=0",
+            "options": {
+                "cwd": "${workspaceFolder}/Frontend"
+            }
+        },
+        {
+            "label": "List-NugetPackages",
+            "type": "shell",
+            "command": "dotnet list package",
+            "options": {
+                "cwd": "${workspaceFolder}/Api"
+            }
+        },
+        {
+            "label": "List-GlobalNugetPackages",
+            "type": "shell",
+            "command": "dotnet nuget list source"
+        },
+        {
+            "label": "List-DotnetGlobalTools",
+            "type": "shell",
+            "command": "dotnet tool list -g"
+        },
+        {
+            "label": "List-NodeVersion",
+            "type": "shell",
+            "command": "node -v",
+            "options": {
+                "cwd": "${workspaceFolder}/Frontend"
+            }
+        },
+        {
+            "label": "List-NpmVersion",
+            "type": "shell",
+            "command": "npm -v",
+            "options": {
+                "cwd": "${workspaceFolder}/Frontend"
+            }
+        },
+        {
+            "label": "List-DotnetSdks",
+            "type": "shell",
+            "command": "dotnet --list-sdks",
+            "options": {
+                "cwd": "${workspaceFolder}/Api"
+            }
+        },
+        {
+            "label": "List-DotnetRuntimes",
+            "type": "shell",
+            "command": "dotnet --list-runtimes",
+            "options": {
+                "cwd": "${workspaceFolder}/Api"
+            }
+        },
     ],
     "inputs": [
-    {
-      "id": "migrationName",
-      "type": "promptString",
-      "description": "Enter the migration name",
-      "default": "NewMigration"
-    }
-  ]
+        {
+            "id": "migrationName",
+            "type": "promptString",
+            "description": "Enter the migration name",
+            "default": "NewMigration"
+        }
+    ]
 }
 ```
 <br>
