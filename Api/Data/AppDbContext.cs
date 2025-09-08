@@ -10,9 +10,10 @@ namespace Api.Data
         public DbSet<User> Users => Set<User>();
         //Trainer Table
         public DbSet<Trainer> Trainers => Set<Trainer>();
-
         //Client Table
         public DbSet<Client> Clients => Set<Client>();
+        //Workout Table
+        public DbSet<Workout> Workouts => Set<Workout>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,7 +49,19 @@ namespace Api.Data
             .HasForeignKey<Client>(c => c.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-            
+            //Configure Workout and Client entity relationships
+            modelBuilder.Entity<Workout>()
+            .HasOne(w => w.Client)
+            .WithMany(c => c.Workouts)
+            .HasForeignKey(w => w.ClientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            //Configure Workout and Trainer entity relationships
+            modelBuilder.Entity<Workout>()
+            .HasOne(w => w.Trainer)
+            .WithMany(t => t.Workouts)
+            .HasForeignKey(w => w.TrainerId)
+            .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

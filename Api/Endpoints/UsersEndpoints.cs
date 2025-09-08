@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Api.Data;
 using Api.Models;
+using Api.Models.Enums;
 using Api.Dtos;
 using Api.Services;
 
@@ -11,17 +12,22 @@ namespace Api.Endpoints
 	{
 		public static void MapUserEndpoints(this WebApplication app)
 		{
-			#region User Registration
+
+
+
+
+
+			#region User Registration and Login
 			// Use default authorization (JWT)
-			// Register
+			#region Register
 			app.MapPost("/register", async (IValidationService validator, RegisterUserDto dto, AppDbContext db, IConfiguration config) =>
 			{
 				if (!validator.IsValidEmail(dto.Email))
 					return Results.BadRequest("Invalid email format.");
 				if (!validator.IsValidPassword(dto.Password))
 					return Results.BadRequest("Password must be at least 8 characters, include letters and numbers.");
-				var exists = await db.Users.AnyAsync(u => u.Username == dto.Username || u.Email == dto.Email);
-				if (exists) return Results.Conflict("Username or Email already exists.");
+				if (await validator.UserExistsAsync(dto.Username, dto.Email) == true)
+					return Results.Conflict("Username or Email already exists.");
 
 				UserRole role;
 				if (!Enum.TryParse<UserRole>(dto.Role, true, out role))
@@ -40,10 +46,29 @@ namespace Api.Endpoints
 				};
 				db.Users.Add(user);
 				await db.SaveChangesAsync();
-				return Results.Created($"/users/{user.Id}", new UserDto(user.Id, user.Username, user.Email, user.CreatedUtc, user.IsActive, user.Role));
+				if (role == UserRole.Client)
+				{
+					var client = new Client
+					{
+						UserId = user.Id,
+						User = user
+					};
+					db.Clients.Add(client);
+				}
+				else if (role == UserRole.Trainer)
+				{
+					var trainer = new Trainer
+					{
+						UserId = user.Id,
+						User = user
+					};
+					db.Trainers.Add(trainer);
+				}
+				await db.SaveChangesAsync();
+				return Results.Created($"/users/{user.Id}", new UserDto(user.Id, user.Username, user.Email, user.CreatedUtc, user.IsActive, user.Role, user.ProfilePhotoUrl));
 			});
-
-			// Login
+			#endregion
+			#region Login
 			app.MapPost("/login", async (IJwtService jwtService, IValidationService validator, LoginDto dto, AppDbContext db, IConfiguration config) =>
 			{
 				if (!validator.IsValidPassword(dto.Password))
@@ -62,15 +87,16 @@ namespace Api.Endpoints
 				return Results.Ok(new { token = tokenString });
 			});
 			#endregion
+			#endregion
 
 			#region Admin Operations
 			// Create (admin only)
-			app.MapPost("/users", async (CreateUserDto dto, AppDbContext db) =>
+			app.MapPost("/users", async (CreateUserDto dto, AppDbContext db, IValidationService validator) =>
 			{
-				var exists = await db.Users.AnyAsync(u => u.Username == dto.Username || u.Email == dto.Email);
-				if (exists) return Results.Conflict("Username or Email already exists.");
-
-
+				if (!validator.IsValidEmail(dto.Email))
+					return Results.BadRequest("Invalid email format.");
+				if (await validator.UserExistsAsync(dto.Username, dto.Email))
+					return Results.Conflict("Username or Email already exists.");
 
 				var user = new User
 				{
@@ -82,20 +108,20 @@ namespace Api.Endpoints
 				};
 				db.Users.Add(user);
 				await db.SaveChangesAsync();
-				return Results.Created($"/users/{user.Id}", new UserDto(user.Id, user.Username, user.Email, user.CreatedUtc, user.IsActive, user.Role));
+				return Results.Created($"/users/{user.Id}", new UserDto(user.Id, user.Username, user.Email, user.CreatedUtc, user.IsActive, user.Role, user.ProfilePhotoUrl));
 			}).RequireAuthorization("Admin");
 
 			// Read (all)
 			app.MapGet("/users", async (AppDbContext db) =>
 				Results.Ok(await db.Users.OrderBy(u => u.Id)
-					.Select(u => new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive, u.Role))
+					.Select(u => new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive, u.Role, u.ProfilePhotoUrl))
 					.ToListAsync())).RequireAuthorization("Admin");
 
 			// Read (one)
 			app.MapGet("/users/{id:int}", async (int id, AppDbContext db) =>
 			{
 				var u = await db.Users.FindAsync(id);
-				return u is null ? Results.NotFound() : Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive, u.Role));
+				return u is null ? Results.NotFound() : Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive, u.Role, u.ProfilePhotoUrl));
 			}).RequireAuthorization("Admin");
 
 			// Update
@@ -114,7 +140,7 @@ namespace Api.Endpoints
 				if (dto.IsActive.HasValue) u.IsActive = dto.IsActive.Value;
 				u.Role = dto.Role == default ? UserRole.Client : dto.Role;
 				await db.SaveChangesAsync();
-				return Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive, u.Role)); // Return updated user
+				return Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive, u.Role, u.ProfilePhotoUrl)); // Return updated user
 			}).RequireAuthorization("Admin");
 
 			// Delete

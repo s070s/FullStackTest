@@ -11,5 +11,9 @@ namespace Api.Models
         public string? Goals { get; set; }
         public string? Experience { get; set; }
         public string? MedicalInformation { get; set; }
+
+        //Workout properties
+        public ICollection<Workout> Workouts { get; set; } = new List<Workout>();
+
     }
 }

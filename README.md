@@ -193,31 +193,45 @@
 {
     "version": "0.2.0",
     "configurations": [
-        
         {
-                "name": "C#: Launch API (Backend)",
-                "type": "dotnet",
-                "request": "launch",
-                "projectPath": "${workspaceFolder}/Api/Api.csproj",
-                "preLaunchTask": "RunAPI"
+            /*
+            Attach to the running .NET Core process associated with the .NET backend
+            which exists in bin/Debug/net9.0/
+            */
+            "name": "Backend:.NET Core Attach",
+            "type": "coreclr",
+            "request": "attach"
         },
         {
-                "name": "Vite: Frontend Dev Server",
-                "type": "node",
-                "request": "launch",
-                "cwd": "${workspaceFolder}/Frontend",
-                "runtimeExecutable": "npm",
-                "runtimeArgs": [
-                    "run",
-                    "dev"
-                ],
+            "name": "Vite: Frontend Dev Server",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/Frontend",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "dev"
+            ],
         },
         {
-                "name": "Vite: Frontend Debug (Chrome)",
-                "type": "chrome",
-                "request": "launch",
-                "url": "http://localhost:5173",
-                "webRoot": "${workspaceFolder}/Frontend/src",
+            "name": "Vite: Frontend Debug (Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/Frontend/src",
+        }
+    ],
+    "compounds": [
+        {
+        /*
+        Run this compound to start a browser that updates changes in the Frontend and allows debugging
+        of the Frontend
+        */
+            "name": "Frontend: Dev & Debug",
+            "configurations": [
+                "Vite: Frontend Dev Server",
+                "Vite: Frontend Debug (Chrome)"
+            ]
         }
     ]
 }

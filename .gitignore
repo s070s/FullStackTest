@@ -424,4 +424,16 @@ dist-ssr/
 *.njsproj
 *.sw?
 
+# EFCore Migrations and SQLite database files
+Migrations/
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+*.bak
+*.Database.*
+*.db-shm
+*.db-wal
+
 

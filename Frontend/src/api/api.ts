@@ -1,13 +1,3 @@
-export type CreateUserDto = {
-  username: string;
-  email: string;
-};
-
-export type UpdateUserDto = {
-  email?: string | null;
-  isActive?: boolean | null;
-};
-
 
 export type UserDto = {
   id: number;
@@ -61,35 +51,5 @@ export async function loginUser(data: LoginUserDto): Promise<{ token: string }> 
     throw new Error(errorText);
   }
   return response.json();
-}
-
-
-// Create a new user
-export async function createUser(data: CreateUserDto): Promise<UserDto> {
-  const response = await fetch(`${API_BASE_URL}/users`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data), // send the user data
-  });
-
-  if (!response.ok) {
-    // If backend returns 409 conflict, throw error
-    const errorText = await response.text();
-    throw new Error(errorText);
-  }
-
-  return response.json(); // return created user data
-}
-
-// Get all users
-export async function getAllUsers():Promise<UserDto[]>{
-    const response = await fetch(`${API_BASE_URL}/users`);
-    if(!response.ok)
-    {
-        throw new Error("Failed to Fetch Users");
-    }
-    return response.json();
 }
 

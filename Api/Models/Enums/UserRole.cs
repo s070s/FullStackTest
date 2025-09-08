@@ -1,4 +1,4 @@
-namespace Api.Models
+namespace Api.Models.Enums
 {
     public enum UserRole
     {

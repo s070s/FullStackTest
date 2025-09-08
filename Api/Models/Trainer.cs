@@ -9,5 +9,9 @@ namespace Api.Models
         // Add trainer-specific properties
         public string? Bio { get; set; }
         public string? Specialization { get; set; }
+
+        //Workout properties
+        public ICollection<Workout> Workouts { get; set; } = new List<Workout>();
+
     }
 }

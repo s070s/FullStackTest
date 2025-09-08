@@ -1,3 +1,4 @@
+using Api.Models.Enums;
 namespace Api.Models
 {
     public class User
