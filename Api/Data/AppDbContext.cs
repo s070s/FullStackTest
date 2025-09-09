@@ -1,11 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using Api.Models;
+using Api.Models.BaseClasses;
+using Api.Services;
 
 namespace Api.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        private readonly IDbContextLifecycleService _DbContextLifecycleService;
+        public AppDbContext(DbContextOptions<AppDbContext> options, IDbContextLifecycleService dbContextLifecycleService) : base(options)
+        {
+            _DbContextLifecycleService = dbContextLifecycleService;
+        }
         //User Table
         public DbSet<User> Users => Set<User>();
         //Trainer Table
@@ -63,5 +69,18 @@ namespace Api.Data
             .HasForeignKey(w => w.TrainerId)
             .OnDelete(DeleteBehavior.Cascade);
         }
+
+        public override int SaveChanges()
+        {
+            _DbContextLifecycleService.UpdateTimestamps(ChangeTracker);
+            return base.SaveChanges();
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            _DbContextLifecycleService.UpdateTimestamps(ChangeTracker);
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
     }
 }

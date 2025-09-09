@@ -1,6 +1,7 @@
+using Api.Models.BaseClasses;
 namespace Api.Models
 {
-    public class Workout:BaseEntity
+    public class Workout : BaseEntity
     {
         public int ClientId { get; set; }
         public Client Client { get; set; } = null!;

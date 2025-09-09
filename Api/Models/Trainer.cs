@@ -1,6 +1,7 @@
+using Api.Models.ChildrenClasses;
 namespace Api.Models
 {
-    public class Trainer: BaseEntity
+    public class Trainer : PersonalInformation
     {
         public int UserId { get; set; }
         public User User { get; set; } = null!;

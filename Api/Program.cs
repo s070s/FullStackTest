@@ -67,6 +67,9 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<IJwtService, JwtService>();
 // Register ValidationService
 builder.Services.AddScoped<IValidationService, ValidationService>();
+// Register DbContextLifeCycleService
+builder.Services.AddScoped<IDbContextLifecycleService, DbContextLifecycleService>();
+
 
 var app = builder.Build();
 

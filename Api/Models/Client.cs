@@ -1,6 +1,7 @@
+using Api.Models.ChildrenClasses;
 namespace Api.Models
 {
-    public class Client: BaseEntity
+    public class Client : PersonalInformation
     {
         public int UserId { get; set; }
         public User User { get; set; } = null!;
