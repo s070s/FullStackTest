@@ -8,6 +8,8 @@ namespace Api.Services
     {
         bool IsValidEmail(string email);
         bool IsValidPassword(string password);
+        bool IsValidCount(int count, int min, int max);
+
 
         Task<bool> UserExistsAsync(string username, string email);
 
@@ -53,6 +55,11 @@ namespace Api.Services
         {
             return await _dbContext.Users.AnyAsync(u => u.Username == username || u.Email == email);
         }
-            
+        // Validate if a count is within a specified range ex.Trainer Specializations
+        public bool IsValidCount(int count, int min, int max)
+        {
+            return count >= min && count <= max;
+        }
+
     }
 }

@@ -15,7 +15,10 @@ namespace Api.Models.ChildrenClasses
         public string? Country { get; set; }
         public double? Weight { get; set; }
         public double? Height { get; set; }
-        public double? BMR { get; set; }        
+        //Basal Metabolic Rate
+        public double? BMR { get; set; }
+        //Body Mass Index
+        public double? BMI { get; set; }   
         [NotMapped]
         public int? Age => DateOfBirth.HasValue
             ? (int)((DateTime.UtcNow - DateOfBirth.Value).TotalDays / 365.25)
