@@ -1,4 +1,3 @@
-
 export type UserDto = {
   id: number;
   username: string;
@@ -39,8 +38,8 @@ export async function registerUser(data: RegisterUserDto): Promise<UserDto> {
   return response.json();
 }
 
-// Login a user
-export async function loginUser(data: LoginUserDto): Promise<{ token: string }> {
+// Authenticate a user (login and get JWT token)
+export async function authenticateUser(data: LoginUserDto): Promise<{ token: string }> {
   const response = await fetch(`${API_BASE_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -51,5 +50,22 @@ export async function loginUser(data: LoginUserDto): Promise<{ token: string }> 
     throw new Error(errorText);
   }
   return response.json();
+}
+// Used to fetch data from a protected api endpoint using JWT token
+export async function fetchWithAuth(
+  endpoint: string,
+  token: string,
+  options: RequestInit = {}
+) {
+  const headers = {
+    ...(options.headers || {}),
+    "Authorization": `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+
+  return fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+  });
 }
 

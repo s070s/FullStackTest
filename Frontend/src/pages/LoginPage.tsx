@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { loginUser } from '../api/api';
+import { authenticateUser } from '../api/api'; // <-- updated import
 import Button from '../components/Button';
 import InputField from '../components/InputField';
 import ErrorMessage from '../components/ErrorMessage';
@@ -26,7 +26,7 @@ const LoginPage: React.FC = () => {
         }
         try {
             // Login via API
-            const result = await loginUser({ username, password });
+            const result = await authenticateUser({ username, password }); // <-- updated usage
             login(result.token); // Use context to set token and login state
             setSuccess(true);
             navigate('/dashboard'); // Redirect to dashboard
