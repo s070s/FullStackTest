@@ -40,7 +40,6 @@ namespace Api.Endpoints
 					Role = role
 				};
 				db.Users.Add(user);
-				await db.SaveChangesAsync();
 				if (role == UserRole.Client)
 				{
 					var client = new Client
@@ -107,14 +106,19 @@ namespace Api.Endpoints
 
 			// Read (all)
 			app.MapGet("/users", async (AppDbContext db) =>
-				Results.Ok(await db.Users.OrderBy(u => u.Id)
+				Results.Ok(await db.Users
+					.AsNoTracking()
+					.OrderBy(u => u.Id)
 					.Select(u => new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive, u.Role, u.ProfilePhotoUrl))
-					.ToListAsync())).RequireAuthorization("Admin");
-
+					.ToListAsync())
+			).RequireAuthorization("Admin");
+			
 			// Read (one)
 			app.MapGet("/users/{id:int}", async (int id, AppDbContext db) =>
 			{
-				var u = await db.Users.FindAsync(id);
+				var u = await db.Users
+					.AsNoTracking()
+					.FirstOrDefaultAsync(x => x.Id == id);
 				return u is null ? Results.NotFound() : Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive, u.Role, u.ProfilePhotoUrl));
 			}).RequireAuthorization("Admin");
 
