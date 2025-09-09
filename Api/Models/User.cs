@@ -1,13 +1,11 @@
 using Api.Models.Enums;
 namespace Api.Models
 {
-    public class User
+    public class User: BaseEntity
     {
-        public int Id { get; set; }
         public UserRole Role { get; set; } = UserRole.Client;
         public string Username { get; set; } = null!;
         public string Email { get; set; } = null!;
-        public DateTime CreatedUtc { get; set; }
         public bool IsActive { get; set; }
         public string PasswordHash { get; set; } = null!;
         public string? ProfilePhotoUrl { get; set; }

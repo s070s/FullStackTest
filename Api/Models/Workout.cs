@@ -1,8 +1,7 @@
 namespace Api.Models
 {
-    public class Workout
+    public class Workout:BaseEntity
     {
-        public int Id { get; set; }
         public int ClientId { get; set; }
         public Client Client { get; set; } = null!;
         public int TrainerId { get; set; }
