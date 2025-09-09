@@ -236,4 +236,6 @@
     ]
 }
 ```
+<br>
+4.In production the JWT key located in launchSettings.json should be stored as an environment variable,or in a secrets manager
 

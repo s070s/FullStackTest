@@ -12,11 +12,6 @@ namespace Api.Endpoints
 	{
 		public static void MapUserEndpoints(this WebApplication app)
 		{
-
-
-
-
-
 			#region User Registration and Login
 			// Use default authorization (JWT)
 			#region Register
@@ -88,7 +83,6 @@ namespace Api.Endpoints
 			});
 			#endregion
 			#endregion
-
 			#region Admin Operations
 			// Create (admin only)
 			app.MapPost("/users", async (CreateUserDto dto, AppDbContext db, IValidationService validator) =>
