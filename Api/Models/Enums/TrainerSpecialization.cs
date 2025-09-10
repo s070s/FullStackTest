@@ -1,5 +1,6 @@
-namespace Api.Models.Enums;
-public enum TrainerSpecialization
+namespace Api.Models.Enums
+{
+    public enum TrainerSpecialization
     {
         GeneralFitness,
         StrengthTraining,
@@ -15,3 +16,4 @@ public enum TrainerSpecialization
         GroupFitness,
         Nutrition
     }
+}

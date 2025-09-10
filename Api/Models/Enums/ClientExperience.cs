@@ -1,4 +1,5 @@
-namespace Api.Models.Enums;
+namespace Api.Models.Enums
+{
     public enum ClientExperience
     {
         Beginner,
@@ -6,3 +7,5 @@ namespace Api.Models.Enums;
         Regular,
         Athlete,
     }
+
+}

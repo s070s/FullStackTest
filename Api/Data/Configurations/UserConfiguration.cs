@@ -12,10 +12,6 @@ namespace Api.Data.Configurations
             builder.ToTable("Users");
             builder.HasKey(u => u.Id);
 
-            builder.Property(u => u.Username).IsRequired().HasMaxLength(64);
-            builder.Property(u => u.Email).IsRequired().HasMaxLength(256);
-            builder.Property(u => u.CreatedUtc).IsRequired();
-            builder.Property(u => u.PasswordHash).IsRequired();
             builder.Property(u => u.Role)
                 .IsRequired()
                 .HasConversion<string>()
@@ -23,6 +19,17 @@ namespace Api.Data.Configurations
 
             builder.HasIndex(u => u.Username).IsUnique();
             builder.HasIndex(u => u.Email).IsUnique();
+
+            // Enforce relationships with Client, Trainer
+            builder.HasOne(u => u.TrainerProfile)
+                .WithOne(t => t.User)
+                .HasForeignKey<Trainer>(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(u => u.ClientProfile)
+                .WithOne(c => c.User)
+                .HasForeignKey<Client>(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

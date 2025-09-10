@@ -1,8 +1,11 @@
-namespace Api.Models.Enums;
-
+namespace Api.Models.Enums
+{
     public enum UserRole
     {
         Admin,
         Client,
         Trainer
     }
+}
+
+

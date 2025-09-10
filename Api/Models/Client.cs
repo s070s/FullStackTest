@@ -1,24 +1,41 @@
 using Api.Models.ChildrenClasses;
 using Api.Models.Enums;
+using System.ComponentModel.DataAnnotations;
+
 namespace Api.Models
 {
     public class Client : PersonalInformation
     {
-        public int UserId { get; set; }
-        public User User { get; set; } = null!;
 
         // Add client-specific properties
+        [StringLength(500, ErrorMessage = "Bio cannot exceed 500 characters.")]
         public string? Bio { get; set; }
-        public Goal? CurrentGoal { get; set; }
-        public ICollection<Goal> Goals { get; set; } = new List<Goal>();
-        public ICollection<Goal> CompletedGoals { get; set; } = new List<Goal>();
+
+        [Required]
         public ClientExperience ExperienceLevel { get; set; }
+
         public MedicalHistory? MedicalHistory { get; set; }
-        
+
+        [Required]
         public IntensityLevel PreferredIntensityLevel { get; set; }
 
-        //Workout properties
+        [Required]
+        public int UserId { get; set; }
+
+        [Required]
+        public User User { get; set; } = null!;
+
+        public WeeklyProgram? CurrentWeeklyProgram { get; set; }
+
+        public ICollection<Goal> Goals { get; set; } = new List<Goal>();
+
         public ICollection<Workout> Workouts { get; set; } = new List<Workout>();
+
+        public ICollection<Trainer> Trainers { get; set; } = new List<Trainer>();
+
+        public ICollection<Measurement> Measurements { get; set; } = new List<Measurement>();
+
+
 
     }
 }

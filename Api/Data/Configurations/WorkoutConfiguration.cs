@@ -9,15 +9,28 @@ namespace Api.Data.Configurations
         //Configure Workout entity and its relationships
         public void Configure(EntityTypeBuilder<Workout> builder)
         {
-            builder.HasOne(w => w.Client)
-                .WithMany(c => c.Workouts)
-                .HasForeignKey(w => w.ClientId)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.ToTable("Workouts");
+            builder.HasKey(w => w.Id);
 
-            builder.HasOne(w => w.Trainer)
+            // Many-to-many: Workout <-> Client
+            builder
+                .HasMany(w => w.Clients)
+                .WithMany(c => c.Workouts)
+                .UsingEntity(j => j.ToTable("ClientWorkouts"));
+
+            // One-to-many: Trainer -> Workouts
+            builder
+                .HasOne(w => w.Trainer)
                 .WithMany(t => t.Workouts)
                 .HasForeignKey(w => w.TrainerId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Optional: Workout -> WeeklyProgram (many-to-one)
+            builder
+                .HasOne(w => w.WeeklyProgram)
+                .WithMany(wp => wp.Workouts)
+                .HasForeignKey(w => w.WeeklyProgramId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

@@ -59,7 +59,7 @@ namespace Api.Endpoints
 					db.Trainers.Add(trainer);
 				}
 				await db.SaveChangesAsync();
-				return Results.Created($"/users/{user.Id}", new UserDto(user.Id, user.Username, user.Email, user.CreatedUtc, user.IsActive, user.Role, user.ProfilePhotoUrl));
+				return Results.Created($"/users/{user.Id}", new UserDto(user.Id, user.Username, user.Email, user.IsActive, user.Role, user.ProfilePhotoUrl,user.TrainerProfile,user.ClientProfile));
 			});
 			#endregion
 			#region Login
@@ -123,7 +123,7 @@ namespace Api.Endpoints
 					db.Trainers.Add(trainer);
 				}
 				await db.SaveChangesAsync();
-				return Results.Created($"/users/{user.Id}", new { User = new UserDto(user.Id, user.Username, user.Email, user.CreatedUtc, user.IsActive, user.Role, user.ProfilePhotoUrl), TemporaryPassword = tempPassword });
+				return Results.Created($"/users/{user.Id}", new { User = new UserDto(user.Id, user.Username, user.Email,user.IsActive, user.Role, user.ProfilePhotoUrl,user.TrainerProfile,user.ClientProfile), TemporaryPassword = tempPassword });
 			}).RequireAuthorization("Admin");
 
 			// Admin:Read (all) Users
@@ -131,7 +131,7 @@ namespace Api.Endpoints
 			{
 				var users = await db.Users
 					.AsNoTracking()
-					.Select(u => new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive, u.Role, u.ProfilePhotoUrl))
+					.Select(u => new UserDto(u.Id, u.Username, u.Email,u.IsActive, u.Role, u.ProfilePhotoUrl,u.TrainerProfile,u.ClientProfile))
 					.ToListAsync();
 				return Results.Ok(users);
 			}).RequireAuthorization("Admin");
@@ -142,7 +142,7 @@ namespace Api.Endpoints
 				var u = await db.Users
 					.AsNoTracking()
 					.FirstOrDefaultAsync(x => x.Id == id);
-				return u is null ? Results.NotFound() : Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive, u.Role, u.ProfilePhotoUrl));
+				return u is null ? Results.NotFound() : Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl,u.TrainerProfile,u.ClientProfile));
 			}).RequireAuthorization("Admin");
 
 			// Admin:Update (one) User
@@ -162,7 +162,7 @@ namespace Api.Endpoints
 				u.IsActive = dto.IsActive;
 				u.Role = dto.Role == default ? UserRole.Client : dto.Role;
 				await db.SaveChangesAsync();
-				return Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.CreatedUtc, u.IsActive, u.Role, u.ProfilePhotoUrl));
+				return Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile));
 			}).RequireAuthorization("Admin");
 
 			// Admin:Delete (one) User

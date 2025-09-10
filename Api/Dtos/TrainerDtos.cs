@@ -1,22 +1,26 @@
+using Api.Models;
+using Api.Models.Enums;
 namespace Api.Dtos
 {
     public record TrainerDto(
         int Id,
         int UserId,
         UserDto User,
-        string? Username,
         string? Bio,
-        string? Specialization
+        ICollection<Client> Clients,
+        ICollection<TrainerSpecialization> Specializations,
+        ICollection<Workout> Workouts
     );
+
     public record CreateTrainerDto(
         int UserId,
         string? Bio = null,
-        string? Specialization = null
+        ICollection<TrainerSpecialization>? Specializations = null
     );
+
     public record UpdateTrainerDto(
         int Id,
         string? Bio = null,
-        string? Specialization = null
+        ICollection<TrainerSpecialization>? Specializations = null
     );
 }
-

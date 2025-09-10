@@ -1,6 +1,5 @@
 1.Clone the repo </br>
 2.If using VSCode use this .vscode/tasks.json
-
 ```json
 {
     "version": "2.0.0",

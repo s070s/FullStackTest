@@ -1,17 +1,32 @@
 using Api.Models.BaseClasses;
+using Api.Models.Enums;
+using System.ComponentModel.DataAnnotations;
+
 namespace Api.Models
 {
     public class Workout : BaseEntity
     {
-        public int ClientId { get; set; }
-        public Client Client { get; set; } = null!;
-        public int TrainerId { get; set; }
-        public Trainer Trainer { get; set; } = null!;
+        public ICollection<Client> Clients { get; set; } = new List<Client>();
+        public ICollection<WorkoutExercise> WorkoutExercises { get; set; } = new List<WorkoutExercise>();
+        
+        public int? TrainerId { get; set; }
+        public Trainer? Trainer { get; set; }
 
-        // Add workout-specific properties
-        public DateTime Date { get; set; }
+        public int? WeeklyProgramId { get; set; }
+        public WeeklyProgram? WeeklyProgram { get; set; }
+
+        [Required]
+        public DateTime ScheduledDateTime { get; set; }
+
+        [Required]
+        [StringLength(50)]
         public string? Type { get; set; }
+
+        [Range(1, 300)]
         public int DurationInMinutes { get; set; }
+
+        [StringLength(500)]
         public string? Notes { get; set; }
+
     }
 }

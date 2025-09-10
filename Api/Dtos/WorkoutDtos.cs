@@ -1,29 +1,38 @@
+using Api.Models.Enums;
+using Api.Models;
+
 namespace Api.Dtos
 {
-        public record WorkoutDto(
+    public record WorkoutDto(
         int Id,
-        int ClientId,
-        int TrainerId,
-        DateTime Date,
-        string Type,
-        int DurationInMinutes,
-        string Notes
-    );
-    public record CreateWorkoutDto(
-        int ClientId,
-        int TrainerId,
-        DateTime Date,
-        string Type,
-        int DurationInMinutes,
-        string Notes
-    );
-
-    public record UpdateWorkoutDto(
-        DateTime? Date,
+        ICollection<Client> Clients,
+        int? TrainerId,
+        Trainer? Trainer,
+        int? WeeklyProgramId,
+        WeeklyProgram? WeeklyProgram,
+        DateTime ScheduledDateTime,
         string? Type,
-        int? DurationInMinutes,
+        int DurationInMinutes,
         string? Notes
     );
 
+    public record CreateWorkoutDto(
+        ICollection<int> ClientIds,
+        int? TrainerId,
+        int? WeeklyProgramId,
+        DateTime ScheduledDateTime,
+        string? Type,
+        int DurationInMinutes,
+        string? Notes = null
+    );
 
+    public record UpdateWorkoutDto(
+        ICollection<int>? ClientIds = null,
+        int? TrainerId = null,
+        int? WeeklyProgramId = null,
+        DateTime? ScheduledDateTime = null,
+        string? Type = null,
+        int? DurationInMinutes = null,
+        string? Notes = null
+    );
 }
