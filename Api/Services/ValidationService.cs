@@ -14,6 +14,8 @@ namespace Api.Services
         Task<bool> UserExistsAsync(string username, string email);
 
         Task<bool> CanAssignProfile(int userId);
+
+        Task<bool> IsUserActiveAsync(string username);
     }
 
     public class ValidationService : IValidationService
@@ -55,6 +57,17 @@ namespace Api.Services
         {
             return await _dbContext.Users.AnyAsync(u => u.Username == username || u.Email == email);
         }
+
+
+        // Check if a user is active by username
+        public async Task<bool> IsUserActiveAsync(string username)
+        {
+            var user = await _dbContext.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Username == username);
+            return user != null && user.IsActive;
+        }
+
         // Validate if a count is within a specified range ex.Trainer Specializations
         public bool IsValidCount(int count, int min, int max)
         {

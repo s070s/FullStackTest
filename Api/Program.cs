@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Api.Services;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +56,20 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
+//RateLimiting 
+builder.Services.AddRateLimiter(options =>
+{
+    //for login endpoint to mitigate brute-force attacks
+    options.AddFixedWindowLimiter("login", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 5;// 5 requests
+        limiterOptions.Window = TimeSpan.FromMinutes(1);// per minute
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 2;
+    });
+});
+
+
 // Register authorization services
 builder.Services.AddAuthorization(options =>
 {
@@ -82,6 +98,10 @@ app.UseAuthentication();
 
 // Enable authorization middleware
 app.UseAuthorization();
+
+// Enable rate limiting middleware
+app.UseRateLimiter(); // <-- Add this line
+
 
 //Apply any pending EF Core migrations at startup (dev convenience)
 using (var scope = app.Services.CreateScope())

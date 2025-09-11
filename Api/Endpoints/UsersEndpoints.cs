@@ -23,11 +23,10 @@ namespace Api.Endpoints
 					return Results.BadRequest("Password must be at least 8 characters, include letters and numbers.");
 				if (await validator.UserExistsAsync(dto.Username, dto.Email) == true)
 					return Results.Conflict("Username or Email already exists.");
+				if (!Enum.TryParse<UserRole>(dto.Role, true, out UserRole role))
+					return Results.BadRequest("Invalid role. Allowed values: Client, Trainer, Admin.");
 
-				UserRole role;
-				if (!Enum.TryParse<UserRole>(dto.Role, true, out role))
-					role = UserRole.Client;
-
+				using var transaction = await db.Database.BeginTransactionAsync(); // Start transaction
 
 				var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 				var user = new User
@@ -40,6 +39,8 @@ namespace Api.Endpoints
 					Role = role
 				};
 				db.Users.Add(user);
+				await db.SaveChangesAsync(); // Important to set the userId before the Role
+
 				if (role == UserRole.Client)
 				{
 					var client = new Client
@@ -58,18 +59,21 @@ namespace Api.Endpoints
 					};
 					db.Trainers.Add(trainer);
 				}
-				await db.SaveChangesAsync();
-				return Results.Created($"/users/{user.Id}", new UserDto(user.Id, user.Username, user.Email, user.IsActive, user.Role, user.ProfilePhotoUrl,user.TrainerProfile,user.ClientProfile));
+				await db.SaveChangesAsync();//Second Save Operation to update the Roles
+				await transaction.CommitAsync(); // Commit transaction
+				return Results.Created($"/users/{user.Id}",$"User {user.Username} with id {user.Id} registered successfully.");
 			});
 			#endregion
 			#region Login
-			app.MapPost("/login", async (IJwtService jwtService, IValidationService validator, LoginDto dto, AppDbContext db, IConfiguration config) =>
+			app.MapPost("/login", async (IValidationService validator,IJwtService jwtService, LoginDto dto, AppDbContext db, IConfiguration config) =>
 			{
-				if (!validator.IsValidPassword(dto.Password))
-					return Results.BadRequest("Invalid password format.");
 				var user = await db.Users.SingleOrDefaultAsync(u => u.Username == dto.Username);
+				//no validation for password requirements for redundancy and security reasons(error messages),there is only
+				//validation to verify if the password matches the hash stored in the database
 				if (user is null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
 					return Results.Unauthorized();
+				if (!await validator.IsUserActiveAsync(dto.Username))
+					return Results.Forbid();
 
 				// Create JWT token
 				var jwtKey = config["Jwt:Key"];
@@ -79,7 +83,7 @@ namespace Api.Endpoints
 
 				var tokenString = jwtService.GenerateToken(user, jwtKey, jwtIssuer);
 				return Results.Ok(new { token = tokenString });
-			});
+			}).RequireRateLimiting("login");
 			#endregion
 			#endregion
 			#region Admin Operations
@@ -123,7 +127,7 @@ namespace Api.Endpoints
 					db.Trainers.Add(trainer);
 				}
 				await db.SaveChangesAsync();
-				return Results.Created($"/users/{user.Id}", new { User = new UserDto(user.Id, user.Username, user.Email,user.IsActive, user.Role, user.ProfilePhotoUrl,user.TrainerProfile,user.ClientProfile), TemporaryPassword = tempPassword });
+				return Results.Created($"/users/{user.Id}", new { User = new UserDto(user.Id, user.Username, user.Email, user.IsActive, user.Role, user.ProfilePhotoUrl, user.TrainerProfile, user.ClientProfile), TemporaryPassword = tempPassword });
 			}).RequireAuthorization("Admin");
 
 			// Admin:Read (all) Users
@@ -131,7 +135,7 @@ namespace Api.Endpoints
 			{
 				var users = await db.Users
 					.AsNoTracking()
-					.Select(u => new UserDto(u.Id, u.Username, u.Email,u.IsActive, u.Role, u.ProfilePhotoUrl,u.TrainerProfile,u.ClientProfile))
+					.Select(u => new UserDto(u.Id, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile))
 					.ToListAsync();
 				return Results.Ok(users);
 			}).RequireAuthorization("Admin");
@@ -142,7 +146,7 @@ namespace Api.Endpoints
 				var u = await db.Users
 					.AsNoTracking()
 					.FirstOrDefaultAsync(x => x.Id == id);
-				return u is null ? Results.NotFound() : Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl,u.TrainerProfile,u.ClientProfile));
+				return u is null ? Results.NotFound() : Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile));
 			}).RequireAuthorization("Admin");
 
 			// Admin:Update (one) User
@@ -219,7 +223,7 @@ namespace Api.Endpoints
 			}).RequireAuthorization("Admin");
 
 			//Admin:Assign Trainer or Client profile if a registration passed without a role
-			app.MapPost("/users/{id:int}/assign-profile",async(int id,UserRole role,AppDbContext db,IValidationService validator)=>
+			app.MapPost("/users/{id:int}/assign-profile", async (int id, UserRole role, AppDbContext db, IValidationService validator) =>
 			{
 				var user = await db.Users.Include(u => u.ClientProfile).Include(u => u.TrainerProfile).FirstOrDefaultAsync(u => u.Id == id);
 				if (user is null) return Results.NotFound("User not found.");
