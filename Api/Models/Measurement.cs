@@ -1,6 +1,7 @@
 using Api.Models.BaseClasses;
 using Api.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using Api.Dtos;
 
 namespace Api.Models
 {
@@ -31,5 +32,46 @@ namespace Api.Models
 
         [Required]
         public Client Client { get; set; } = null!;
+
+        public MeasurementDto ToMeasurementDto()
+        {
+            return new MeasurementDto(
+                Id,
+                Unit,
+                Value,
+                Date,
+                Intensity,
+                IsPersonalBest,
+                Notes,
+                ClientId,
+                Client
+            );
+        }
+
+        public CreateMeasurementDto ToCreateMeasurementDto()
+        {
+            return new CreateMeasurementDto(
+                Unit,
+                Value,
+                Date,
+                Intensity,
+                IsPersonalBest,
+                Notes,
+                ClientId
+            );
+        }
+
+        public UpdateMeasurementDto ToUpdateMeasurementDto()
+        {
+            return new UpdateMeasurementDto(
+                Id,
+                Unit,
+                Value,
+                Date,
+                Intensity,
+                IsPersonalBest,
+                Notes
+            );
+        }
     }
 }

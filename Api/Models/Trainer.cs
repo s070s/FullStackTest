@@ -1,12 +1,13 @@
 using Api.Models.ChildrenClasses;
 using Api.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using Api.Dtos;
 
 namespace Api.Models
 {
     public class Trainer : PersonalInformation
     {
-[Required]
+        [Required]
         public int UserId { get; set; }
 
         [Required]
@@ -24,6 +25,36 @@ namespace Api.Models
 
         [Required]
         public ICollection<TrainerSpecialization> Specializations { get; set; } = new List<TrainerSpecialization>();
+        
+        public TrainerDto ToTrainerDto()
+        {
+            return new TrainerDto(
+                Id,
+                UserId,
+                Bio,
+                Clients,
+                Specializations,
+                Workouts
+            );
+        }
+
+        public CreateTrainerDto ToCreateTrainerDto()
+        {
+            return new CreateTrainerDto(
+                UserId,
+                Bio,
+                Specializations
+            );
+        }
+
+        public UpdateTrainerDto ToUpdateTrainerDto()
+        {
+            return new UpdateTrainerDto(
+                Id,
+                Bio,
+                Specializations
+            );
+        }
 
     }
 }

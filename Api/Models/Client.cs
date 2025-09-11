@@ -1,6 +1,7 @@
 using Api.Models.ChildrenClasses;
 using Api.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using Api.Dtos;
 
 namespace Api.Models
 {
@@ -35,7 +36,43 @@ namespace Api.Models
 
         public ICollection<Measurement> Measurements { get; set; } = new List<Measurement>();
 
+        public ClientDto ToClientDto()
+        {
+            return new ClientDto(
+                Id,
+                UserId,
+                Bio,
+                ExperienceLevel,
+                MedicalHistory,
+                PreferredIntensityLevel,
+                Goals,
+                Workouts,
+                Trainers,
+                Measurements
+            );
+        }
 
+        public CreateClientDto ToCreateClientDto()
+        {
+            return new CreateClientDto(
+                UserId,
+                Bio,
+                ExperienceLevel,
+                MedicalHistory,
+                PreferredIntensityLevel
+            );
+        }
+
+        public UpdateClientDto ToUpdateClientDto()
+        {
+            return new UpdateClientDto(
+                Id,
+                Bio,
+                ExperienceLevel,
+                MedicalHistory,
+                PreferredIntensityLevel
+            );
+        }
 
     }
 }

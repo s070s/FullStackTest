@@ -9,7 +9,7 @@ namespace Api.Dtos
         Workout Workout,
         int ExerciseDefinitionId,
         ExerciseDefinition ExerciseDefinition,
-        ICollection<WorkoutExerciseSetDto> Sets,
+        ICollection<WorkoutExerciseSet> Sets,
         string? Notes
     );
 

@@ -5,7 +5,6 @@ namespace Api.Dtos
     public record TrainerDto(
         int Id,
         int UserId,
-        UserDto User,
         string? Bio,
         ICollection<Client> Clients,
         ICollection<TrainerSpecialization> Specializations,

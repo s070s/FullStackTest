@@ -1,6 +1,7 @@
 using Api.Models.BaseClasses;
 using Api.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using Api.Dtos;
 
 namespace Api.Models
 {
@@ -30,8 +31,58 @@ namespace Api.Models
 
                 public ClientExperience? ExperienceLevel { get; set; }
                 public ICollection<WorkoutExercise> WorkoutExercises { get; set; } = new List<WorkoutExercise>();
-                
+
                 [StringLength(50)]
                 public string? Category { get; set; }
+
+                public ExerciseDefinitionDto ToExerciseDefinitionDto()
+                {
+                        return new ExerciseDefinitionDto(
+                            Id,
+                            Name,
+                            Description,
+                            VideoUrl,
+                            CaloriesBurnedPerHour,
+                            Equipments,
+                            IsCompoundExercise,
+                            PrimaryMuscleGroups,
+                            SecondaryMuscleGroups,
+                            ExperienceLevel,
+                            Category
+                        );
+                }
+
+                public CreateExerciseDefinitionDto ToCreateExerciseDefinitionDto()
+                {
+                        return new CreateExerciseDefinitionDto(
+                            Name,
+                            Description,
+                            VideoUrl,
+                            CaloriesBurnedPerHour,
+                            Equipments?.Select(e => e.Id).ToList(),
+                            IsCompoundExercise,
+                            PrimaryMuscleGroups,
+                            SecondaryMuscleGroups,
+                            ExperienceLevel,
+                            Category
+                        );
+                }
+
+                public UpdateExerciseDefinitionDto ToUpdateExerciseDefinitionDto()
+                {
+                        return new UpdateExerciseDefinitionDto(
+                            Id,
+                            Name,
+                            Description,
+                            VideoUrl,
+                            CaloriesBurnedPerHour,
+                            Equipments?.Select(e => e.Id).ToList(),
+                            IsCompoundExercise,
+                            PrimaryMuscleGroups,
+                            SecondaryMuscleGroups,
+                            ExperienceLevel,
+                            Category
+                        );
+                }
         }
 }

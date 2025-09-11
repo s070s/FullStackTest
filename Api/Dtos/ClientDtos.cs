@@ -6,7 +6,6 @@ namespace Api.Dtos
     public record ClientDto(
         int Id,
         int UserId,
-        UserDto User,
         string? Bio,
         ClientExperience ExperienceLevel,
         MedicalHistory? MedicalHistory,

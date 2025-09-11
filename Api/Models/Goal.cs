@@ -1,6 +1,7 @@
 using Api.Models.BaseClasses;
 using Api.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using Api.Dtos;
 
 namespace Api.Models
 {
@@ -31,6 +32,48 @@ namespace Api.Models
 
         [Required]
         public Client Client { get; set; } = null!;
+
+
+        public GoalDto ToGoalDto()
+        {
+            return new GoalDto(
+                Id,
+                GoalType,
+                Description,
+                TargetDate,
+                Status,
+                GoalQuantity,
+                GoalUnit,
+                ClientId,
+                Client
+            );
+        }
+
+        public CreateGoalDto ToCreateGoalDto()
+        {
+            return new CreateGoalDto(
+                GoalType,
+                Description,
+                TargetDate,
+                ClientId,
+                Status,
+                GoalQuantity,
+                GoalUnit
+            );
+        }
+
+        public UpdateGoalDto ToUpdateGoalDto()
+        {
+            return new UpdateGoalDto(
+                Id,
+                GoalType,
+                Description,
+                TargetDate,
+                Status,
+                GoalQuantity,
+                GoalUnit
+            );
+        }
 
 
     }

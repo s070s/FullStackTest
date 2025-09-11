@@ -1,10 +1,11 @@
 using Api.Models.BaseClasses;
 using Api.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using Api.Dtos;
 
 namespace Api.Models
 {
-    public class User: BaseEntity
+    public class User : BaseEntity
     {
         [Required]
         public UserRole Role { get; set; } = UserRole.Client;
@@ -28,5 +29,44 @@ namespace Api.Models
 
         public Trainer? TrainerProfile { get; set; }
         public Client? ClientProfile { get; set; }
+        
+        public UserDto ToUserDto()
+        {
+            return new UserDto(
+                Id,
+                Username,
+                Email,
+                IsActive,
+                Role,
+                ProfilePhotoUrl,
+                TrainerProfile,
+                ClientProfile
+            );
+        }
+
+        public CreateUserDto ToCreateUserDto(string password)
+        {
+            return new CreateUserDto(
+                Username,
+                Email,
+                Role,
+                password,
+                IsActive,
+                ProfilePhotoUrl
+            );
+        }
+
+        public UpdateUserDto ToUpdateUserDto(string? password = null)
+        {
+            return new UpdateUserDto(
+                Id,
+                Username,
+                Email,
+                IsActive,
+                Role,
+                ProfilePhotoUrl,
+                password
+            );
+        }
     }
 }

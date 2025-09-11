@@ -1,6 +1,7 @@
 using Api.Models.BaseClasses;
 using Api.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using Api.Dtos;
 
 namespace Api.Models
 {
@@ -34,6 +35,52 @@ namespace Api.Models
 
         [MaxLength(500)]
         public string? Notes { get; set; }
+        public WorkoutExerciseSetDto ToWorkoutExerciseSetDto()
+        {
+            return new WorkoutExerciseSetDto(
+                Id,
+                WorkoutExerciseId,
+                WorkoutExercise,
+                SetNumber,
+                Repetitions,
+                Weight,
+                GoalUnit,
+                OverallIntensityLevel,
+                DurationInSeconds,
+                RestPeriodInSeconds,
+                Notes
+            );
+        }
+
+        public CreateWorkoutExerciseSetDto ToCreateWorkoutExerciseSetDto()
+        {
+            return new CreateWorkoutExerciseSetDto(
+                WorkoutExerciseId,
+                SetNumber,
+                Repetitions,
+                Weight,
+                GoalUnit,
+                OverallIntensityLevel,
+                DurationInSeconds,
+                RestPeriodInSeconds,
+                Notes
+            );
+        }
+
+        public UpdateWorkoutExerciseSetDto ToUpdateWorkoutExerciseSetDto()
+        {
+            return new UpdateWorkoutExerciseSetDto(
+                Id,
+                SetNumber,
+                Repetitions,
+                Weight,
+                GoalUnit,
+                OverallIntensityLevel,
+                DurationInSeconds,
+                RestPeriodInSeconds,
+                Notes
+            );
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 using Api.Models.BaseClasses;
 using Api.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using Api.Dtos;
 
 namespace Api.Models
 {
@@ -8,7 +9,7 @@ namespace Api.Models
     {
         public ICollection<Client> Clients { get; set; } = new List<Client>();
         public ICollection<WorkoutExercise> WorkoutExercises { get; set; } = new List<WorkoutExercise>();
-        
+
         public int? TrainerId { get; set; }
         public Trainer? Trainer { get; set; }
 
@@ -27,6 +28,48 @@ namespace Api.Models
 
         [StringLength(500)]
         public string? Notes { get; set; }
+        
+        public WorkoutDto ToWorkoutDto()
+        {
+            return new WorkoutDto(
+                Id,
+                Clients,
+                TrainerId,
+                Trainer,
+                WeeklyProgramId,
+                WeeklyProgram,
+                ScheduledDateTime,
+                Type,
+                DurationInMinutes,
+                Notes
+            );
+        }
+
+        public CreateWorkoutDto ToCreateWorkoutDto()
+        {
+            return new CreateWorkoutDto(
+                Clients.Select(c => c.Id).ToList(),
+                TrainerId,
+                WeeklyProgramId,
+                ScheduledDateTime,
+                Type,
+                DurationInMinutes,
+                Notes
+            );
+        }
+
+        public UpdateWorkoutDto ToUpdateWorkoutDto()
+        {
+            return new UpdateWorkoutDto(
+                Clients.Select(c => c.Id).ToList(),
+                TrainerId,
+                WeeklyProgramId,
+                ScheduledDateTime,
+                Type,
+                DurationInMinutes,
+                Notes
+            );
+        }
 
     }
 }
