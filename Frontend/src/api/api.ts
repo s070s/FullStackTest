@@ -51,7 +51,7 @@ export async function authenticateUser(data: LoginUserDto): Promise<{ token: str
   }
   return response.json();
 }
-// Used to fetch data from a protected api endpoint using JWT token
+// Used to fetch data from a protected api endpoint using JWT token after login
 export async function fetchWithAuth(
   endpoint: string,
   token: string,
