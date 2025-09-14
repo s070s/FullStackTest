@@ -16,7 +16,7 @@ const Dashboard: React.FC = () => {
     if (role === 'Client') {
         return <ClientDashboard />;
     } else if (role === 'Trainer') {
-        return <TrainerDashboard />; // <-- Use TrainerDashboard for Trainer role
+        return <TrainerDashboard />;
     } else if (role === 'Admin') {
         return <AdminDashboard />;
     } else {

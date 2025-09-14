@@ -1,28 +1,11 @@
-export type UserDto = {
-  id: number;
-  username: string;
-  email: string;
-  createdUtc: string; // ISO string from server
-  isActive: boolean;
-};
-
-export type RegisterUserDto = {
-  username: string;
-  email: string;
-  password: string;
-  role?: string; // optional, defaults to "Client"
-};
-
-export type LoginUserDto = {
-  username: string;
-  password: string;
-};
-
-
+import type { UserDto, RegisterUserDto, LoginUserDto } from "../data/userdtos";
 
 // Base URL of your API (adjust as needed)
 const API_BASE_URL = "http://localhost:5203"; // change to your API http port
 
+
+
+//#region Authentication API Functions
 
 // Register a new user
 export async function registerUser(data: RegisterUserDto): Promise<UserDto> {
@@ -68,6 +51,23 @@ export async function fetchWithAuth(
     headers,
   });
 }
+
+//#endregion
+
+
+//#region Admin Only User Management API Functions
+// Fetch all users
+export async function adminFetchAllUsers(token: string): Promise<UserDto[]> {
+  const response = await fetchWithAuth("/users", token);
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText);
+  }
+  return response.json();
+}
+//#endregion
+
+
 
 
 
