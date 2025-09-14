@@ -13,10 +13,15 @@ const AdminDashboard: React.FC = () => {
     const { token } = useAuth();
 
     useEffect(() => {
-        adminFetchAllUsers(token)
-            .then(setUsers)
-            .catch((err) => setError(err.message))
-            .finally(() => setLoading(false));
+        if (token) {
+            adminFetchAllUsers(token)
+                .then(setUsers)
+                .catch((err) => setError(err.message))
+                .finally(() => setLoading(false));
+        } else {
+            setError("No authentication token found.");
+            setLoading(false);
+        }
     }, [token]);
     return (
         <div>

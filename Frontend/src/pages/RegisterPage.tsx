@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { registerUser } from "../utils/api/api";
-import type { RegisterUserDto } from "../utils/api/api";
+import type { RegisterUserDto } from "../utils/data/userdtos";
 import Button from "../components/Button";
 import InputField from "../components/InputField";
 import ErrorMessage from "../components/ErrorMessage";
