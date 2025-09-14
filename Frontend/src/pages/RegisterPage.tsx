@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { registerUser } from "../api/api";
-import type { RegisterUserDto } from "../api/api";
+import { registerUser } from "../utils/api/api";
+import type { RegisterUserDto } from "../utils/api/api";
 import Button from "../components/Button";
 import InputField from "../components/InputField";
 import ErrorMessage from "../components/ErrorMessage";
@@ -77,6 +77,7 @@ const RegisterPage: React.FC = () => {
             >
               <option value="Client">Client</option>
               <option value="Trainer">Trainer</option>
+              <option value="Admin">Admin(hidden in production)</option>
             </select>
           </div>
           <Button type="submit" className="primary-button full-width">

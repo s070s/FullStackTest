@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../utils/contexts/AuthContext";
 
 const NavMenu: React.FC = () => {
     const [hidden, setHidden] = useState(false);

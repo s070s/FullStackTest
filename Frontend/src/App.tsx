@@ -5,7 +5,7 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import WelcomePage from "./pages/WelcomePage";
 import Dashboard from "./pages/Dashboard";
-import { useAuth } from "./contexts/AuthContext";
+import { useAuth } from "./utils/contexts/AuthContext";
 import './App.css'
 
 const App: React.FC = () => {

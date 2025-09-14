@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { authenticateUser } from '../api/api'; // <-- updated import
+import { authenticateUser } from "../utils/api/api";
 import Button from '../components/Button';
 import InputField from '../components/InputField';
 import ErrorMessage from '../components/ErrorMessage';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../utils/contexts/AuthContext";
 
 const LoginPage: React.FC = () => {
     // States
