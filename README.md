@@ -174,6 +174,36 @@
                 "cwd": "${workspaceFolder}/Api"
             }
         },
+        {
+            "label": "ExecutionPolicy: Set RemoteSigned (CurrentUser)",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "ExecutionPolicy: Reset to Undefined (CurrentUser)",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Undefined -Force"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "ExecutionPolicy: List All Policies",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Get-ExecutionPolicy -List"
+            ],
+            "problemMatcher": []
+        }
     ],
     "inputs": [
         {
