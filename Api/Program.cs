@@ -85,7 +85,8 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
 // Register DbContextLifeCycleService
 builder.Services.AddScoped<IDbContextLifecycleService, DbContextLifecycleService>();
-
+// Register PaginationServices(Sorting and Pagination)
+builder.Services.AddScoped<IPaginationService, PaginationService>();
 
 var app = builder.Build();
 

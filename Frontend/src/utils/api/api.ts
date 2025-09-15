@@ -57,8 +57,23 @@ export async function fetchWithAuth(
 
 //#region Admin Only User Management API Functions
 // Fetch all users
-export async function adminFetchAllUsers(token: string): Promise<UserDto[]> {
-  const response = await fetchWithAuth("/users", token);
+export async function adminFetchAllUsers(
+  token: string,
+  options?: {
+    page?: number;
+    pageSize?: number;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  }
+): Promise<{ users: UserDto[]; total: number }> {
+  const params = new URLSearchParams();
+  if (options?.page) params.append("page", options.page.toString());
+  if (options?.pageSize) params.append("pageSize", options.pageSize.toString());
+  if (options?.sortBy) params.append("sortBy", options.sortBy);
+  if (options?.sortOrder) params.append("sortOrder", options.sortOrder);
+
+  const endpoint = `/users${params.toString() ? "?" + params.toString() : ""}`;
+  const response = await fetchWithAuth(endpoint, token);
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(errorText);

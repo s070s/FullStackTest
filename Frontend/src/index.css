@@ -392,8 +392,35 @@ tbody tr:nth-child(even) {
   background: hsla(145, 63%, 76%, 0.15); /* subtle green tint for even rows */
 }
 
+/* --- Dropdown Styles --- */
+.dropdown-container {
+  margin-bottom: 1em;
+}
 
+.dropdown-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: var(--primary-green);
+}
 
+.dropdown-select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text-dark);
+  font-size: 1em;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.dropdown-select:focus {
+  border-color: var(--secondary-blue);
+  outline: none;
+}
 
 
 

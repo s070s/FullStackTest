@@ -4,6 +4,8 @@ import type { RegisterUserDto } from "../utils/data/userdtos";
 import Button from "../components/Button";
 import InputField from "../components/InputField";
 import ErrorMessage from "../components/ErrorMessage";
+import Dropdown from "../components/Dropdown";
+
 
 const RegisterPage: React.FC = () => {
   // States
@@ -13,6 +15,11 @@ const RegisterPage: React.FC = () => {
     password: "",
     role: "Client",
   });
+  const roleOptions = [
+    { value: "Client", label: "Client" },
+    { value: "Trainer", label: "Trainer" },
+    { value: "Admin", label: "Admin(hidden in production)" },
+  ];
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
 
@@ -66,20 +73,13 @@ const RegisterPage: React.FC = () => {
             placeholder="Enter your password"
             showPasswordToggle={true}
           />
-          <div style={{ marginBottom: 16 }}>
-            <label className="input-field-label" htmlFor="role">Role</label>
-            <select
-              id="role"
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              style={{ width: "100%", padding: 8, marginTop: 4 }}
-            >
-              <option value="Client">Client</option>
-              <option value="Trainer">Trainer</option>
-              <option value="Admin">Admin(hidden in production)</option>
-            </select>
-          </div>
+          <Dropdown
+            label="Role"
+            name="role"
+            value={form.role ?? ""}
+            options={roleOptions}
+            onChange={handleChange}
+          />
           <Button type="submit" className="primary-button full-width">
             Register
           </Button>

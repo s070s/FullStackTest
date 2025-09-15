@@ -61,11 +61,11 @@ namespace Api.Endpoints
 				}
 				await db.SaveChangesAsync();//Second Save Operation to update the Roles
 				await transaction.CommitAsync(); // Commit transaction
-				return Results.Created($"/users/{user.Id}",$"User {user.Username} with id {user.Id} registered successfully.");
+				return Results.Created($"/users/{user.Id}", $"User {user.Username} with id {user.Id} registered successfully.");
 			});
 			#endregion
 			#region Login
-			app.MapPost("/login", async (IValidationService validator,IJwtService jwtService, LoginDto dto, AppDbContext db, IConfiguration config) =>
+			app.MapPost("/login", async (IValidationService validator, IJwtService jwtService, LoginDto dto, AppDbContext db, IConfiguration config) =>
 			{
 				var user = await db.Users.SingleOrDefaultAsync(u => u.Username == dto.Username);
 				//no validation for password requirements for redundancy and security reasons(error messages),there is only
@@ -87,6 +87,36 @@ namespace Api.Endpoints
 			#endregion
 			#endregion
 			#region Admin Operations
+
+
+			// Admin:Read (all) Users
+			app.MapGet("/users", async (
+				AppDbContext db,
+				IPaginationService paginationService,
+				int? page,
+				int? pageSize,
+				string? sortBy,
+				string? sortOrder
+			) =>
+			{
+				var query = db.Users.AsNoTracking();
+
+				var total = await query.CountAsync();
+
+				query = paginationService.ApplySorting(query, sortBy, sortOrder);
+				query = paginationService.ApplyPagination(query, page, pageSize);
+
+				var users = await query
+					.Select(u => new UserDto(u.Id, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile))
+					.ToListAsync();
+
+				return Results.Ok(new { users, total });
+			}).RequireAuthorization("Admin");
+
+
+
+
+
 			// Admin:Create User
 			app.MapPost("/users", async (CreateUserDto dto, AppDbContext db, IValidationService validator) =>
 			{
@@ -130,15 +160,7 @@ namespace Api.Endpoints
 				return Results.Created($"/users/{user.Id}", new { User = new UserDto(user.Id, user.Username, user.Email, user.IsActive, user.Role, user.ProfilePhotoUrl, user.TrainerProfile, user.ClientProfile), TemporaryPassword = tempPassword });
 			}).RequireAuthorization("Admin");
 
-			// Admin:Read (all) Users
-			app.MapGet("/users", async (AppDbContext db) =>
-			{
-				var users = await db.Users
-					.AsNoTracking()
-					.Select(u => new UserDto(u.Id, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile))
-					.ToListAsync();
-				return Results.Ok(users);
-			}).RequireAuthorization("Admin");
+
 
 			// Admin:Read (one) User
 			app.MapGet("/users/{id:int}", async (int id, AppDbContext db) =>
