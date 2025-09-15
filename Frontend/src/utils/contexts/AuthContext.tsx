@@ -1,3 +1,4 @@
+// Context to manage authentication state and token globally
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {

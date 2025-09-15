@@ -250,7 +250,7 @@ input[type="reset"]:disabled {
   transform: translateX(-180px);
 }
 .nav-menu__handle {
-  position: absolute;
+  position: fixed;
   left: 180px;
   top: 50%;
   transform: translateY(-50%);
@@ -392,37 +392,11 @@ tbody tr:nth-child(even) {
   background: hsla(145, 63%, 76%, 0.15); /* subtle green tint for even rows */
 }
 
-@media (max-width: 600px) {
-  table, th, td {
-    font-size: 0.95em;
-    padding: 0.5em;
-  }
-}
 
 
 
-/* --- Responsive --- */
-@media (max-width: 600px) {
-  #root {
-    padding: 1rem;
-  }
-  .form-container {
-    padding: 12px;
-    margin: 20px auto;
-  }
-  .grid-container {
-    gap: 8px;
-    padding: 8px;
-  }
-  .nav-menu {
-    width: 140px;
-  }
-  .nav-menu__handle {
-    left: 120px;
-    width: 20px;
-    height: 36px;
-  }
-}
+
+
 
 /* --- Color Scheme --- */
 @media (prefers-color-scheme: light) {

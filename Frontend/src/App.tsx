@@ -6,7 +6,6 @@ import LoginPage from "./pages/LoginPage";
 import WelcomePage from "./pages/WelcomePage";
 import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./utils/contexts/AuthContext";
-import './App.css'
 
 const App: React.FC = () => {
     const { isLoggedIn } = useAuth();

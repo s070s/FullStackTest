@@ -15,9 +15,7 @@ const Button: React.FC<ButtonProps> = ({
     className,
     type = "button",
 }) => {
-    const buttonClass = className
-        ? `primary-button ${className}`
-        : "primary-button";
+    const buttonClass = className ? className : "primary-button";
     return (
         <button
             onClick={onClick}

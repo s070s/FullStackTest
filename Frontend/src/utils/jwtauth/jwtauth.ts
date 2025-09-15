@@ -1,4 +1,4 @@
-// Helper to decode JWT and get payload
+// Helper to decode JWT Token and get payload
 export function parseJwt(token: string): any | null {
     try {
         const base64Url = token.split('.')[1];
