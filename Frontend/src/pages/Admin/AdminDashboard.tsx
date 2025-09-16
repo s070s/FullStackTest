@@ -14,7 +14,7 @@ const AdminDashboard: React.FC = () => {
     // Pagination and sorting state
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
-    const PAGE_SIZES = [5, 10, 50, 100]; // Add this line
+    const PAGE_SIZES = [5, 10, 50, 100];
     const [sortBy, setSortBy] = useState<string>("id");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
     const [totalUsers, setTotalUsers] = useState<number>(0);
@@ -71,7 +71,17 @@ const AdminDashboard: React.FC = () => {
                     <div>Error: {error}</div>
                 ) : (
                     <TableGeneric
-                        data={users}
+                        data={users.map(u => ({
+                            id: u.id,
+                            createdUtc: u.createdUtcFormatted || u.createdUtc,
+                            profilePhotoUrl: u.profilePhotoUrl,
+                            username: u.username,
+                            email: u.email,
+                            isActive: u.isActive,
+                            role: u.role,
+                            trainerProfile: u.trainerProfile,
+                            clientProfile: u.clientProfile
+                        }))}
                         onSort={handleSort}
                         sortBy={sortBy}
                         sortOrder={sortOrder}

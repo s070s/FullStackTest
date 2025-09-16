@@ -3,6 +3,7 @@ export type UserDto = {
   username: string;
   email: string;
   createdUtc: string; // ISO string from server
+  createdUtcFormatted?: string;
   isActive: boolean;
   role: string;
   profilePhotoUrl?: string;

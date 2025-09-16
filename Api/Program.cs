@@ -101,7 +101,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Enable rate limiting middleware
-app.UseRateLimiter(); // <-- Add this line
+app.UseRateLimiter();
 
 
 //Apply any pending EF Core migrations at startup (dev convenience)

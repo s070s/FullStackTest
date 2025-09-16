@@ -1,5 +1,6 @@
 using Api.Models.Enums;
 using Api.Models;
+using System.Globalization; // Add this
 
 namespace Api.Dtos
 {
@@ -14,7 +15,10 @@ namespace Api.Dtos
         string? ProfilePhotoUrl,
         Trainer? TrainerProfile,
         Client? ClientProfile
-    );
+    )
+    {
+        public string CreatedUtcFormatted => CreatedUtc.ToString("MMMM d, yyyy, h:mm tt", CultureInfo.InvariantCulture);
+    }
 
     // For creating a user, all fields except Id are required
     public record CreateUserDto(
