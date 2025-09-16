@@ -34,6 +34,7 @@ namespace Api.Models
         {
             return new UserDto(
                 Id,
+                CreatedUtc,
                 Username,
                 Email,
                 IsActive,

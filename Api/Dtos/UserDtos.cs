@@ -6,6 +6,7 @@ namespace Api.Dtos
     // For returning user data
     public record UserDto(
         int Id,
+        DateTime CreatedUtc,
         string Username,
         string Email,
         bool IsActive,

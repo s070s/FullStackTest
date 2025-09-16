@@ -107,7 +107,7 @@ namespace Api.Endpoints
 				query = paginationService.ApplyPagination(query, page, pageSize);
 
 				var users = await query
-					.Select(u => new UserDto(u.Id, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile))
+					.Select(u => new UserDto(u.Id,u.CreatedUtc, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile))
 					.ToListAsync();
 
 				return Results.Ok(new { users, total });
@@ -157,7 +157,7 @@ namespace Api.Endpoints
 					db.Trainers.Add(trainer);
 				}
 				await db.SaveChangesAsync();
-				return Results.Created($"/users/{user.Id}", new { User = new UserDto(user.Id, user.Username, user.Email, user.IsActive, user.Role, user.ProfilePhotoUrl, user.TrainerProfile, user.ClientProfile), TemporaryPassword = tempPassword });
+				return Results.Created($"/users/{user.Id}", new { User = new UserDto(user.Id,user.CreatedUtc, user.Username, user.Email, user.IsActive, user.Role, user.ProfilePhotoUrl, user.TrainerProfile, user.ClientProfile), TemporaryPassword = tempPassword });
 			}).RequireAuthorization("Admin");
 
 
@@ -168,7 +168,7 @@ namespace Api.Endpoints
 				var u = await db.Users
 					.AsNoTracking()
 					.FirstOrDefaultAsync(x => x.Id == id);
-				return u is null ? Results.NotFound() : Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile));
+				return u is null ? Results.NotFound() : Results.Ok(new UserDto(u.Id,u.CreatedUtc, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile));
 			}).RequireAuthorization("Admin");
 
 			// Admin:Update (one) User
@@ -188,7 +188,7 @@ namespace Api.Endpoints
 				u.IsActive = dto.IsActive;
 				u.Role = dto.Role == default ? UserRole.Client : dto.Role;
 				await db.SaveChangesAsync();
-				return Results.Ok(new UserDto(u.Id, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile));
+				return Results.Ok(new UserDto(u.Id,u.CreatedUtc, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile));
 			}).RequireAuthorization("Admin");
 
 			// Admin:Delete (one) User
