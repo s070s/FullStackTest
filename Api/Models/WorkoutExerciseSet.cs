@@ -40,7 +40,7 @@ namespace Api.Models
             return new WorkoutExerciseSetDto(
                 Id,
                 WorkoutExerciseId,
-                WorkoutExercise,
+                WorkoutExercise.ToWorkoutExerciseDto(),
                 SetNumber,
                 Repetitions,
                 Weight,

@@ -44,7 +44,7 @@ namespace Api.Models
                 IsPersonalBest,
                 Notes,
                 ClientId,
-                Client
+                Client.ToClientDto()
             );
         }
 

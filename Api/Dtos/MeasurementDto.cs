@@ -12,7 +12,7 @@ namespace Api.Dtos
         bool IsPersonalBest,
         string? Notes,
         int ClientId,
-        Client Client
+        ClientDto Client
     );
 
     public record CreateMeasurementDto(

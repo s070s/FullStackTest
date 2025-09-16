@@ -38,7 +38,7 @@ namespace Api.Models
                 Surgeries,
                 RecommendedIntensityLevel,
                 ClientId,
-                Client
+                Client.ToClientDto()
             );
         }
 

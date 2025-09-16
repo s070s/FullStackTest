@@ -10,9 +10,9 @@ namespace Api.Dtos
         int DurationInWeeks,
         int CurrentWeek,
         bool IsCompleted,
-        ICollection<Workout> Workouts,
+        ICollection<WorkoutDto> Workouts,
         int ClientId,
-        Client Client
+        ClientDto Client
     );
 
     public record CreateWeeklyProgramDto(

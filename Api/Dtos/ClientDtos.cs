@@ -8,19 +8,19 @@ namespace Api.Dtos
         int UserId,
         string? Bio,
         ClientExperience ExperienceLevel,
-        MedicalHistory? MedicalHistory,
+        MedicalHistoryDto? MedicalHistory,
         IntensityLevel PreferredIntensityLevel,
-        ICollection<Goal> Goals,
-        ICollection<Workout> Workouts,
-        ICollection<Trainer> Trainers,
-        ICollection<Measurement> Measurements
+        ICollection<GoalDto> Goals,
+        ICollection<WorkoutDto> Workouts,
+        ICollection<TrainerDto> Trainers,
+        ICollection<MeasurementDto> Measurements
     );
 
     public record CreateClientDto(
         int UserId,
         string? Bio = null,
         ClientExperience ExperienceLevel = ClientExperience.Beginner,
-        MedicalHistory? MedicalHistory = null,
+        MedicalHistoryDto? MedicalHistory = null,
         IntensityLevel PreferredIntensityLevel = IntensityLevel.Medium
     );
 
@@ -28,7 +28,7 @@ namespace Api.Dtos
         int Id,
         string? Bio = null,
         ClientExperience? ExperienceLevel = null,
-        MedicalHistory? MedicalHistory = null,
+        MedicalHistoryDto? MedicalHistory = null,
         IntensityLevel? PreferredIntensityLevel = null
     );
 }

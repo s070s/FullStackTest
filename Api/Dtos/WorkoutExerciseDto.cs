@@ -6,10 +6,10 @@ namespace Api.Dtos
     public record WorkoutExerciseDto(
         int Id,
         int WorkoutId,
-        Workout Workout,
+        WorkoutDto Workout,
         int ExerciseDefinitionId,
-        ExerciseDefinition ExerciseDefinition,
-        ICollection<WorkoutExerciseSet> Sets,
+        ExerciseDefinitionDto ExerciseDefinition,
+        ICollection<WorkoutExerciseSetDto> Sets,
         string? Notes
     );
 

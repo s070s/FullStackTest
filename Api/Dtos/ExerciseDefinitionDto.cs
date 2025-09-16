@@ -9,7 +9,7 @@ namespace Api.Dtos
         string? Description,
         string? VideoUrl,
         int CaloriesBurnedPerHour,
-        ICollection<Equipment>? Equipments,
+        ICollection<EquipmentDto>? Equipments,
         bool IsCompoundExercise,
         ICollection<MuscleGroup> PrimaryMuscleGroups,
         ICollection<MuscleGroup>? SecondaryMuscleGroups,

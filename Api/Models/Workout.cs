@@ -33,11 +33,11 @@ namespace Api.Models
         {
             return new WorkoutDto(
                 Id,
-                Clients,
+                Clients.Select(c => c.ToClientDto()).ToList(),
                 TrainerId,
-                Trainer,
+                Trainer?.ToTrainerDto(),
                 WeeklyProgramId,
-                WeeklyProgram,
+                WeeklyProgram?.ToWeeklyProgramDto(),
                 ScheduledDateTime,
                 Type,
                 DurationInMinutes,

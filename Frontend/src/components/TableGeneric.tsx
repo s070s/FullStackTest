@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "../utils/api/api"; // Import your API base URL
+
 type TableGenericProps<T extends object> = {
   data: T[];
   onSort?: (col: string) => void;
@@ -22,11 +24,7 @@ function TableGeneric<T extends object>({
       <thead>
         <tr>
           {columns.map((col) => (
-            <th
-              key={col}
-              style={{ cursor: onSort ? "pointer" : "default" }}
-              onClick={onSort ? () => onSort(col) : undefined}
-            >
+            <th key={col} onClick={() => onSort?.(col)}>
               {col}
               {sortBy === col && (sortOrder === "asc" ? " ▲" : " ▼")}
             </th>
@@ -37,7 +35,19 @@ function TableGeneric<T extends object>({
         {data.map((row, idx) => (
           <tr key={idx}>
             {columns.map((col) => (
-              <td key={col}>{String(row[col as keyof typeof row])}</td>
+              <td key={col}>
+                {col === "profilePhotoUrl" && (row as any)[col] ? (
+                  <img
+                    src={`${API_BASE_URL}${(row as any)[col]}?t=${(row as any).id}`}
+                    alt="Profile"
+                    width={40}
+                    height={40}
+                    style={{ borderRadius: "50%", objectFit: "cover" }}
+                  />
+                ) : (
+                  String((row as any)[col])
+                )}
+              </td>
             ))}
           </tr>
         ))}

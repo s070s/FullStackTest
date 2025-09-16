@@ -6,7 +6,7 @@ namespace Api.Dtos
     public record WorkoutExerciseSetDto(
         int Id,
         int WorkoutExerciseId,
-        WorkoutExercise WorkoutExercise,
+        WorkoutExerciseDto WorkoutExercise,
         int SetNumber,
         int Repetitions,
         double? Weight,

@@ -32,9 +32,9 @@ namespace Api.Models
                 Id,
                 UserId,
                 Bio,
-                Clients,
+                Clients.Select(c => c.ToClientDto()).ToList(),
                 Specializations,
-                Workouts
+                Workouts.Select(w => w.ToWorkoutDto()).ToList()
             );
         }
 

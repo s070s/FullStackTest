@@ -6,9 +6,9 @@ namespace Api.Dtos
         int Id,
         int UserId,
         string? Bio,
-        ICollection<Client> Clients,
+        ICollection<ClientDto> Clients,
         ICollection<TrainerSpecialization> Specializations,
-        ICollection<Workout> Workouts
+        ICollection<WorkoutDto> Workouts
     );
 
     public record CreateTrainerDto(

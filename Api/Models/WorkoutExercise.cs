@@ -30,10 +30,10 @@ namespace Api.Models
             return new WorkoutExerciseDto(
                 Id,
                 WorkoutId,
-                Workout,
+                Workout.ToWorkoutDto(),
                 ExerciseDefinitionId,
-                ExerciseDefinition,
-                Sets,
+                ExerciseDefinition.ToExerciseDefinitionDto(),
+                Sets.Select(s => s.ToWorkoutExerciseSetDto()).ToList(),
                 Notes
             );
         }

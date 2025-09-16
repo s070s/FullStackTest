@@ -266,5 +266,5 @@
 }
 ```
 <br>
-4.In production the JWT key located in launchSettings.json and the db connection strings should be stored in environment variables,or in a secrets manager
+4.In production the JWT key located in launchSettings.json and the db connection strings should be stored in environment variables,or in a secrets manager.Also the Api/wwwroot/uploads should be included(remove the exclusion from gitignore)
 

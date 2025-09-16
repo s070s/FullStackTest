@@ -12,7 +12,7 @@ namespace Api.Dtos
         int? GoalQuantity,
         GoalUnit? GoalUnit,
         int ClientId,
-        Client Client
+        ClientDto Client
     );
 
     public record CreateGoalDto(

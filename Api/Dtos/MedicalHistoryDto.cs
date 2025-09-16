@@ -11,7 +11,7 @@ namespace Api.Dtos
         ICollection<SurgeryType> Surgeries,
         IntensityLevel? RecommendedIntensityLevel,
         int ClientId,
-        Client Client
+        ClientDto Client
     );
 
     public record CreateMedicalHistoryDto(

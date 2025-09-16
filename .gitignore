@@ -437,3 +437,6 @@ Migrations/
 *.db-wal
 
 
+# wwwroot/uploads folder
+Api/wwwroot/uploads/
+

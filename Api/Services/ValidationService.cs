@@ -10,6 +10,8 @@ namespace Api.Services
         bool IsValidPassword(string password);
         bool IsValidCount(int count, int min, int max);
 
+        bool IsValidImage(IFormFile file);
+
 
         Task<bool> UserExistsAsync(string username, string email);
 
@@ -72,6 +74,20 @@ namespace Api.Services
         public bool IsValidCount(int count, int min, int max)
         {
             return count >= min && count <= max;
+        }
+
+        //is image JPEG,PNG and less than 2MB
+        public bool IsValidImage(IFormFile file)
+        {
+            // Allow only JPEG and PNG, max 2MB
+            var allowedTypes = new[] { "image/jpeg", "image/png" };
+            const long maxSize = 2 * 1024 * 1024; // 2MB
+
+            if (file == null) return false;
+            if (!allowedTypes.Contains(file.ContentType)) return false;
+            if (file.Length > maxSize) return false;
+
+            return true;
         }
 
     }

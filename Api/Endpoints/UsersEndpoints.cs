@@ -1,10 +1,10 @@
-
 using Microsoft.EntityFrameworkCore;
 using Api.Data;
 using Api.Models;
 using Api.Models.Enums;
 using Api.Dtos;
 using Api.Services;
+using System.Security.Claims;
 
 namespace Api.Endpoints
 {
@@ -87,8 +87,6 @@ namespace Api.Endpoints
 			#endregion
 			#endregion
 			#region Admin Operations
-
-
 			// Admin:Read (all) Users
 			app.MapGet("/users", async (
 				AppDbContext db,
@@ -107,98 +105,20 @@ namespace Api.Endpoints
 				query = paginationService.ApplyPagination(query, page, pageSize);
 
 				var users = await query
-					.Select(u => new UserDto(u.Id,u.CreatedUtc, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile))
+					.Select(u => new UserDto(
+						u.Id,
+						u.CreatedUtc,
+						u.Username,
+						u.Email,
+						u.IsActive,
+						u.Role,
+						u.ProfilePhotoUrl,
+						u.TrainerProfile != null ? u.TrainerProfile.ToTrainerDto() : null,
+						u.ClientProfile != null ? u.ClientProfile.ToClientDto() : null
+					))
 					.ToListAsync();
 
 				return Results.Ok(new { users, total });
-			}).RequireAuthorization("Admin");
-
-
-
-
-
-			// Admin:Create User
-			app.MapPost("/users", async (CreateUserDto dto, AppDbContext db, IValidationService validator) =>
-			{
-				if (!validator.IsValidEmail(dto.Email))
-					return Results.BadRequest("Invalid email format.");
-				if (await validator.UserExistsAsync(dto.Username, dto.Email))
-					return Results.Conflict("Username or Email already exists.");
-
-				var tempPassword = Guid.NewGuid().ToString().Substring(0, 8) + "1aA"; // Temporary password
-				var passwordHash = BCrypt.Net.BCrypt.HashPassword(tempPassword);
-				var user = new User
-				{
-					Username = dto.Username,
-					Email = dto.Email,
-					PasswordHash = passwordHash,
-					CreatedUtc = DateTime.UtcNow,
-					IsActive = dto.IsActive,
-					Role = dto.Role == default ? UserRole.Client : dto.Role,
-					ProfilePhotoUrl = dto.ProfilePhotoUrl
-				};
-				db.Users.Add(user);
-				if (user.Role == UserRole.Client)
-				{
-					var client = new Client
-					{
-						UserId = user.Id,
-						User = user
-					};
-					db.Clients.Add(client);
-				}
-				else if (user.Role == UserRole.Trainer)
-				{
-					var trainer = new Trainer
-					{
-						UserId = user.Id,
-						User = user
-					};
-					db.Trainers.Add(trainer);
-				}
-				await db.SaveChangesAsync();
-				return Results.Created($"/users/{user.Id}", new { User = new UserDto(user.Id,user.CreatedUtc, user.Username, user.Email, user.IsActive, user.Role, user.ProfilePhotoUrl, user.TrainerProfile, user.ClientProfile), TemporaryPassword = tempPassword });
-			}).RequireAuthorization("Admin");
-
-
-
-			// Admin:Read (one) User
-			app.MapGet("/users/{id:int}", async (int id, AppDbContext db) =>
-			{
-				var u = await db.Users
-					.AsNoTracking()
-					.FirstOrDefaultAsync(x => x.Id == id);
-				return u is null ? Results.NotFound() : Results.Ok(new UserDto(u.Id,u.CreatedUtc, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile));
-			}).RequireAuthorization("Admin");
-
-			// Admin:Update (one) User
-			app.MapPut("/users/{id:int}", async (int id, CreateUserDto dto, AppDbContext db, IValidationService validator) =>
-			{
-				var u = await db.Users.FindAsync(id);
-				if (u is null) return Results.NotFound();
-				if (!validator.IsValidEmail(dto.Email))
-					return Results.BadRequest("Invalid email format.");
-				if (u.Username != dto.Username || u.Email != dto.Email)
-				{
-					if (await validator.UserExistsAsync(dto.Username, dto.Email))
-						return Results.Conflict("Username or Email already exists.");
-				}
-				u.Username = dto.Username;
-				u.Email = dto.Email;
-				u.IsActive = dto.IsActive;
-				u.Role = dto.Role == default ? UserRole.Client : dto.Role;
-				await db.SaveChangesAsync();
-				return Results.Ok(new UserDto(u.Id,u.CreatedUtc, u.Username, u.Email, u.IsActive, u.Role, u.ProfilePhotoUrl, u.TrainerProfile, u.ClientProfile));
-			}).RequireAuthorization("Admin");
-
-			// Admin:Delete (one) User
-			app.MapDelete("/users/{id:int}", async (int id, AppDbContext db) =>
-			{
-				var u = await db.Users.FindAsync(id);
-				if (u is null) return Results.NotFound();
-				db.Users.Remove(u);
-				await db.SaveChangesAsync();
-				return Results.NoContent();
 			}).RequireAuthorization("Admin");
 
 			//Admin Switch User Role between Trainer and Client
@@ -277,6 +197,110 @@ namespace Api.Endpoints
 			}).RequireAuthorization("Admin");
 			#endregion
 
+
+
+			#region User Profile Operations
+
+			// Get Current Logged User Profile
+			app.MapGet("/users/me", async (HttpContext context, AppDbContext db) =>
+			{
+				var userIdClaim = context.User.FindFirst("userid")?.Value;
+				if (userIdClaim == null) return Results.Unauthorized();
+
+				if (!int.TryParse(userIdClaim, out int userId))
+					return Results.Unauthorized();
+
+				var user = await db.Users
+					.AsNoTracking()
+					.Include(u => u.TrainerProfile)
+					.Include(u => u.ClientProfile)
+					.SingleOrDefaultAsync(u => u.Id == userId);
+
+				if (user is null) return Results.NotFound("User not found.");
+
+				// If the profile is empty (only UserId and User), treat as null
+				TrainerDto? trainerProfile = null;
+				if (user.TrainerProfile != null && !user.TrainerProfile.GetType().GetProperties().All(p =>
+					p.Name == "UserId" || p.Name == "User" || p.GetValue(user.TrainerProfile) == null))
+				{
+					trainerProfile = user.TrainerProfile.ToTrainerDto();
+				}
+
+				ClientDto? clientProfile = null;
+				if (user.ClientProfile != null && !user.ClientProfile.GetType().GetProperties().All(p =>
+					p.Name == "UserId" || p.Name == "User" || p.GetValue(user.ClientProfile) == null))
+				{
+					clientProfile = user.ClientProfile.ToClientDto();
+				}
+
+				var userDto = new UserDto(
+					user.Id,
+					user.CreatedUtc,
+					user.Username,
+					user.Email,
+					user.IsActive,
+					user.Role,
+					user.ProfilePhotoUrl,
+					trainerProfile,
+					clientProfile
+				);
+				return Results.Ok(userDto);
+			}).RequireAuthorization();
+
+
+
+			// Handle Photo Upload
+			app.MapPost("/users/{id:int}/upload-photo", async (int id, HttpContext context, AppDbContext db, IValidationService validator, IWebHostEnvironment env) =>
+			{
+
+				var userIdClaim = context.User.FindFirst("userid")?.Value;
+				if (userIdClaim == null || int.Parse(userIdClaim) != id)
+					return Results.Forbid();
+
+				var user = await db.Users.FindAsync(id);
+				if (user is null) return Results.NotFound("User not found.");
+
+				if (!context.Request.HasFormContentType)
+					return Results.BadRequest("Invalid form data.");
+
+				var form = await context.Request.ReadFormAsync();
+				var file = form.Files.GetFile("photo");
+				if (file is null || file.Length == 0)
+					return Results.BadRequest("No file uploaded.");
+
+				if (!validator.IsValidImage(file))
+					return Results.BadRequest("Invalid image file. Only JPEG and PNG formats under 2MB are allowed.");
+
+				// Delete old photo if it exists
+				if (!string.IsNullOrEmpty(user.ProfilePhotoUrl))
+				{
+					var oldFilePath = Path.Combine(env.WebRootPath ?? "wwwroot", user.ProfilePhotoUrl.TrimStart('/', '\\'));
+					if (System.IO.File.Exists(oldFilePath))
+					{
+						System.IO.File.Delete(oldFilePath);
+					}
+				}
+
+				var uploadsDir = Path.Combine(env.WebRootPath ?? "wwwroot", "uploads");
+				if (!Directory.Exists(uploadsDir))
+					Directory.CreateDirectory(uploadsDir);
+
+				var fileExtension = Path.GetExtension(file.FileName);
+				var newFileName = $"user_{id}_{Guid.NewGuid()}{fileExtension}";
+				var filePath = Path.Combine(uploadsDir, newFileName);
+
+				using (var stream = new FileStream(filePath, FileMode.Create))
+				{
+					await file.CopyToAsync(stream);
+				}
+
+				// Update user's profile photo URL
+				user.ProfilePhotoUrl = $"/uploads/{newFileName}";
+				await db.SaveChangesAsync();
+
+				return Results.Ok(new { message = "Profile photo uploaded successfully.", photoUrl = user.ProfilePhotoUrl });
+			}).RequireAuthorization();
+			#endregion
 		}
 	}
 }

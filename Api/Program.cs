@@ -102,6 +102,8 @@ app.UseAuthorization();
 
 // Enable rate limiting middleware
 app.UseRateLimiter();
+// Serve static files (ex.profile images)
+app.UseStaticFiles();
 
 
 //Apply any pending EF Core migrations at startup (dev convenience)

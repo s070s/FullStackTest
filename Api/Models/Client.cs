@@ -43,12 +43,12 @@ namespace Api.Models
                 UserId,
                 Bio,
                 ExperienceLevel,
-                MedicalHistory,
+                MedicalHistory?.ToMedicalHistoryDto(),
                 PreferredIntensityLevel,
-                Goals,
-                Workouts,
-                Trainers,
-                Measurements
+                Goals.Select(g => g.ToGoalDto()).ToList(),
+                Workouts.Select(w => w.ToWorkoutDto()).ToList(),
+                Trainers.Select(t => t.ToTrainerDto()).ToList(),
+                Measurements.Select(m => m.ToMeasurementDto()).ToList()
             );
         }
 
@@ -58,7 +58,7 @@ namespace Api.Models
                 UserId,
                 Bio,
                 ExperienceLevel,
-                MedicalHistory,
+                MedicalHistory?.ToMedicalHistoryDto(),
                 PreferredIntensityLevel
             );
         }
@@ -69,7 +69,7 @@ namespace Api.Models
                 Id,
                 Bio,
                 ExperienceLevel,
-                MedicalHistory,
+                MedicalHistory?.ToMedicalHistoryDto(),
                 PreferredIntensityLevel
             );
         }

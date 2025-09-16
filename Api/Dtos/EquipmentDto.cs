@@ -7,7 +7,7 @@ namespace Api.Dtos
         int Id,
         string Name,
         string? Description,
-        ICollection<ExerciseDefinition> Exercises
+        ICollection<ExerciseDefinitionDto> Exercises
     );
 
     public record CreateEquipmentDto(

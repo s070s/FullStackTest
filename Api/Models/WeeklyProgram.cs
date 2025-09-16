@@ -40,9 +40,9 @@ namespace Api.Models
                 DurationInWeeks,
                 CurrentWeek,
                 IsCompleted,
-                Workouts,
+                Workouts.Select(w => w.ToWorkoutDto()).ToList(),
                 ClientId,
-                Client
+                Client.ToClientDto()
             );
         }
 

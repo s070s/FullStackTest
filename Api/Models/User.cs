@@ -40,8 +40,8 @@ namespace Api.Models
                 IsActive,
                 Role,
                 ProfilePhotoUrl,
-                TrainerProfile,
-                ClientProfile
+                TrainerProfile?.ToTrainerDto(),
+                ClientProfile?.ToClientDto()
             );
         }
 

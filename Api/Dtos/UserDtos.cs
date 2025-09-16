@@ -13,8 +13,8 @@ namespace Api.Dtos
         bool IsActive,
         UserRole Role,
         string? ProfilePhotoUrl,
-        Trainer? TrainerProfile,
-        Client? ClientProfile
+        TrainerDto? TrainerProfile,
+        ClientDto? ClientProfile
     )
     {
         public string CreatedUtcFormatted => CreatedUtc.ToString("MMMM d, yyyy, h:mm tt", CultureInfo.InvariantCulture);

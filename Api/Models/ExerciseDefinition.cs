@@ -43,7 +43,7 @@ namespace Api.Models
                             Description,
                             VideoUrl,
                             CaloriesBurnedPerHour,
-                            Equipments,
+                            Equipments?.Select(e => e.ToEquipmentDto()).ToList(),
                             IsCompoundExercise,
                             PrimaryMuscleGroups,
                             SecondaryMuscleGroups,

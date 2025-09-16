@@ -1,16 +1,15 @@
-import { useState } from "react";
+import { useState, useRef  } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 import { useAuth } from "../utils/contexts/AuthContext";
+import { uploadProfilePhoto, fetchCurrentUser,API_BASE_URL } from "../utils/api/api";
 
 
 const NavMenu: React.FC = () => {
     const [hidden, setHidden] = useState(false);
     const navigate = useNavigate();
-    const { isLoggedIn, logout } = useAuth();
-
-
-
+    const { isLoggedIn, logout, token, currentUser, setCurrentUser } = useAuth();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleNavigate = (path: string) => {
         setHidden(true);
@@ -21,6 +20,27 @@ const NavMenu: React.FC = () => {
         logout();
         navigate("/login");
     };
+    const handlePhotoClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+            fileInputRef.current.click();
+        }
+    };
+
+    // When a file is selected, upload it and refresh user info
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!token || !currentUser) return;
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            await uploadProfilePhoto(token, currentUser.id, file);
+            // Refresh user info to get new photo URL
+            const updatedUser = await fetchCurrentUser(token);
+            setCurrentUser(updatedUser);
+        } catch {
+            alert("Failed to upload photo");
+        }
+    };
 
     return (
         <div className="nav-menu-wrapper">
@@ -28,6 +48,30 @@ const NavMenu: React.FC = () => {
                 className={`nav-menu${hidden ? " nav-menu--hidden" : ""}`}
             >
                 <div className="grid-container">
+                    {isLoggedIn && currentUser && (
+                        <div>
+                            <img
+                                src={
+                                  currentUser.profilePhotoUrl
+                                    ? `${API_BASE_URL}${currentUser.profilePhotoUrl}?t=${Date.now()}`
+                                    : "/default-avatar.png"
+                                }
+                                alt="Profile"
+                                width={40}
+                                height={40}
+                                style={{ borderRadius: "50%", objectFit: "cover", cursor: "pointer" }}
+                                onClick={handlePhotoClick}
+                                title="Click to upload new photo"
+                            />
+                            <input
+                                type="file"
+                                accept="image/png,image/jpeg"
+                                style={{ display: "none" }}
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                            />
+                        </div>
+                    )}
                     {!isLoggedIn && (
                         <>
                             <Button onClick={() => handleNavigate("/login")}>

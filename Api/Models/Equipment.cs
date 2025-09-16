@@ -22,7 +22,7 @@ namespace Api.Models
                 Id,
                 Name,
                 Description,
-                Exercises
+                Exercises.Select(e => e.ToExerciseDefinitionDto()).ToList()
             );
         }
 

@@ -5,11 +5,11 @@ namespace Api.Dtos
 {
     public record WorkoutDto(
         int Id,
-        ICollection<Client> Clients,
+        ICollection<ClientDto> Clients,
         int? TrainerId,
-        Trainer? Trainer,
+        TrainerDto? Trainer,
         int? WeeklyProgramId,
-        WeeklyProgram? WeeklyProgram,
+        WeeklyProgramDto? WeeklyProgram,
         DateTime ScheduledDateTime,
         string? Type,
         int DurationInMinutes,

@@ -45,7 +45,7 @@ namespace Api.Models
                 GoalQuantity,
                 GoalUnit,
                 ClientId,
-                Client
+                Client.ToClientDto()
             );
         }
 
