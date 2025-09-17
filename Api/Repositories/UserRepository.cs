@@ -11,16 +11,14 @@ namespace Api.Repositories
     public interface IUserRepository
     {
         Task<UserDto?> GetUserWithProfilesByIdAsync(int userId);
-        Task AddUserAsync(User user);
-        Task<(bool success, string? message)> DeleteUserAsync(int userId);
-
         Task<User?> GetUserByUsernameAsync(string username);
         Task<User?> GetUserByEmailAsync(string email);
+        Task<(IEnumerable<UserDto> users, int total)> GetUsersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder);
+        Task AddUserAsync(User user);
+        Task<(bool success, string? message)> DeleteUserAsync(int userId);
         Task<bool> UserExistsAsync(string username, string email);
         Task<bool> ValidateUserCredentialsAsync(string username, string password);
         Task<bool> IsUserActiveAsync(string username);
-
-        Task<(IEnumerable<UserDto> users, int total)> GetUsersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder);
         Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository);
         Task<(bool success, string? message)> AssignProfileAsync(int userId, UserRole role, IClientRepository clientRepository, ITrainerRepository trainerRepository, IValidationService validator);
         Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env);
