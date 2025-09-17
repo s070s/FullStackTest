@@ -12,19 +12,25 @@ namespace Api.Repositories
     {
         Task<UserDto?> GetUserWithProfilesByIdAsync(int userId);
         Task AddUserAsync(User user);
+        Task<(bool success, string? message)> DeleteUserAsync(int userId);
+
         Task<User?> GetUserByUsernameAsync(string username);
         Task<User?> GetUserByEmailAsync(string email);
         Task<bool> UserExistsAsync(string username, string email);
         Task<bool> ValidateUserCredentialsAsync(string username, string password);
         Task<bool> IsUserActiveAsync(string username);
-    Task<(IEnumerable<UserDto> users, int total)> GetUsersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder);
-    Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository);
-    Task<(bool success, string? message)> AssignProfileAsync(int userId, UserRole role, IClientRepository clientRepository, ITrainerRepository trainerRepository, IValidationService validator);
-    Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env);
+
+        Task<(IEnumerable<UserDto> users, int total)> GetUsersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder);
+        Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository);
+        Task<(bool success, string? message)> AssignProfileAsync(int userId, UserRole role, IClientRepository clientRepository, ITrainerRepository trainerRepository, IValidationService validator);
+        Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env);
     }
 
     public class UserRepository : IUserRepository
     {
+
+
+
         public async Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env)
         {
             var user = await _db.Users.FindAsync(userId);
@@ -131,7 +137,7 @@ namespace Api.Repositories
                 return (true, "Trainer profile assigned successfully.");
             }
             return (false, "Invalid role.");
-    }
+        }
 
         public async Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository)
         {
@@ -206,6 +212,17 @@ namespace Api.Repositories
         {
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
+        }
+
+        public async Task<(bool success, string? message)> DeleteUserAsync(int userId)
+        {
+            var user = await _db.Users.Include(u => u.ClientProfile).Include(u => u.TrainerProfile).FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+                return (false, "User not found.");
+
+            _db.Users.Remove(user);
+            await _db.SaveChangesAsync();
+            return (true, null);
         }
 
         public async Task<User?> GetUserByUsernameAsync(string username)

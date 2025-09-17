@@ -161,6 +161,89 @@ namespace Api.Endpoints
 			}).RequireAuthorization("Admin");
 			#endregion
 
+			#region Admin: Read One User By Id
+			app.MapGet("/users/{id:int}", async (
+				int id,
+				IUserRepository userRepository
+			) =>
+			{
+				var userDto = await userRepository.GetUserWithProfilesByIdAsync(id);
+				if (userDto == null) return Results.NotFound("User not found.");
+				return Results.Ok(userDto);
+			}).RequireAuthorization("Admin");
+			#endregion
+
+			#region Admin:Create new User
+			app.MapPost("/users", async (
+				IValidationService validator,
+				RegisterUserDto dto,
+				IUserRepository userRepository,
+				IClientRepository clientRepository,
+				ITrainerRepository trainerRepository
+			) =>
+			{
+				if (!validator.IsValidEmail(dto.Email))
+					return Results.BadRequest("Invalid email format.");
+				if (!validator.IsValidPassword(dto.Password))
+					return Results.BadRequest("Password must be at least 8 characters, include letters and numbers.");
+				if (await validator.UserExistsAsync(dto.Username, dto.Email) == true)
+					return Results.Conflict("Username or Email already exists.");
+				if (!Enum.TryParse<UserRole>(dto.Role, true, out UserRole role))
+					return Results.BadRequest("Invalid role. Allowed values: Client, Trainer, Admin.");
+
+				var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+				var user = new User
+				{
+					Username = dto.Username,
+					Email = dto.Email,
+					PasswordHash = passwordHash,
+					CreatedUtc = DateTime.UtcNow,
+					IsActive = true,
+					Role = role
+				};
+				await userRepository.AddUserAsync(user); // Save user and set Id
+
+				if (role == UserRole.Client)
+				{
+					var client = new Client
+					{
+						UserId = user.Id,
+						User = user
+					};
+					await clientRepository.AddClientAsync(client);
+				}
+				else if (role == UserRole.Trainer)
+				{
+					var trainer = new Trainer
+					{
+						UserId = user.Id,
+						User = user
+					};
+					await trainerRepository.AddTrainerAsync(trainer);
+				}
+				return Results.Created($"/users/{user.Id}", $"User {user.Username} with id {user.Id} created successfully.");
+			}).RequireAuthorization("Admin");
+			#endregion
+
+			#region Admin:Delete User
+			app.MapDelete("/users/{id:int}", async (
+				int id,
+				IUserRepository userRepository
+			) =>
+			{
+				var (success, message) = await userRepository.DeleteUserAsync(id);
+				if (!success)
+				{
+					if (message == "User not found.")
+						return Results.NotFound(message);
+					if (message == "Cannot delete an Admin user.")
+						return Results.BadRequest(message);
+					return Results.BadRequest(message);
+				}
+				return Results.Ok(new { message = "User deleted successfully." });
+			}).RequireAuthorization("Admin");
+			#endregion
+
 			#endregion
 
 			#region User Profile Operations

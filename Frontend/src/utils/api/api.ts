@@ -1,4 +1,4 @@
-import type { UserDto, RegisterUserDto, LoginUserDto } from "../data/userdtos";
+import type { UserDto, RegisterUserDto, LoginUserDto,CreateUserDto } from "../data/userdtos";
 
 // Base URL of your API (adjust as needed)
 export const API_BASE_URL = "http://localhost:5203"; // change to your API http port
@@ -67,7 +67,7 @@ export async function fetchWithAuth(
 
 
 //#region Admin Only User Management API Functions
-// Fetch all users
+// Admin:Fetch all users
 export async function adminFetchAllUsers(
   token: string,
   options?: {
@@ -91,6 +91,32 @@ export async function adminFetchAllUsers(
   }
   return response.json();
 }
+
+//Admin:Create a new User
+export async function adminCreateUser(token: string, data: CreateUserDto): Promise<UserDto> {
+  const response = await fetchWithAuth("/users", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText);
+  }
+  return response.json();
+}
+
+//Admin:Delete a user by ID
+export async function adminDeleteUser(token: string, userId: number): Promise<void> {
+  const response = await fetchWithAuth(`/users/${userId}`, token, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText);
+  }
+}
+
 //#endregion
 
 //#region User Profile API Functions

@@ -22,3 +22,10 @@ export type LoginUserDto = {
   username: string;
   password: string;
 };
+
+export type CreateUserDto = {
+  username: string;
+  email: string;
+  password: string;
+  role?: string; // optional, defaults to "Client"
+};
