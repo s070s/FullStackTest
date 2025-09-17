@@ -6,17 +6,20 @@ using System.Text;
 using Api.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using Api.Repositories;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
+#region Database Config
 //Database Connection String
 var connectionString = builder.Configuration.GetConnectionString("Default") 
     ?? "Data Source=app.db";
 
 //Register DbContext
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
+#endregion
 
+#region CORS Configuration
 //Register CORS service
 builder.Services.AddCors(options =>
 {
@@ -28,7 +31,9 @@ builder.Services.AddCors(options =>
                   .AllowAnyHeader();
         });
 });
+#endregion
 
+#region JWT Authentication
 // JWT Authentication configuration
 var jwtKey = builder.Configuration["Jwt:Key"];// Use a secure key in production
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
@@ -55,7 +60,9 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
+#endregion
 
+#region Rate Limiting
 //RateLimiting 
 builder.Services.AddRateLimiter(options =>
 {
@@ -68,8 +75,9 @@ builder.Services.AddRateLimiter(options =>
         limiterOptions.QueueLimit = 2;
     });
 });
+#endregion
 
-
+#region Service Registration
 // Register authorization services
 builder.Services.AddAuthorization(options =>
 {
@@ -77,8 +85,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Trainer", policy => policy.RequireRole("Trainer"));
     options.AddPolicy("Client", policy => policy.RequireRole("Client"));
 });
-
-
 // Register JwtService
 builder.Services.AddScoped<IJwtService, JwtService>();
 // Register ValidationService
@@ -88,10 +94,19 @@ builder.Services.AddScoped<IDbContextLifecycleService, DbContextLifecycleService
 // Register PaginationServices(Sorting and Pagination)
 builder.Services.AddScoped<IPaginationService, PaginationService>();
 
+#region Repositories
+// Register Repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();
+#endregion
+
+#endregion
+
 var app = builder.Build();
 
+#region Enable Middleware
 //Use CORS before MapGet/MapPost calls
-
 app.UseCors("AllowSpecificOrigin");
 
 // Enable authentication middleware
@@ -104,7 +119,7 @@ app.UseAuthorization();
 app.UseRateLimiter();
 // Serve static files (ex.profile images)
 app.UseStaticFiles();
-
+#endregion
 
 //Apply any pending EF Core migrations at startup (dev convenience)
 using (var scope = app.Services.CreateScope())
@@ -113,13 +128,11 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+#region Endpoints
 app.MapGet("/", () => $"This server is running and ready to accept requests");
 // Register user endpoints from UsersEndpoints
 Api.Endpoints.UsersEndpoints.MapUserEndpoints(app);
-
-
-
-
+#endregion
 
 app.Run();
 
