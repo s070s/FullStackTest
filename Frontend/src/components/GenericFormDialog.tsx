@@ -69,6 +69,7 @@ function GenericFormDialog<T extends object>({
                                     value={values[field.name] as any || ""}
                                     onChange={e => handleChange(field.name, e.target.value)}
                                     required={field.required}
+                                    showPasswordToggle={field.name === "password"}
                                 />
                             )}
                         </div>
