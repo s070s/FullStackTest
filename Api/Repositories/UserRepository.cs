@@ -14,6 +14,7 @@ namespace Api.Repositories
         Task<User?> GetUserByUsernameAsync(string username);
         Task<User?> GetUserByEmailAsync(string email);
         Task<(IEnumerable<UserDto> users, int total)> GetUsersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder);
+        Task<UserStatisticsDto> GetUserStatisticsAsync();
         Task AddUserAsync(User user);
         Task<(bool success, string? message)> DeleteUserAsync(int userId);
         Task<bool> UserExistsAsync(string username, string email);
@@ -22,6 +23,7 @@ namespace Api.Repositories
         Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository);
         Task<(bool success, string? message)> AssignProfileAsync(int userId, UserRole role, IClientRepository clientRepository, ITrainerRepository trainerRepository, IValidationService validator);
         Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env);
+        
     }
 
     public class UserRepository : IUserRepository
@@ -204,6 +206,27 @@ namespace Api.Repositories
                 ))
                 .ToListAsync();
             return (users, total);
+        }
+
+        //GetUserStatisticsAsync
+        public async Task<UserStatisticsDto> GetUserStatisticsAsync()
+        {
+            var totalUsers = await _db.Users.CountAsync();
+            var activeUsers = await _db.Users.CountAsync(u => u.IsActive);
+            var inactiveUsers = totalUsers - activeUsers;
+            var totalAdmins = await _db.Users.CountAsync(u => u.Role == UserRole.Admin);
+            var totalTrainers = await _db.Users.CountAsync(u => u.Role == UserRole.Trainer);
+            var totalClients = await _db.Users.CountAsync(u => u.Role == UserRole.Client);
+            var stats = new UserStatisticsDto
+            {
+                TotalUsers = totalUsers,
+                ActiveUsers = activeUsers,
+                InactiveUsers = inactiveUsers,
+                Admins = totalAdmins,
+                Trainers = totalTrainers,
+                Clients = totalClients
+            };
+            return stats;
         }
 
         public async Task AddUserAsync(User user)

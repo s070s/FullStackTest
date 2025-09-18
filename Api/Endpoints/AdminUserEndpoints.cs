@@ -28,6 +28,16 @@ namespace Api.Endpoints
             }).RequireAuthorization("Admin");
             #endregion
 
+            #region Admin:Read All User Statistics
+            app.MapGet("/users/statistics", async (
+                IUnitOfWork unitOfWork
+            ) =>
+            {
+                var stats = await unitOfWork.Users.GetUserStatisticsAsync();
+                return Results.Ok(stats);
+            }).RequireAuthorization("Admin");
+            #endregion
+
             #region Admin:Switch User Role
             app.MapPost("/users/{id:int}/switch-role", async (
                             int id,

@@ -52,4 +52,14 @@ namespace Api.Dtos
         string Username,
         string Password
     );
+
+public class UserStatisticsDto
+{
+    public int TotalUsers { get; set; }
+    public int ActiveUsers { get; set; }
+    public int InactiveUsers { get; set; }
+    public int Admins { get; set; }
+    public int Trainers { get; set; }
+    public int Clients { get; set; }
+}
 }

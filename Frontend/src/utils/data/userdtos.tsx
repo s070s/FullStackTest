@@ -29,3 +29,12 @@ export type CreateUserDto = {
   password: string;
   role?: string; // optional, defaults to "Client"
 };
+
+export type UserStatisticsDto = {
+  totalUsers: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  admins: number;
+  trainers: number;
+  clients: number;
+};

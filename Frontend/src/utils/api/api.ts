@@ -92,6 +92,16 @@ export async function adminFetchAllUsers(
   return response.json();
 }
 
+//Admin:Fetch all User Statistics
+export async function adminFetchUserStatistics(token: string): Promise<any> {
+  const response = await fetchWithAuth("/users/statistics", token);
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText);
+  }
+  return response.json();
+}
+
 //Admin:Create a new User
 export async function adminCreateUser(token: string, data: CreateUserDto): Promise<UserDto> {
   const response = await fetchWithAuth("/users", token, {
