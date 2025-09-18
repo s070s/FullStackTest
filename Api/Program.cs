@@ -6,7 +6,8 @@ using System.Text;
 using Api.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
-using Api.Repositories;
+using Api.Repositories.UnitOfWork;
+using Api.Endpoints;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -96,9 +97,7 @@ builder.Services.AddScoped<IPaginationService, PaginationService>();
 
 #region Repositories
 // Register Repositories
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IClientRepository, ClientRepository>();
-builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 #endregion
 
 #endregion
@@ -131,7 +130,9 @@ using (var scope = app.Services.CreateScope())
 #region Endpoints
 app.MapGet("/", () => $"This server is running and ready to accept requests");
 // Register user endpoints from UsersEndpoints
-Api.Endpoints.UsersEndpoints.MapUserEndpoints(app);
+AdminUserEndpoints.MapAdminUserEndpoints(app);
+UserProfileEndpoints.MapUserProfileEndpoints(app);
+AuthEndpoints.MapAuthEndpoints(app);
 #endregion
 
 app.Run();
