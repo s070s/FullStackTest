@@ -30,14 +30,12 @@ namespace Api.Dtos
         string? ProfilePhotoUrl = null
     );
 
-    // For updating a user, all fields are optional except Id
     public record UpdateUserDto(
         int Id,
         string? Username = null,
         string? Email = null,
         bool? IsActive = null,
         UserRole? Role = null,
-        string? ProfilePhotoUrl = null,
         string? Password = null
     );
 

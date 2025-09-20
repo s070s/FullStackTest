@@ -61,6 +61,18 @@ function GenericFormDialog<T extends object>({
                                         ))}
                                     </select>
                                 </label>
+                            ) : field.type === "checkbox" ? (
+                                <label>
+                                    {field.label || String(field.name)}
+                                    {field.required && <span style={{ color: "red" }}> *</span>}
+                                    <input
+                                        type="checkbox"
+                                        checked={!!values[field.name]}
+                                        onChange={e => handleChange(field.name, e.target.checked)}
+                                        name={String(field.name)}
+                                    />
+
+                                </label>
                             ) : (
                                 <InputField
                                     label={field.label || String(field.name)}

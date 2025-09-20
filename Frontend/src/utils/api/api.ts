@@ -1,4 +1,4 @@
-import type { UserDto, RegisterUserDto, LoginUserDto,CreateUserDto } from "../data/userdtos";
+import type { UserDto, RegisterUserDto, LoginUserDto,CreateUserDto,UpdateUserDto } from "../data/userdtos";
 
 // Base URL of your API (adjust as needed)
 export const API_BASE_URL = "http://localhost:5203"; // change to your API http port
@@ -125,6 +125,25 @@ export async function adminDeleteUser(token: string, userId: number): Promise<vo
     const errorText = await response.text();
     throw new Error(errorText);
   }
+}
+
+
+//Admin:Update a user by ID
+export async function adminUpdateUser(
+  token: string,
+  userId: number,
+  data: UpdateUserDto
+): Promise<UserDto> {
+  const response = await fetchWithAuth(`/users/${userId}`, token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText);
+  }
+  return response.json();
 }
 
 //#endregion

@@ -30,6 +30,15 @@ export type CreateUserDto = {
   role?: string; // optional, defaults to "Client"
 };
 
+export type UpdateUserDto = {
+  id: number;
+  username?: string;
+  email?: string;
+  password?: string;
+  isActive?: boolean;
+  role?: string;
+}
+
 export type UserStatisticsDto = {
   totalUsers: number;
   activeUsers: number;

@@ -26,7 +26,7 @@ public class JwtService : IJwtService
             issuer: jwtIssuer,
             audience: null,
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(2),
+            expires: DateTime.UtcNow.AddDays(7), // <-- Todo:change this to 30 mins and implement a refresh token mechanism
             signingCredentials: credentials
         );
         return new JwtSecurityTokenHandler().WriteToken(token);

@@ -11,13 +11,17 @@ namespace Api.Repositories
     public interface IUserRepository
     {
         Task<UserDto?> GetUserWithProfilesByIdAsync(int userId);
+        Task<UserDto?> GetUserByIdAsync(int userId);
         Task<User?> GetUserByUsernameAsync(string username);
         Task<User?> GetUserByEmailAsync(string email);
         Task<(IEnumerable<UserDto> users, int total)> GetUsersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder);
         Task<UserStatisticsDto> GetUserStatisticsAsync();
         Task AddUserAsync(User user);
+        Task UpdateUserAsync(User user);
         Task<(bool success, string? message)> DeleteUserAsync(int userId);
         Task<bool> UserExistsAsync(string username, string email);
+        Task<bool> UsernameExistsAsync(string username, int userId);
+        Task<bool> EmailExistsAsync(string email);
         Task<bool> ValidateUserCredentialsAsync(string username, string password);
         Task<bool> IsUserActiveAsync(string username);
         Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository);
@@ -28,6 +32,15 @@ namespace Api.Repositories
 
     public class UserRepository : IUserRepository
     {
+
+
+
+        
+        private readonly AppDbContext _db;
+        public UserRepository(AppDbContext db)
+        {
+            _db = db;
+        }
 
 
 
@@ -101,10 +114,24 @@ namespace Api.Repositories
                 clientProfile
             );
         }
-        private readonly AppDbContext _db;
-        public UserRepository(AppDbContext db)
+        public async Task<UserDto?> GetUserByIdAsync(int userId)
         {
-            _db = db;
+            var user = await _db.Users
+                .AsNoTracking()
+                .SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return null;
+
+            return new UserDto(
+                user.Id,
+                user.CreatedUtc,
+                user.Username,
+                user.Email,
+                user.IsActive,
+                user.Role,
+                user.ProfilePhotoUrl,
+                null,
+                null
+            );
         }
 
         public async Task<(bool success, string? message)> AssignProfileAsync(int userId, UserRole role, IClientRepository clientRepository, ITrainerRepository trainerRepository, IValidationService validator)
@@ -246,6 +273,79 @@ namespace Api.Repositories
             return (true, null);
         }
 
+        public async Task UpdateUserAsync(User user)
+        {
+            var existingUser = await _db.Users
+                .Include(u => u.ClientProfile)
+                .Include(u => u.TrainerProfile)
+                .FirstOrDefaultAsync(u => u.Id == user.Id);
+            if (existingUser == null) return;
+
+            existingUser.Username = user.Username;
+            existingUser.Email = user.Email;
+            existingUser.IsActive = user.IsActive;
+            existingUser.Role = user.Role;
+            if (!string.IsNullOrEmpty(user.PasswordHash))
+                existingUser.PasswordHash = user.PasswordHash;
+
+            // Handle profile switching
+            if (user.Role == UserRole.Client)
+            {
+                // Remove TrainerProfile if exists
+                if (existingUser.TrainerProfile != null)
+                {
+                    _db.Trainers.Remove(existingUser.TrainerProfile);
+                    existingUser.TrainerProfile = null;
+                }
+                // Assign ClientProfile if not exists
+                if (existingUser.ClientProfile == null)
+                {
+                    var client = new Client
+                    {
+                        UserId = existingUser.Id,
+                        User = existingUser
+                    };
+                    _db.Clients.Add(client);
+                    existingUser.ClientProfile = client;
+                }
+            }
+            else if (user.Role == UserRole.Trainer)
+            {
+                // Remove ClientProfile if exists
+                if (existingUser.ClientProfile != null)
+                {
+                    _db.Clients.Remove(existingUser.ClientProfile);
+                    existingUser.ClientProfile = null;
+                }
+                // Assign TrainerProfile if not exists
+                if (existingUser.TrainerProfile == null)
+                {
+                    var trainer = new Trainer
+                    {
+                        UserId = existingUser.Id,
+                        User = existingUser
+                    };
+                    _db.Trainers.Add(trainer);
+                    existingUser.TrainerProfile = trainer;
+                }
+            }
+            else if (user.Role == UserRole.Admin)
+            {
+                // Remove both profiles if exist
+                if (existingUser.ClientProfile != null)
+                {
+                    _db.Clients.Remove(existingUser.ClientProfile);
+                    existingUser.ClientProfile = null;
+                }
+                if (existingUser.TrainerProfile != null)
+                {
+                    _db.Trainers.Remove(existingUser.TrainerProfile);
+                    existingUser.TrainerProfile = null;
+                }
+            }
+            await _db.SaveChangesAsync();
+        }
+
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
             return await _db.Users.SingleOrDefaultAsync(u => u.Username == username);
@@ -259,6 +359,15 @@ namespace Api.Repositories
         public async Task<bool> UserExistsAsync(string username, string email)
         {
             return await _db.Users.AnyAsync(u => u.Username == username || u.Email == email);
+        }
+        public async Task<bool> UsernameExistsAsync(string username, int userId)
+        {
+            return await _db.Users.AnyAsync(u => u.Username == username && u.Id != userId);
+        }
+
+        public async Task<bool> EmailExistsAsync(string email)
+        {
+            return await _db.Users.AnyAsync(u => u.Email == email);
         }
 
         public async Task<bool> ValidateUserCredentialsAsync(string username, string password)

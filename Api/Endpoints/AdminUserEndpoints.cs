@@ -13,7 +13,6 @@ namespace Api.Endpoints
         {
 
             #region Admin:Read All Users
-
             app.MapGet("/users", async (
                 IUnitOfWork unitOfWork,
                 IPaginationService paginationService,
@@ -137,6 +136,62 @@ namespace Api.Endpoints
                     await unitOfWork.Trainers.AddTrainerAsync(trainer);
                 }
                 return Results.Created($"/users/{user.Id}", $"User {user.Username} with id {user.Id} created successfully.");
+            }).RequireAuthorization("Admin");
+            #endregion
+
+            #region Admin:Update User
+            app.MapPut("/users/{id:int}", async (
+                int id,
+                UpdateUserDto dto,
+                IValidationService validator,
+                IUnitOfWork unitOfWork
+            ) =>
+            {
+                var getUser = await unitOfWork.Users.GetUserByIdAsync(id);
+                if (getUser == null)
+                    return Results.NotFound("User not found.");
+                if (!string.IsNullOrEmpty(dto.Email) && !validator.IsValidEmail(dto.Email))
+                    return Results.BadRequest("Invalid email format.");
+                if (!string.IsNullOrEmpty(dto.Password) && !validator.IsValidPassword(dto.Password))
+                    return Results.BadRequest("Password must be at least 8 characters, include letters and numbers.");
+                if (dto.Username != null)
+                {
+                    if (await unitOfWork.Users.UsernameExistsAsync(dto.Username, id))
+                        return Results.Conflict("Username already exists.");
+                }
+                if (dto.Email != null)
+                {
+                    if (await unitOfWork.Users.EmailExistsAsync(dto.Email))
+                        return Results.Conflict("Email already exists.");
+                }
+                if (dto.Role != null)
+                {
+                    var newRole = dto.Role.Value;
+                    if (getUser.Role == UserRole.Admin && newRole != UserRole.Admin)
+                        return Results.BadRequest("Cannot change role of an Admin.");
+                }
+                var updatedUser = new User
+                {
+                    Id = id,
+                    Username = dto.Username ?? getUser.Username,
+                    Email = dto.Email ?? getUser.Email,
+                    IsActive = dto.IsActive ?? false,
+                    Role = dto.Role ?? getUser.Role,
+                    ProfilePhotoUrl = getUser.ProfilePhotoUrl,
+                };
+                if (!string.IsNullOrEmpty(dto.Password))
+                {
+                    var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+                    updatedUser.PasswordHash = passwordHash;
+                }
+                if (dto.Username == null || string.IsNullOrEmpty(dto.Username))
+                    updatedUser.Username = getUser.Username;
+                if (dto.Email == null || string.IsNullOrEmpty(dto.Email))
+                    updatedUser.Email = getUser.Email;
+                if (dto.Role == null)
+                    updatedUser.Role = getUser.Role;
+                await unitOfWork.Users.UpdateUserAsync(updatedUser);
+                return Results.Ok(new { message = "User updated successfully." });
             }).RequireAuthorization("Admin");
             #endregion
 

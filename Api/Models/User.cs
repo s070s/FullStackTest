@@ -65,7 +65,6 @@ namespace Api.Models
                 Email,
                 IsActive,
                 Role,
-                ProfilePhotoUrl,
                 password
             );
         }

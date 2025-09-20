@@ -3,7 +3,7 @@ import TableGeneric from "../../components/TableGeneric";
 import Dropdown from "../../components/Dropdown";
 import Button from "../../components/Button";
 import GenericFormDialog from "../../components/GenericFormDialog";
-import type { CreateUserDto, UserStatisticsDto } from "../../utils/data/userdtos";
+import type { CreateUserDto, UserStatisticsDto, UserDto, UpdateUserDto } from "../../utils/data/userdtos";
 import useAdminDashboard from "../../hooks/useAdminDashboard";
 import { useAuth } from "../../utils/contexts/AuthContext";
 import { adminFetchUserStatistics } from "../../utils/api/api";
@@ -24,6 +24,7 @@ const AdminDashboard: React.FC = () => {
         sortOrder,
         handleSort,
         handleCreateUser,
+        handleUpdateUser,
         handleDeleteUser,
         PAGE_SIZES
     } = useAdminDashboard();
@@ -32,6 +33,7 @@ const AdminDashboard: React.FC = () => {
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [stats, setStats] = useState<UserStatisticsDto | null>(null);
+    const [editUser, setEditUser] = useState<UserDto | null>(null); // <-- add this
 
     return (
         <div>
@@ -122,11 +124,64 @@ const AdminDashboard: React.FC = () => {
                         selectable
                         selectedRowId={selectedUserId}
                         onRowSelect={row => setSelectedUserId(row?.id ?? null)}
+                        renderCell={(col, row) =>
+                            col === "username" ? (
+                                <a
+                                    href="#"
+                                    style={{
+                                        color: "blue",
+                                        textDecoration: "underline",
+                                        cursor: "pointer"
+                                    }}
+                                    onClick={e => {
+                                        e.preventDefault();
+                                        const user = users.find(u => u.id === row.id);
+                                        if (user) setEditUser(user);
+                                    }}
+                                >
+                                    {row.username}
+                                </a>
+                            ) : undefined
+                        }
                     />
                 )}
                 {error && (
                     <div style={{ color: "red", marginTop: "1rem" }}>{error}</div>
                 )}
+                <GenericFormDialog<UpdateUserDto>
+                    open={!!editUser}
+                    onClose={() => setEditUser(null)}
+                    onSubmit={async (data) => {
+                        if (!editUser) return;
+                        await handleUpdateUser(editUser.id, data);
+                        setEditUser(null);
+                    }}
+                    title={`Edit User: ${editUser?.username ?? ""}`}
+                    initialValues={{
+                        username: editUser?.username ?? "",
+                        email: editUser?.email ?? "",
+                        password: "",
+                        isActive: editUser?.isActive ?? true,
+                        role: editUser?.role ?? "Client"
+                    }}
+                    fields={[
+                        { name: "username", label: "Username", required: false },
+                        { name: "email", label: "Email", type: "email", required: false },
+                        { name: "password", label: "Password", type: "password", required: false },
+                        { name: "isActive", label: "Active", type: "checkbox", required: false },
+                        {
+                            name: "role",
+                            label: "Role",
+                            type: "dropdown",
+                            required: false,
+                            options: [
+                                { value: "Client", label: "Client" },
+                                { value: "Trainer", label: "Trainer" },
+                                { value: "Admin", label: "Admin" }
+                            ]
+                        }
+                    ]}
+                />
             </section>
             <section>
                 <h3>User Statistics</h3>
@@ -141,12 +196,12 @@ const AdminDashboard: React.FC = () => {
                     Fetch User Statistics
                 </Button>
                 <div id="user-statistics" style={{ marginTop: "1rem" }}>
-                    <span>Total Users: {stats?.totalUsers ?? 0}</span><br/>
-                    <span>Active Users: {stats?.activeUsers ?? 0}</span><br/>
-                    <span>Inactive Users: {stats?.inactiveUsers ?? 0}</span><br/>
-                    <span>Admins: {stats?.admins ?? 0}</span><br/>
-                    <span>Trainers: {stats?.trainers ?? 0}</span><br/>
-                    <span>Clients: {stats?.clients ?? 0}</span><br/>
+                    <span>Total Users: {stats?.totalUsers ?? 0}</span><br />
+                    <span>Active Users: {stats?.activeUsers ?? 0}</span><br />
+                    <span>Inactive Users: {stats?.inactiveUsers ?? 0}</span><br />
+                    <span>Admins: {stats?.admins ?? 0}</span><br />
+                    <span>Trainers: {stats?.trainers ?? 0}</span><br />
+                    <span>Clients: {stats?.clients ?? 0}</span><br />
                 </div>
             </section>
         </div>

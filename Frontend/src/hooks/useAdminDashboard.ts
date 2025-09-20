@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { CreateUserDto, UserDto } from "../utils/data/userdtos";
-import { adminFetchAllUsers, adminDeleteUser, adminCreateUser } from "../utils/api/api";
+import type { CreateUserDto, UserDto, UpdateUserDto } from "../utils/data/userdtos";
+import { adminFetchAllUsers, adminDeleteUser, adminCreateUser, adminUpdateUser } from "../utils/api/api";
 import { useAuth } from "../utils/contexts/AuthContext";
 
 const useAdminDashboard = () => {
@@ -57,6 +57,33 @@ const useAdminDashboard = () => {
         await refreshUsers();
     };
 
+    const handleUpdateUser = async (userId: number, data: UpdateUserDto) => {
+        if (!token) return;
+
+        const roleEnumMap: Record<string, number> = { Admin: 0, Client: 1, Trainer: 2 };
+        let roleString = typeof data.role === "string" ? data.role.trim() : "Client";
+        let fixedRoleKey = Object.keys(roleEnumMap).find(
+            r => r.toLowerCase() === roleString.toLowerCase()
+        ) || "Client";
+        let fixedRole = roleEnumMap[fixedRoleKey];
+
+        const fixedData: any = {
+            Id: userId,
+            Role: fixedRole
+        };
+        if (data.username !== undefined) fixedData.Username = data.username;
+        if (data.email !== undefined) fixedData.Email = data.email;
+        if (data.password !== undefined) fixedData.Password = data.password;
+        if (data.isActive !== undefined) {
+            fixedData.IsActive =
+                typeof data.isActive === "string"
+                    ? data.isActive === "true"
+                    : !!data.isActive;
+        }
+        await adminUpdateUser(token, userId, fixedData);
+        await refreshUsers();
+    };
+
     const refreshUsers = async () => {
         if (!token) return;
         const data = await adminFetchAllUsers(token, { page, pageSize, sortBy, sortOrder });
@@ -79,6 +106,7 @@ const useAdminDashboard = () => {
         handleSort,
         handleCreateUser,
         handleDeleteUser,
+        handleUpdateUser,
         PAGE_SIZES
     };
 };

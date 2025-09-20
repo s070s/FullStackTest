@@ -8,6 +8,7 @@ type TableGenericProps<T extends object> = {
   selectable?: boolean;
   selectedRowId?: number | null;
   onRowSelect?: (row: T | null) => void;
+  renderCell?: (col: string, row: T) => React.ReactNode;
 };
 
 function TableGeneric<T extends { id?: number }>({
@@ -18,9 +19,8 @@ function TableGeneric<T extends { id?: number }>({
   selectable = false,
   selectedRowId,
   onRowSelect,
+  renderCell,
 }: TableGenericProps<T>) {
-  console.log("TableGeneric data:", data);
-
   if (!data || data.length === 0 || !data[0]) return <div>No data available.</div>;
 
   const columns = Object.keys(data[0]);
@@ -34,7 +34,7 @@ function TableGeneric<T extends { id?: number }>({
               {col}
               {sortBy === col && (
                 sortOrder === "asc" ? (
-                  <i className="fas fa-arrow-up"  aria-label="Sort ascending"></i>
+                  <i className="fas fa-arrow-up" aria-label="Sort ascending"></i>
                 ) : (
                   <i className="fas fa-arrow-down" aria-label="Sort descending"></i>
                 )
@@ -58,17 +58,26 @@ function TableGeneric<T extends { id?: number }>({
             >
               {columns.map((col) => (
                 <td key={col}>
-                  {col === "profilePhotoUrl" && (row as any)[col] ? (
-                    <img
-                      src={`${API_BASE_URL}${(row as any)[col]}?t=${(row as any).id}`}
-                      alt="Profile"
-                      width={40}
-                      height={40}
-                      style={{ borderRadius: "50%", objectFit: "cover" }}
-                    />
-                  ) : (
-                    String((row as any)[col])
-                  )}
+                  {renderCell && renderCell(col, row) !== undefined
+                    ? renderCell(col, row)
+                    : col === "profilePhotoUrl" ? (
+                        <img
+                          src={
+                            (row as any)[col]
+                              ? `${API_BASE_URL}${(row as any)[col]}?t=${(row as any).id}`
+                              : "/default-avatar.png"
+                          }
+                          alt="Profile"
+                          width={40}
+                          height={40}
+                          style={{ borderRadius: "50%", objectFit: "cover" }}
+                          onError={e => {
+                            (e.currentTarget as HTMLImageElement).src = "/default-avatar.png";
+                          }}
+                        />
+                      ) : (
+                        String((row as any)[col])
+                      )}
                 </td>
               ))}
             </tr>
