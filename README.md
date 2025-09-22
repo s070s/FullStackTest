@@ -9,7 +9,7 @@
             "type": "shell",
             "command": "dotnet restore; dotnet build",
             "options": {
-                "cwd": "${workspaceFolder}/Api"
+                "cwd": "${workspaceFolder}/${input:apiPath}"
             }
         },
         {
@@ -17,7 +17,7 @@
             "type": "shell",
             "command": "npm install; npm run build",
             "options": {
-                "cwd": "${workspaceFolder}/Frontend"
+                "cwd": "${workspaceFolder}/${input:frontendPath}"
             }
         },
         {
@@ -33,7 +33,7 @@
             "type": "shell",
             "command": "dotnet run",
             "options": {
-                "cwd": "${workspaceFolder}/Api"
+                "cwd": "${workspaceFolder}/${input:apiPath}"
             }
         },
         {
@@ -41,7 +41,7 @@
             "type": "shell",
             "command": "npm run dev",
             "options": {
-                "cwd": "${workspaceFolder}/Frontend"
+                "cwd": "${workspaceFolder}/${input:frontendPath}"
             }
         },
         {
@@ -57,7 +57,7 @@
             "type": "shell",
             "command": "Remove-Item -Recurse -Force obj -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force bin -ErrorAction SilentlyContinue",
             "options": {
-                "cwd": "${workspaceFolder}/Api"
+                "cwd": "${workspaceFolder}/${input:apiPath}"
             },
         },
         {
@@ -65,7 +65,7 @@
             "type": "shell",
             "command": "Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue",
             "options": {
-                "cwd": "${workspaceFolder}/Frontend"
+                "cwd": "${workspaceFolder}/${input:frontendPath}"
             },
         },
         {
@@ -89,7 +89,7 @@
             "type": "shell",
             "command": "Remove-Item -Recurse -Force Migrations -ErrorAction SilentlyContinue; Remove-Item -Force *.db,*.sqlite -ErrorAction SilentlyContinue",
             "options": {
-                "cwd": "${workspaceFolder}/Api"
+                "cwd": "${workspaceFolder}/${input:apiPath}"
             }
         },
         {
@@ -97,7 +97,7 @@
             "type": "shell",
             "command": "dotnet ef database update",
             "options": {
-                "cwd": "${workspaceFolder}/Api"
+                "cwd": "${workspaceFolder}/${input:apiPath}"
             }
         },
         {
@@ -105,7 +105,7 @@
             "type": "shell",
             "command": "dotnet ef migrations add ${input:migrationName}; dotnet ef database update",
             "options": {
-                "cwd": "${workspaceFolder}/Api"
+                "cwd": "${workspaceFolder}/${input:apiPath}"
             }
         },
         {
@@ -113,7 +113,7 @@
             "type": "shell",
             "command": "npm list --depth=0",
             "options": {
-                "cwd": "${workspaceFolder}/Frontend"
+                "cwd": "${workspaceFolder}/${input:frontendPath}"
             }
         },
         {
@@ -121,7 +121,7 @@
             "type": "shell",
             "command": "npm list -g --depth=0",
             "options": {
-                "cwd": "${workspaceFolder}/Frontend"
+                "cwd": "${workspaceFolder}/${input:frontendPath}"
             }
         },
         {
@@ -129,7 +129,7 @@
             "type": "shell",
             "command": "dotnet list package",
             "options": {
-                "cwd": "${workspaceFolder}/Api"
+                "cwd": "${workspaceFolder}/${input:apiPath}"
             }
         },
         {
@@ -147,7 +147,7 @@
             "type": "shell",
             "command": "node -v",
             "options": {
-                "cwd": "${workspaceFolder}/Frontend"
+                "cwd": "${workspaceFolder}/${input:frontendPath}"
             }
         },
         {
@@ -155,7 +155,7 @@
             "type": "shell",
             "command": "npm -v",
             "options": {
-                "cwd": "${workspaceFolder}/Frontend"
+                "cwd": "${workspaceFolder}/${input:frontendPath}"
             }
         },
         {
@@ -163,7 +163,7 @@
             "type": "shell",
             "command": "dotnet --list-sdks",
             "options": {
-                "cwd": "${workspaceFolder}/Api"
+                "cwd": "${workspaceFolder}/${input:apiPath}"
             }
         },
         {
@@ -171,7 +171,7 @@
             "type": "shell",
             "command": "dotnet --list-runtimes",
             "options": {
-                "cwd": "${workspaceFolder}/Api"
+                "cwd": "${workspaceFolder}/${input:apiPath}"
             }
         },
         {
@@ -211,6 +211,24 @@
             "type": "promptString",
             "description": "Enter the migration name",
             "default": "NewMigration"
+        },
+        {
+            "id": "apiPath",
+            "type": "pickString",
+            "description": "Enter the path to the Api folder",
+            "options": [
+                "Api"
+            ],
+            "default": "Api"
+        },
+        {
+            "id": "frontendPath",
+            "type": "pickString",
+            "description": "Enter the path to the Frontend folder",
+            "options": [
+                "Frontend"
+            ],
+            "default": "Frontend"
         }
     ]
 }
