@@ -1,6 +1,8 @@
 import React from 'react';
+import { useAuth } from "../../utils/contexts/AuthContext";
 
 const ClientDashboard: React.FC = () => {
+    const { currentUser } = useAuth();
     return (
         <div>
             <h2>Client Dashboard</h2>
@@ -8,8 +10,9 @@ const ClientDashboard: React.FC = () => {
             <section>
                 <h3>Profile</h3>
                 <div>
-                    <span>Name: [Your Name]</span><br />
-                    <span>Email: [Your Email]</span>
+                    <span>Name:{currentUser?.clientProfile?.firstName} {currentUser?.clientProfile?.lastName}</span><br />
+                    <span>Age:{currentUser?.clientProfile?.age}</span><br />
+                    <span>Email: {currentUser?.email}</span>
                 </div>
             </section>
             <section>

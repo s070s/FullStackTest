@@ -1,3 +1,5 @@
+import type {ClientDto}from"./clientdtos";
+import type {TrainerDto}from"./trainerdtos";
 export type UserDto = {
   id: number;
   username: string;
@@ -7,8 +9,8 @@ export type UserDto = {
   isActive: boolean;
   role: string;
   profilePhotoUrl?: string;
-  trainerProfile?: any;
-  clientProfile?: any;
+  trainerProfile?: TrainerDto;
+  clientProfile?: ClientDto;
 };
 
 export type RegisterUserDto = {
