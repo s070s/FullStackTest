@@ -1,7 +1,7 @@
 import type { UserDto, RegisterUserDto, LoginUserDto,CreateUserDto,UpdateUserDto } from "../data/userdtos";
 
-// Base URL of your API (adjust as needed)
-export const API_BASE_URL = "http://localhost:5203"; // change to your API http port
+// Base URL of your API (adjust as needed) http://localhost:5203
+export const API_BASE_URL = "https://fullstacktest-nokq.onrender.com"; // change to your API http port
 
 
 
