@@ -48,6 +48,8 @@ namespace Api.Services
             }
         }
 
+
+        #region Seed Users and Profiles
         private async Task SeedUsersAsync()
         {
             if (await _context.Users.AnyAsync())
@@ -189,8 +191,8 @@ namespace Api.Services
                 var weightKg = _random.Next(70, 100);
                 var heightCm = _random.Next(160, 200);
                 var dob = GetRandomDateOfBirth();
-                var intensity=GetClientIntensityLevel(dob, weightKg, heightCm); // Default intensity
-                var country= GetRandomCountry();
+                var intensity = GetClientIntensityLevel(dob, weightKg, heightCm); // Default intensity
+                var country = GetRandomCountry();
                 var state = "CA";
                 if (country == "USA")
                 {
@@ -227,6 +229,8 @@ namespace Api.Services
             }
         }
 
+        #endregion
+
         private async Task SeedReferenceDataAsync()
         {
             // We'll add Equipment, ExerciseDefinitions, etc. here later
@@ -235,6 +239,7 @@ namespace Api.Services
 
         #region Helper Methods
 
+        #region User Generation
         private (string Username, string MiddleName) GenerateRandomUsernameWithMiddle(string role)
         {
             switch (role)
@@ -275,6 +280,27 @@ namespace Api.Services
             return $"{username}1234567";
         }
 
+        #endregion
+
+        #region Profiles:Client/Trainer Generation
+        private ClientExperience GetRandomClientExperience()
+        {
+            var levels = Enum.GetValues(typeof(ClientExperience)).Cast<ClientExperience>().ToList();
+            return levels[_random.Next(levels.Count)];
+        }
+        private IntensityLevel GetClientIntensityLevel(DateTime dob, int weight, int height)
+        {
+            var age = DateTime.Now.Year - dob.Year;
+            if (dob > DateTime.Now.AddYears(-age)) age--;
+
+            // Simplified logic: Younger and fitter clients prefer higher intensity
+            if (age < 30 && weight < 180 && height > 65)
+                return IntensityLevel.High;
+            else if (age < 50)
+                return IntensityLevel.Medium;
+            else
+                return IntensityLevel.Low;
+        }
         private string GetRandomClientBio(string FirstName, ClientExperience experience, string Country)
         {
             var nameStringIntroductionArray = new[] { $"Hi, I'm {FirstName} from {Country}", $"Hello! My name is {FirstName} and I live in {Country}", $"Hey there, I'm {FirstName} from {Country}" };
@@ -444,24 +470,11 @@ namespace Api.Services
         {
             return $"{_random.Next(10000, 99999)}";
         }
-        private ClientExperience GetRandomClientExperience()
-        {
-            var levels = Enum.GetValues(typeof(ClientExperience)).Cast<ClientExperience>().ToList();
-            return levels[_random.Next(levels.Count)];
-        }
-        private IntensityLevel GetClientIntensityLevel(DateTime dob, int weight, int height)
-        {
-            var age = DateTime.Now.Year - dob.Year;
-            if (dob > DateTime.Now.AddYears(-age)) age--;
 
-            // Simplified logic: Younger and fitter clients prefer higher intensity
-            if (age < 30 && weight < 180 && height > 65)
-                return IntensityLevel.High;
-            else if (age < 50)
-                return IntensityLevel.Medium;
-            else
-                return IntensityLevel.Low;
-        }
+        #endregion
+
+
+
         #endregion
     }
 }
