@@ -1,5 +1,46 @@
-1.Clone the repo </br>
-2.If using VSCode use this .vscode/tasks.json
+# FullStackTest
+
+## 1. Clone the Repo
+
+Clone this repository to your local machine.
+
+---
+
+## 2. Manual Setup Instructions
+
+Open a terminal and run the following commands step by step:
+
+```sh
+cd FullStackTest
+cd Api
+dotnet restore
+dotnet build
+dotnet ef migrations add FirstMigration
+dotnet ef database update
+dotnet run
+```
+
+Open a new terminal for the frontend:
+
+```sh
+cd FullStackTest/Frontend
+npm install
+npm run build
+npm run dev
+```
+
+---
+
+## 3. VSCode Tasks
+
+If using VSCode, you can use the provided `.vscode/tasks.json` to automate common tasks.  
+**Recommended order:**
+
+- **Both-InstallAndBuild**: Installs packages and builds both projects.
+- **DB-AddMigrationAndUpdate**: Initializes the database and applies the first migration for the API.
+- **Both-Run**: Runs both the API and the Frontend at once.
+
+### Example tasks.json snippet
 ```json
 {
     "version": "2.0.0",
@@ -233,8 +274,17 @@
     ]
 }
 ```
-<br>
-3..vscode/launch.json
+## 4. VSCode Debugging
+
+The `.vscode/launch.json` file provides launch configurations for debugging:
+
+- **Backend: .NET Core Attach**: Attaches to the running API process (ex. Api.exe).
+- **Vite: Frontend Dev Server**: Runs the frontend dev server.
+- **Vite: Frontend Debug (Chrome)**: Launches Chrome for frontend debugging.
+
+You can also use the **Frontend: Dev & Debug** compound configuration to start both the dev server and Chrome debugger together.
+
+---
 
 ```json
 {
@@ -283,6 +333,10 @@
     ]
 }
 ```
-<br>
-4.In production the JWT key located in launchSettings.json and the db connection strings should be stored in environment variables,or in a secrets manager.Also the Api/wwwroot/uploads should be included(remove the exclusion from gitignore)
+## 5. Production Notes
+
+- **Security:**  
+  Store sensitive values (e.g., JWT key in `launchSettings.json`, DB connection strings) in environment variables or a secrets manager.
+- **Uploads:**  
+  Ensure `Api/wwwroot/uploads` is included in version control (remove it from `.gitignore` if necessary).
 

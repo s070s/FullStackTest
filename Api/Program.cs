@@ -13,7 +13,7 @@ using Api.Endpoints;
 var builder = WebApplication.CreateBuilder(args);
 #region Database Config
 //Database Connection String
-var connectionString = builder.Configuration.GetConnectionString("Default") 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? "Data Source=app.db";
 
 //Register DbContext
@@ -94,6 +94,8 @@ builder.Services.AddScoped<IValidationService, ValidationService>();
 builder.Services.AddScoped<IDbContextLifecycleService, DbContextLifecycleService>();
 // Register PaginationServices(Sorting and Pagination)
 builder.Services.AddScoped<IPaginationService, PaginationService>();
+// Register DatabaseSeederService
+builder.Services.AddScoped<DatabaseSeederService>();
 
 #region Repositories
 // Register Repositories
@@ -103,6 +105,26 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 #endregion
 
 var app = builder.Build();
+
+#region Seeding
+// Seed the database
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var seeder = services.GetRequiredService<DatabaseSeederService>();
+        await seeder.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while Seeding the database");
+        // Don't throw - let the app continue even if seeding fails
+    }
+}
+#endregion
+
 
 #region Enable Middleware
 //Use CORS before MapGet/MapPost calls
