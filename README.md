@@ -1,5 +1,7 @@
 # FullStackTest
-
+## 0. Description
+A personal educational project to improve my understanding
+supposedly a way for trainees to support their fitness instructors ala patreon,onlyfans. As of Sept 2025 very WIP
 ## 1. Clone the Repo
 
 Clone this repository to your local machine.
@@ -333,4 +335,14 @@ You can also use the **Frontend: Dev & Debug** compound configuration to start b
     ]
 }
 ```
+## 4. Important For Production
+-Env vars for API
+ASPNETCORE_ENVIRONMENT=Production
+ConnectionStrings__DefaultConnection
+Jwt__Issuer
+Jwt__Key
 
+-Env vars for frontend
+VITE_API_URL(either local api port or API url)
+
+-DockerFile and dockerignore
