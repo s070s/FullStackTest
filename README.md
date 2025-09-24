@@ -333,10 +333,4 @@ You can also use the **Frontend: Dev & Debug** compound configuration to start b
     ]
 }
 ```
-## 5. Production Notes
-
-- **Security:**  
-  Store sensitive values (e.g., JWT key in `launchSettings.json`, DB connection strings) in environment variables or a secrets manager.
-- **Uploads:**  
-  Ensure `Api/wwwroot/uploads` is included in version control (remove it from `.gitignore` if necessary).
 
