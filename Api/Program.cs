@@ -143,11 +143,11 @@ app.UseStaticFiles();
 #endregion
 
 //Apply any pending EF Core migrations at startup (dev convenience)
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-}
+// using (var scope = app.Services.CreateScope())
+// {
+//     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//     db.Database.Migrate();
+// }
 
 #region Endpoints
 app.MapGet("/", () => $"This server is running and ready to accept requests");

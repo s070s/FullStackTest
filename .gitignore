@@ -425,7 +425,6 @@ dist-ssr/
 *.sw?
 
 # EFCore Migrations and SQLite database files
-Migrations/
 *.db
 *.sqlite
 *.sqlite3
