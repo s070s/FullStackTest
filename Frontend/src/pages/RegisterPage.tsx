@@ -18,7 +18,6 @@ const RegisterPage: React.FC = () => {
   const roleOptions = [
     { value: "Client", label: "Client" },
     { value: "Trainer", label: "Trainer" },
-    { value: "Admin", label: "Admin(hidden in production)" },
   ];
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
