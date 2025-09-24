@@ -22,12 +22,13 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connect
 
 #region CORS Configuration
 //Register CORS service
+var allowedOrigins= builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()?? new string[0];
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") // Your frontend URL
+            policy.WithOrigins(allowedOrigins) // Your frontend URL
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
