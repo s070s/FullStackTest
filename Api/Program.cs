@@ -22,13 +22,12 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connect
 
 #region CORS Configuration
 //Register CORS service
-var allowedOrigins= builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()?? new string[0];
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
+    options.AddPolicy("AllowAllOrigins",
         policy =>
         {
-            policy.WithOrigins(allowedOrigins) // Your frontend URL
+            policy.AllowAnyOrigin()
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
@@ -129,7 +128,7 @@ using (var scope = app.Services.CreateScope())
 
 #region Enable Middleware
 //Use CORS before MapGet/MapPost calls
-app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowAllOrigins");
 
 // Enable authentication middleware
 app.UseAuthentication();
