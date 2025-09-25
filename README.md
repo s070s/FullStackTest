@@ -335,7 +335,7 @@ You can also use the **Frontend: Dev & Debug** compound configuration to start b
     ]
 }
 ```
-## 4. Important For Production
+## 4. Important For "Production"
 -Env vars for API
 ASPNETCORE_ENVIRONMENT=Production
 ConnectionStrings__DefaultConnection
@@ -346,3 +346,8 @@ Jwt__Key
 VITE_API_URL(either local api port or API url)
 
 -DockerFile and dockerignore
+
+-Admin Credentials
+admin
+admin1234567
+
