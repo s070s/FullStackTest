@@ -107,7 +107,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 var app = builder.Build();
 
 #region Seeding
-// Seed the database
+// Seed the database with initial data. If seeding fails, the app will still start.
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -138,11 +138,12 @@ app.UseAuthorization();
 
 // Enable rate limiting middleware
 app.UseRateLimiter();
-// Serve static files (ex.profile images)
+// Serve static files (e.g., profile images, uploads) from wwwroot or configured static files directory.
 app.UseStaticFiles();
 #endregion
 
-//Apply any pending EF Core migrations at startup (dev convenience)
+// Uncomment the following block to automatically apply EF Core migrations at startup (useful for development only).
+// In production, handle migrations separately to avoid data loss or downtime.
 // using (var scope = app.Services.CreateScope())
 // {
 //     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -150,8 +151,9 @@ app.UseStaticFiles();
 // }
 
 #region Endpoints
+// Basic home endpoint
 app.MapGet("/", () => $"This server is running and ready to accept requests");
-// Register user endpoints from UsersEndpoints
+// Register modular endpoint groups for better organization and separation of concerns.
 AdminUserEndpoints.MapAdminUserEndpoints(app);
 UserProfileEndpoints.MapUserProfileEndpoints(app);
 AuthEndpoints.MapAuthEndpoints(app);

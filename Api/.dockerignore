@@ -3,4 +3,3 @@ obj/
 app.db
 *.md
 .vscode/
-wwwroot/uploads/

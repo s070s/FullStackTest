@@ -13,9 +13,10 @@ namespace Api.Services
         private readonly IConfiguration _configuration;
         private readonly ILogger<DatabaseSeederService> _logger;
         private readonly Random _random = new();
+        // Stores generated middle names for each username to use in profile seeding (Trainer/Client)
         private Dictionary<string, string> _usernameMiddleNames = new();
-        int seedUsers = 20; //number of users to seed
-
+        // Number of sample users to seed when SeedSampleData is enabled
+        int seedUsers = 20;
         public DatabaseSeederService(
             AppDbContext context,
             IConfiguration configuration,
@@ -26,6 +27,11 @@ namespace Api.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// Seeds the database with initial data in the correct order:
+        /// 1. Ensures the database is created.
+        /// 2. Seeds data (users,trainer/client profiles etc)
+        /// </summary>
         public async Task SeedAsync()
         {
             try
@@ -36,7 +42,7 @@ namespace Api.Services
                 await SeedUsersAsync();
                 await SeedTrainersAndClientsAsync();
 
-                // Seed reference data
+                // Todo:Seed reference data(e.g., exercise types, equipment, etc.)
                 await SeedReferenceDataAsync();
 
                 _logger.LogInformation("Database seeding completed successfully");
@@ -50,6 +56,9 @@ namespace Api.Services
 
 
         #region Seed Users and Profiles
+        /// <summary>
+        /// Seeds the Users table with an admin user and, if enabled, sample users for development/testing.
+        /// </summary>
         private async Task SeedUsersAsync()
         {
             if (await _context.Users.AnyAsync())
@@ -64,7 +73,7 @@ namespace Api.Services
 
             var users = new List<User>
             {
-                // Admin user
+                // Always seed the admin user
                 new User
                 {
                     Username = "admin",
@@ -75,7 +84,7 @@ namespace Api.Services
                 }
             };
 
-            // Add sample users only in development
+            // Add sample users only if SeedSampleData is enabled (typically in development/testing)
             if (seedSampleData)
             {
                 for (int i = 1; i <= seedUsers; i++)
@@ -99,7 +108,10 @@ namespace Api.Services
             await _context.SaveChangesAsync();
             _logger.LogInformation($"Seeded {users.Count} users");
         }
-
+        /// <summary>
+        /// Seeds Trainer and Client profiles for sample users if 'SeedSampleData' is enabled in configuration.
+        /// Should be called after users are seeded.
+        /// </summary>
         private async Task SeedTrainersAndClientsAsync()
         {
             var seedSampleData = _configuration.GetValue<bool>("SeedSampleData", false);
@@ -111,13 +123,14 @@ namespace Api.Services
 
         private async Task SeedTrainersAsync()
         {
+            // Check if trainers already exist to avoid duplicate seeding
             if (await _context.Trainers.AnyAsync())
             {
                 _logger.LogInformation("Trainers already exist, skipping trainer seeding");
                 return;
             }
 
-            // Get trainer users
+            // Get all users with the Trainer role
             var trainerUsers = await _context.Users
                 .Where(u => u.Role == UserRole.Trainer)
                 .ToListAsync();
@@ -126,18 +139,24 @@ namespace Api.Services
 
             foreach (var user in trainerUsers)
             {
+                // Use the generated middle name as first name, fallback to "John"
                 var firstName = _usernameMiddleNames.TryGetValue(user.Username, out var middle) ? middle : "John";
+                // Randomly assign 1-3 specializations
                 var trainerSpecializations = GetRandomTrainerSpecializations();
+                // Generate random location and address data
                 var country = GetRandomCountry();
                 var city = GetRandomCity(country);
                 var address = GetRandomStreetAddress(country);
+                // Default state, override if USA
                 var state = "CA";
                 if (country == "USA")
                 {
                     state = GetRandomState();
                 }
+                // Generate random weight and height
                 var weightKg = _random.Next(70, 100);
                 var heightCm = _random.Next(160, 200);
+                // Create Trainer profile
                 var trainer = new Trainer
                 {
                     UserId = user.Id,
@@ -154,13 +173,13 @@ namespace Api.Services
                     Country = country,
                     Weight = weightKg,
                     Height = heightCm,
-                    BMR = weightKg * 22, // Simplified BMR
+                    BMR = weightKg * 22, // Simplified BMR calculation
                     BMI = weightKg / Math.Pow(heightCm / 100.0, 2) // BMI calculation
-
                 };
                 trainers.Add(trainer);
             }
 
+            // Add all generated trainers to the database
             if (trainers.Any())
             {
                 _context.Trainers.AddRange(trainers);
@@ -171,13 +190,15 @@ namespace Api.Services
 
         private async Task SeedClientsAsync()
         {
+            // Skip seeding if clients already exist
+
             if (await _context.Clients.AnyAsync())
             {
                 _logger.LogInformation("Clients already exist, skipping client seeding");
                 return;
             }
 
-            // Get client users
+            // Get all users with the Client role
             var clientUsers = await _context.Users
                 .Where(u => u.Role == UserRole.Client)
                 .ToListAsync();
@@ -186,6 +207,7 @@ namespace Api.Services
 
             foreach (var user in clientUsers)
             {
+                // Use generated middle name as first name, fallback to "John"
                 var firstName = _usernameMiddleNames.TryGetValue(user.Username, out var middle) ? middle : "John";
                 var clientExperience = GetRandomClientExperience();
                 var weightKg = _random.Next(70, 100);
@@ -198,6 +220,7 @@ namespace Api.Services
                 {
                     state = GetRandomState();
                 }
+                // Create Client profile with randomized data
                 var client = new Client
                 {
                     UserId = user.Id,
@@ -215,12 +238,12 @@ namespace Api.Services
                     Country = country,
                     Weight = weightKg,
                     Height = heightCm,
-                    BMR = weightKg * 22,
-                    BMI = weightKg / Math.Pow(heightCm / 100.0, 2)
+                    BMR = weightKg * 22, // Simplified BMR calculation
+                    BMI = weightKg / Math.Pow(heightCm / 100.0, 2) // BMI calculation
                 };
                 clients.Add(client);
             }
-
+            // Add all generated clients to the database
             if (clients.Any())
             {
                 _context.Clients.AddRange(clients);
@@ -233,13 +256,19 @@ namespace Api.Services
 
         private async Task SeedReferenceDataAsync()
         {
-            // We'll add Equipment, ExerciseDefinitions, etc. here later
+            // Todo:Seed reference data(e.g., exercise types, equipment, etc.)
             await Task.CompletedTask;
         }
 
         #region Helper Methods
 
         #region User Generation
+
+        /// <summary>
+        /// Generates a random username and a corresponding "middle name" (used as first name in profiles)
+        /// based on the user role ("Trainer" or "Client").
+        /// Returns a tuple: (username, middleName).
+        /// </summary>
         private (string Username, string MiddleName) GenerateRandomUsernameWithMiddle(string role)
         {
             switch (role)
@@ -262,19 +291,25 @@ namespace Api.Services
                     return ($"user{_random.Next(1, 99)}", "User");
             }
         }
-
+        /// <summary>
+        /// Generates a random email address for a given username using a random fake domain.
+        /// </summary>
         private string GenerateRandomEmail(string username)
         {
             var domains = new[] { "geemail.com", "hawtmail.com", "yoohoo.com" };
             return $"{username.ToLower()}@{domains[_random.Next(domains.Length)]}";
         }
-
+        /// <summary>
+        /// Returns a random UserRole value from the UserRole enum.
+        /// </summary>
         private UserRole GetRandomUserRole()
         {
             var roles = Enum.GetValues(typeof(UserRole)).Cast<UserRole>().ToList();
             return roles[_random.Next(roles.Count)];
         }
-
+        /// <summary>
+        /// Generates a simple password for a given username (for sample users only).
+        /// </summary>
         private string GeneratePassword(string username)
         {
             return $"{username}1234567";
@@ -283,17 +318,23 @@ namespace Api.Services
         #endregion
 
         #region Profiles:Client/Trainer Generation
+        /// <summary>
+        /// Returns a random ClientExperience value from the ClientExperience enum.
+        /// </summary>
         private ClientExperience GetRandomClientExperience()
         {
             var levels = Enum.GetValues(typeof(ClientExperience)).Cast<ClientExperience>().ToList();
             return levels[_random.Next(levels.Count)];
         }
+        /// <summary>
+        /// Determines a client's preferred intensity level based on age, weight, and height.
+        /// Simplified logic: Younger and fitter clients prefer higher intensity.
+        /// </summary>
         private IntensityLevel GetClientIntensityLevel(DateTime dob, int weight, int height)
         {
             var age = DateTime.Now.Year - dob.Year;
             if (dob > DateTime.Now.AddYears(-age)) age--;
 
-            // Simplified logic: Younger and fitter clients prefer higher intensity
             if (age < 30 && weight < 180 && height > 65)
                 return IntensityLevel.High;
             else if (age < 50)
@@ -301,6 +342,10 @@ namespace Api.Services
             else
                 return IntensityLevel.Low;
         }
+        /// <summary>
+        /// Generates a random client bio based on first name, experience level, and country.
+        /// Combines a random introduction with an experience-appropriate sentence.
+        /// </summary>
         private string GetRandomClientBio(string FirstName, ClientExperience experience, string Country)
         {
             var nameStringIntroductionArray = new[] { $"Hi, I'm {FirstName} from {Country}", $"Hello! My name is {FirstName} and I live in {Country}", $"Hey there, I'm {FirstName} from {Country}" };
@@ -343,6 +388,10 @@ namespace Api.Services
             }
 
         }
+        /// <summary>
+        /// Generates a random trainer bio based on specialization.
+        /// Combines a random adjective, specialization, and filler for variety.
+        /// </summary>
         private string GetRandomTrainerBio(TrainerSpecialization specialization)
         {
             var adjectives = new[] { "Dedicated", "Experienced", "Passionate", "Certified", "Motivated" };
@@ -355,20 +404,26 @@ namespace Api.Services
             };
             return bios[_random.Next(bios.Length)];
         }
-
+        /// <summary>
+        /// Returns a random list of TrainerSpecialization values (1 to 3 specializations per trainer).
+        /// </summary>
         private List<TrainerSpecialization> GetRandomTrainerSpecializations()
         {
             var specializations = Enum.GetValues(typeof(TrainerSpecialization)).Cast<TrainerSpecialization>().ToList();
             int count = _random.Next(1, 4); // Each trainer can have 1 to 3 specializations
             return specializations.OrderBy(x => _random.Next()).Take(count).ToList();
         }
-
+        /// <summary>
+        /// Returns a random last name from a predefined list.
+        /// </summary>
         private string GetRandomLastName()
         {
             var lastNames = new[] { "Smith", "Johnson", "Brown", "Taylor", "Anderson", "Thomas", "Jackson", "White" };
             return lastNames[_random.Next(lastNames.Length)];
         }
-
+        /// <summary>
+        /// Returns a random Date of Birth.
+        /// </summary>
         private DateTime GetRandomDateOfBirth()
         {
             int year = _random.Next(1950, 2005); // Age between ~18 and ~73
@@ -376,12 +431,17 @@ namespace Api.Services
             int day = _random.Next(1, 28); // Simplified to avoid month length issues
             return new DateTime(year, month, day);
         }
-
+                /// <summary>
+        /// Returns a random country from a predefined list.
+        /// </summary>
         private string GetRandomCountry()
         {
             var countries = new[] { "USA", "Canada", "UK", "Australia", "Germany", "France", "Italy" };
             return countries[_random.Next(countries.Length)];
         }
+                /// <summary>
+        /// Returns a random city.
+        /// </summary>
         private string GetRandomCity(string Country)
         {
             switch (Country)
@@ -411,6 +471,9 @@ namespace Api.Services
                     return "Unknown City";
             }
         }
+                /// <summary>
+        /// Returns a random phone number.
+        /// </summary>
         private string GenerateRandomPhoneNumber(string country)
         {
             // Simplified accurate phone generation
@@ -426,12 +489,17 @@ namespace Api.Services
                 _ => $"{_random.Next(100, 999)}-{_random.Next(100, 999)}-{_random.Next(1000, 9999)}"
             };
         }
+                /// <summary>
+        /// Returns a random state if the country is USA.
+        /// </summary>
         private string GetRandomState()
         {
             var states = new[] { "CA", "NY", "TX", "FL", "IL", "PA", "OH", "MI", "GA", "NC" };
             return states[_random.Next(states.Length)];
         }
-
+        /// <summary>
+        /// Returns a random street address.
+        /// </summary>
         private string GetRandomStreetAddress(string country)
         {
             switch (country)
@@ -465,7 +533,9 @@ namespace Api.Services
                     return "123 Fitness St";
             }
         }
-
+        /// <summary>
+        /// Returns a random zip code.
+        /// </summary>
         private string GetRandomZipCode()
         {
             return $"{_random.Next(10000, 99999)}";
