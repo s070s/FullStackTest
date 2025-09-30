@@ -439,3 +439,5 @@ dist-ssr/
 # wwwroot/uploads folder
 Api/wwwroot/uploads/
 
+# Frontend environment variables
+Frontend/.env
