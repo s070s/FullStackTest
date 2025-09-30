@@ -5,6 +5,7 @@ import Button from "../../components/Button";
 import GenericFormDialog from "../../components/GenericFormDialog";
 import type { CreateUserDto, UserStatisticsDto, UserDto, UpdateUserDto } from "../../utils/data/userdtos";
 import useAdminDashboard from "../../hooks/useAdminDashboard";
+import LoadingSpinner from "../../components/LoadingSpinner";
 import { useAuth } from "../../utils/contexts/AuthContext";
 import { adminFetchUserStatistics } from "../../utils/api/api";
 
@@ -33,7 +34,8 @@ const AdminDashboard: React.FC = () => {
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [stats, setStats] = useState<UserStatisticsDto | null>(null);
-    const [editUser, setEditUser] = useState<UserDto | null>(null); // <-- add this
+    const [editUser, setEditUser] = useState<UserDto | null>(null);
+    const [statsLoading, setStatsLoading] = useState(false);
 
     return (
         <div>
@@ -104,7 +106,7 @@ const AdminDashboard: React.FC = () => {
 
                 </div>
                 {loading ? (
-                    <div>Loading...</div>
+                    <LoadingSpinner />
                 ) : (
                     <TableGeneric
                         data={users.map(u => ({
@@ -189,19 +191,30 @@ const AdminDashboard: React.FC = () => {
                 <Button
                     onClick={async () => {
                         if (!token) return;
-                        const data = await adminFetchUserStatistics(token);
-                        setStats(data);
+                        setStatsLoading(true); // Start spinner
+                        try {
+                            const data = await adminFetchUserStatistics(token);
+                            setStats(data);
+                        } finally {
+                            setStatsLoading(false); // Stop spinner
+                        }
                     }}
                 >
                     Fetch User Statistics
                 </Button>
                 <div id="user-statistics" style={{ marginTop: "1rem" }}>
-                    <span>Total Users: {stats?.totalUsers ?? 0}</span><br />
-                    <span>Active Users: {stats?.activeUsers ?? 0}</span><br />
-                    <span>Inactive Users: {stats?.inactiveUsers ?? 0}</span><br />
-                    <span>Admins: {stats?.admins ?? 0}</span><br />
-                    <span>Trainers: {stats?.trainers ?? 0}</span><br />
-                    <span>Clients: {stats?.clients ?? 0}</span><br />
+                    {statsLoading ? (
+                        <LoadingSpinner />
+                    ) : (
+                        <>
+                            <span>Total Users: {stats?.totalUsers ?? 0}</span><br />
+                            <span>Active Users: {stats?.activeUsers ?? 0}</span><br />
+                            <span>Inactive Users: {stats?.inactiveUsers ?? 0}</span><br />
+                            <span>Admins: {stats?.admins ?? 0}</span><br />
+                            <span>Trainers: {stats?.trainers ?? 0}</span><br />
+                            <span>Clients: {stats?.clients ?? 0}</span><br />
+                        </>
+                    )}
                 </div>
             </section>
         </div>

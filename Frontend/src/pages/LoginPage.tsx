@@ -5,6 +5,7 @@ import InputField from '../components/InputField';
 import ErrorMessage from '../components/ErrorMessage';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../utils/contexts/AuthContext";
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const LoginPage: React.FC = () => {
     // States
@@ -12,6 +13,7 @@ const LoginPage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false); 
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -24,14 +26,17 @@ const LoginPage: React.FC = () => {
             setError('Please enter both username and password.');
             return;
         }
+        setLoading(true); 
         try {
             // Login via API
-            const result = await authenticateUser({ username, password }); // <-- updated usage
-            login(result.token); // Use context to set token and login state
+            const result = await authenticateUser({ username, password });
+            login(result.token);
             setSuccess(true);
-            navigate('/dashboard'); // Redirect to dashboard
+            navigate('/dashboard');
         } catch (err: any) {
             setError(err.message || 'Invalid credentials.');
+        } finally {
+            setLoading(false); 
         }
     };
 
@@ -42,6 +47,8 @@ const LoginPage: React.FC = () => {
                 <div>
                     Logged in successfully!
                 </div>
+            ) : loading ? ( 
+                <LoadingSpinner />
             ) : (
                 <form onSubmit={handleSubmit}>
                     <InputField

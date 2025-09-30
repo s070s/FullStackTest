@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import InputField from "../components/InputField";
 import ErrorMessage from "../components/ErrorMessage";
 import Dropdown from "../components/Dropdown";
+import LoadingSpinner from "../components/LoadingSpinner"; // <-- import spinner
 
 
 const RegisterPage: React.FC = () => {
@@ -21,6 +22,7 @@ const RegisterPage: React.FC = () => {
   ];
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false); 
 
   // Handle input changes for form fields
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -30,11 +32,14 @@ const RegisterPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
     try {
       await registerUser(form);
       setSuccess(true);
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,6 +48,8 @@ const RegisterPage: React.FC = () => {
       <h2>Account Registration</h2>
       {success ? (
         <div>Success! You can now log in.</div>
+      ) : loading ? (
+        <LoadingSpinner />
       ) : (
         <form onSubmit={handleSubmit}>
           <InputField

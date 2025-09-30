@@ -520,6 +520,32 @@ tbody tr:nth-child(even) {
   color: var(--text-dark);
 }
 
+/* --- Spinner Component --- */
+.loading-spinner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.loading-spinner {
+  animation: spinner-spin 1s linear infinite;
+  border-radius: 50%;
+  height: 8rem;
+  width: 8rem;
+  border-bottom: 8px solid var(--secondary-blue);
+  border-top: 8px solid var(--primary-green);
+  border-left: 8px solid var(--accent-yellow);
+  border-right: 8px solid #e0e0e0;
+  box-sizing: border-box;
+}
+
+@keyframes spinner-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 
 /* --- Color Scheme --- */
 @media (prefers-color-scheme: light) {
