@@ -1,5 +1,6 @@
 import type { UserDto, RegisterUserDto, LoginUserDto,CreateUserDto,UpdateUserDto } from "../data/userdtos";
-
+import type { ClientUpdateDto } from "../data/clientdtos";
+import type { TrainerUpdateDto } from "../data/trainerdtos";
 // Base URL of your API - uses environment variable or falls back to production URL
 export const API_BASE_URL = import.meta.env.VITE_API_DEV_URL || import.meta.env.VITE_API_URL;
 
@@ -158,7 +159,6 @@ export async function fetchCurrentUser(token: string): Promise<UserDto> {
   }
   return response.json();
 }
-
 // Upload User Profile Photo
 export async function uploadProfilePhoto(
   token: string,
@@ -178,6 +178,24 @@ export async function uploadProfilePhoto(
     const errorText = await response.text();
     throw new Error(errorText);
   }
+}
+
+// Update User Profile
+export async function updateUserProfile(
+  token: string,
+  userId: number,
+  updateData: Partial<TrainerUpdateDto> | Partial<ClientUpdateDto>
+): Promise<UserDto> {
+  const response = await fetchWithAuth(`/users/${userId}/profile`, token, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updateData),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText);
+  }
+  return response.json();
 }
 //#endregion
 

@@ -38,11 +38,19 @@ namespace Api.Dtos
         IntensityLevel PreferredIntensityLevel = IntensityLevel.Medium
     );
 
-    public record UpdateClientDto(
-        int Id,
-        string? Bio = null,
-        ClientExperience? ExperienceLevel = null,
-        MedicalHistoryDto? MedicalHistory = null,
-        IntensityLevel? PreferredIntensityLevel = null
+    public record UpdateClientProfileDto(
+        string? FirstName,
+        string? LastName,
+        string? Bio,
+        DateTime? DateOfBirth,
+        double? Height,
+        double? Weight,
+        string? PhoneNumber,
+        string? Country,
+        string? City,
+        string? Address,
+        string? ZipCode,
+        string? State,
+        ClientExperience ExperienceLevel
     );
 }

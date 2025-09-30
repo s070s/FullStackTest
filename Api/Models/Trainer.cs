@@ -61,14 +61,5 @@ namespace Api.Models
             );
         }
 
-        public UpdateTrainerDto ToUpdateTrainerDto()
-        {
-            return new UpdateTrainerDto(
-                Id,
-                Bio,
-                Specializations
-            );
-        }
-
     }
 }

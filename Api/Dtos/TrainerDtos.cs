@@ -31,9 +31,18 @@ namespace Api.Dtos
         ICollection<TrainerSpecialization>? Specializations = null
     );
 
-    public record UpdateTrainerDto(
-        int Id,
-        string? Bio = null,
-        ICollection<TrainerSpecialization>? Specializations = null
+    public record UpdateTrainerProfileDto(
+        string? FirstName,
+        string? LastName,
+        string? Bio,
+        DateTime? DateOfBirth,
+        double? Height,
+        double? Weight,
+        string? PhoneNumber,
+        string? Country,
+        string? City,
+        string? Address,
+        string? ZipCode,
+        string? State
     );
 }

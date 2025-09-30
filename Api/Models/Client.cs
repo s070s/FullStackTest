@@ -77,16 +77,5 @@ namespace Api.Models
             );
         }
 
-        public UpdateClientDto ToUpdateClientDto()
-        {
-            return new UpdateClientDto(
-                Id,
-                Bio,
-                ExperienceLevel,
-                MedicalHistory?.ToMedicalHistoryDto(),
-                PreferredIntensityLevel
-            );
-        }
-
     }
 }

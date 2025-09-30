@@ -1,5 +1,8 @@
 using Api.Services;
 using Api.Repositories.UnitOfWork;
+using Api.Dtos;
+using Api.Models;
+using Api.Models.Enums;
 
 namespace Api.Endpoints
 {
@@ -61,6 +64,50 @@ namespace Api.Endpoints
             }).RequireAuthorization();
             #endregion
 
+            #region Update User Profile
+                        app.MapPut("/users/{id:int}/profile", async (
+                int id,
+                HttpContext context,
+                IUnitOfWork unitOfWork,
+                IValidationService validator
+            ) =>
+            {
+                var userIdClaim = context.User.FindFirst("userid")?.Value;
+                if (userIdClaim == null || int.Parse(userIdClaim) != id)
+                    return Results.Forbid();
+            
+                var userDto = await unitOfWork.Users.GetUserWithProfilesByIdAsync(id);
+                if (userDto == null) return Results.NotFound("User not found.");
+            
+                if (userDto.Role == UserRole.Client && userDto.ClientProfile != null)
+                {
+                    var updateData = await context.Request.ReadFromJsonAsync<UpdateClientProfileDto>();
+                    if (updateData == null)
+                        return Results.BadRequest("Invalid request data.");
+            
+                    var result = await unitOfWork.Clients.UpdateClientProfileAsync(id, updateData);
+                    if (result == null)
+                        return Results.NotFound("Client profile not found.");
+                }
+                else if (userDto.Role == UserRole.Trainer && userDto.TrainerProfile != null)
+                {
+                    var updateData = await context.Request.ReadFromJsonAsync<UpdateTrainerProfileDto>();
+                    if (updateData == null)
+                        return Results.BadRequest("Invalid request data.");
+            
+                    var result = await unitOfWork.Trainers.UpdateTrainerProfileAsync(id, updateData);
+                    if (result == null)
+                        return Results.NotFound("Trainer profile not found.");
+                }
+                else
+                {
+                    return Results.BadRequest("Invalid user role or profile.");
+                }
+            
+                await unitOfWork.SaveChangesAsync();
+                return Results.Ok(userDto);
+            });
+            #endregion
         }
 
     }

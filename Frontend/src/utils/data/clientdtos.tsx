@@ -19,3 +19,18 @@ export type ClientDto = {
   bmi?: number;
   age?: number;
 };
+export type ClientUpdateDto = {
+  firstName?: string;
+  lastName?: string;
+  bio?: string;
+  dateOfBirth?: string;
+  height?: number;
+  weight?: number;
+  phoneNumber?: string;
+  country?: string;
+  city?: string;
+  address?: string;
+  zipCode?: string;
+  state?: string;
+  experienceLevel?: string;
+};

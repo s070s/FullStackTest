@@ -19,3 +19,18 @@ export type TrainerDto = {
     clients: ClientDto[]; // Replace 'any' with ClientDto[] if you have it
     specializations: any[]; // Replace 'any' with TrainerSpecializationDto[] if you have it
 };
+export type TrainerUpdateDto = {
+    firstName?: string;
+    lastName?: string;
+    bio?: string;
+    dateOfBirth?: string;
+    height?: number;
+    weight?: number;
+    phoneNumber?: string;
+    country?: string;
+    city?: string;
+    address?: string;
+    zipCode?: string;
+    state?: string;
+    specializations?: any[]; // Replace 'any' with your specialization type if available
+};
