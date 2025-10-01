@@ -29,6 +29,14 @@ namespace Api.Data.Configurations
                 .WithOne(w => w.Trainer)
                 .HasForeignKey(w => w.TrainerId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // NOTE: Ensure navigation properties in Trainer, User, Client, and Workout models are set up for these relationships.
+
+            // TIP: If you add new relationships or properties to Trainer, update this configuration accordingly.
+
+            // EF Core will automatically create join tables for many-to-many relationships if not explicitly defined.
+
+            // CAUTION: Cascade deletes will remove related entities when a Trainer is deleted. Review if this is the intended behavior for your use case.
         }
     }
 }

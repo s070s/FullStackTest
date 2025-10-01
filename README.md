@@ -335,19 +335,33 @@ You can also use the **Frontend: Dev & Debug** compound configuration to start b
     ]
 }
 ```
-## 4. Important For "Production"
+
+
+## 5. Important For "Development"
+.env file (at the root of the Frontend React Project)
+VITE_API_DEV_URL=http://localhost:5203
+
+## 6. Important For "Production"- API on Render
 -Env vars for API
 ASPNETCORE_ENVIRONMENT=Production
 ConnectionStrings__DefaultConnection
 Jwt__Issuer
 Jwt__Key
 
+-DockerFile and dockerignore included in the API Root for its deployment
+
+## 7. Important For "Production"- Frontend on Vercel
 -Env vars for frontend
-VITE_API_URL(either local api port or API url)
+VITE_API_URL=https://fullstacktest-nokq.onrender.com/api
 
--DockerFile and dockerignore
+## 8. Seeded admin account credentials
+username:admin
+password:admin1234567
 
--Admin Credentials
-admin
-admin1234567
+## 9. Development URLs for Reference
+Frontend:http://localhost:5173/
+API:http://localhost:5203
 
+## 10. Production URLs for Reference
+Frontend:https://full-stack-test-beta.vercel.app/
+API:https://fullstacktest-nokq.onrender.com/api

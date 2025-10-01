@@ -40,6 +40,14 @@ namespace Api.Data.Configurations
                 .WithOne(m => m.Client)
                 .HasForeignKey<MedicalHistory>(m => m.ClientId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // NOTE: Ensure navigation properties in Client, User, Goal, Workout, Trainer, Measurement, and MedicalHistory models are properly set up for these relationships.
+
+            // TIP: When adding new relationships or properties to the Client entity, update this configuration to maintain consistency.
+
+            // EF Core will automatically create join tables for many-to-many relationships if not explicitly defined.
+
+            // CAUTION: Cascade deletes will remove related entities when a Client is deleted. Review if this is the intended behavior for your use case.
         }
     }
 }

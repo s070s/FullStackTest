@@ -16,6 +16,14 @@ namespace Api.Data.Configurations
                 .HasMany(e => e.Exercises)
                 .WithMany(ed => ed.Equipments)
                 .UsingEntity(j => j.ToTable("ExerciseDefinitionEquipment"));
+
+            // NOTE: Ensure navigation properties in Equipment and ExerciseDefinition models are set up for this many-to-many relationship.
+
+            // TIP: If you add new relationships or properties to Equipment, update this configuration accordingly.
+
+            // EF Core will create the join table "ExerciseDefinitionEquipment" automatically unless further configuration is needed.
+
+            // CAUTION: Changing table names or relationships here may require a new migration and database update.
         }
     }
 }

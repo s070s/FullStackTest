@@ -31,6 +31,14 @@ namespace Api.Data.Configurations
                 .WithMany(wp => wp.Workouts)
                 .HasForeignKey(w => w.WeeklyProgramId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // NOTE: Ensure navigation properties in Workout, Client, Trainer, and WeeklyProgram models are set up for these relationships.
+
+            // TIP: If you add new relationships or properties to Workout, update this configuration accordingly.
+
+            // CAUTION: DeleteBehavior.SetNull will set foreign keys to null when related Trainer or WeeklyProgram is deleted. Confirm this matches your business logic.
+
+            // EF Core will automatically create join tables for many-to-many relationships if not explicitly defined.
         }
     }
 }
