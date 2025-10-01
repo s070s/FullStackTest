@@ -365,3 +365,6 @@ API:http://localhost:5203
 ## 10. Production URLs for Reference
 Frontend:https://full-stack-test-beta.vercel.app/
 API:https://fullstacktest-nokq.onrender.com/api
+
+## 11. Other Notes
+-Uploading Static Files is not supported on Production as persistent storage on Render(the service where the api is deployed) requires a subscription beyond the free plan
