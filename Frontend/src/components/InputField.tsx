@@ -32,7 +32,7 @@ const InputField: React.FC<InputFieldProps> = ({
         id={name}
         name={name}
         type={isPassword && showPassword ? "text" : type}
-        value={value}
+        value={type === "date" && value ? value.split("T")[0] : value}
         onChange={onChange}
         required={required}
         placeholder={placeholder}

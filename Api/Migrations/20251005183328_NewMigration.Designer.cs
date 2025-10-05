@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250930123620_NewMigration")]
+    [Migration("20251005183328_NewMigration")]
     partial class NewMigration
     {
         /// <inheritdoc />
@@ -216,7 +216,6 @@ namespace Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 

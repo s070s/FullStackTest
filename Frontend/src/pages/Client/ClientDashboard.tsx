@@ -13,11 +13,16 @@ const ClientDashboard: React.FC = () => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const experienceOptions = [
+        { value: "Beginner", label: "Beginner" },
+        { value: "Occasional", label: "Occasional" },
+        { value: "Regular", label: "Regular" },
+        { value: "Athlete", label: "Athlete" },
+    ];
 
 
 
-
-    const profileFields: { name: keyof ClientUpdateDto; label?: string; type?: string; required?: boolean }[] = [
+    const profileFields: { name: keyof ClientUpdateDto; label?: string; type?: string; required?: boolean; options?: typeof experienceOptions }[] = [
         { name: "firstName", label: "First Name", required: true },
         { name: "lastName", label: "Last Name", required: true },
         { name: "bio", label: "Bio" },
@@ -30,7 +35,7 @@ const ClientDashboard: React.FC = () => {
         { name: "address", label: "Address" },
         { name: "zipCode", label: "Zip Code" },
         { name: "state", label: "State" },
-        { name: "experienceLevel", label: "Experience Level" },
+        { name: "experienceLevel", label: "Experience Level", options: experienceOptions },
     ];
     if (!currentUser?.clientProfile) {
         return <div>Loading profile...</div>;
@@ -77,14 +82,17 @@ const ClientDashboard: React.FC = () => {
                             values
                         );
                         setDialogOpen(false);
-                        await refreshUser(); // Add this line to refresh user data
+                        await refreshUser();
                     } catch (e: any) {
                         setError(e.message || "Failed to update profile.");
                     } finally {
                         setLoading(false);
                     }
                 }}
-                initialValues={currentUser?.clientProfile || {}}
+                initialValues={{
+                    ...currentUser?.clientProfile,
+                    experienceLevel: currentUser?.clientProfile?.experienceLevel || "Beginner"
+                }}
                 fields={profileFields}
                 title="Edit Profile"
             />

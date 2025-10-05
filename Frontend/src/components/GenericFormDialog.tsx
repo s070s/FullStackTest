@@ -56,11 +56,10 @@ function GenericFormDialog<T extends object>({
                                     {field.required && <span style={{ color: "red" }}> *</span>}
                                     <select
                                         className="dialog-select"
-                                        value={values[field.name] as any || ""}
+                                        value={values[field.name] as any ||field.options?.[0]?.value || ""}
                                         onChange={e => handleChange(field.name, e.target.value)}
                                         required={field.required}
                                     >
-                                        <option value="">Select...</option>
                                         {field.options.map(opt => (
                                             <option key={opt.value} value={opt.value}>{opt.label}</option>
                                         ))}

@@ -19,6 +19,10 @@ export type ClientDto = {
   bmi?: number;
   age?: number;
 };
+
+
+
+//Todo convert all record dtos on the backend to classes 
 export type ClientUpdateDto = {
   firstName?: string;
   lastName?: string;
@@ -32,5 +36,5 @@ export type ClientUpdateDto = {
   address?: string;
   zipCode?: string;
   state?: string;
-  experienceLevel?: string;
+  experienceLevel: string;
 };

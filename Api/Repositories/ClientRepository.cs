@@ -2,6 +2,7 @@ using Api.Models;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Api.Dtos;
+using Api.Models.Enums;
 
 namespace Api.Repositories
 {
@@ -62,7 +63,7 @@ namespace Api.Repositories
             existingClient.Address = updatedClient.Address;
             existingClient.ZipCode = updatedClient.ZipCode;
             existingClient.State = updatedClient.State;
-            existingClient.ExperienceLevel = updatedClient.ExperienceLevel;
+            existingClient.ExperienceLevel = updatedClient.ExperienceLevel ?? ClientExperience.Beginner;
 
             await _db.SaveChangesAsync();
             return existingClient;

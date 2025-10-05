@@ -1,5 +1,7 @@
 using Api.Models;
 using Api.Models.Enums;
+using System.Text.Json.Serialization;
+
 
 namespace Api.Dtos
 {
@@ -38,19 +40,34 @@ namespace Api.Dtos
         IntensityLevel PreferredIntensityLevel = IntensityLevel.Medium
     );
 
-    public record UpdateClientProfileDto(
-        string? FirstName,
-        string? LastName,
-        string? Bio,
-        DateTime? DateOfBirth,
-        double? Height,
-        double? Weight,
-        string? PhoneNumber,
-        string? Country,
-        string? City,
-        string? Address,
-        string? ZipCode,
-        string? State,
-        ClientExperience ExperienceLevel
-    );
+    //Todo convert all Records to classes
+    public class UpdateClientProfileDto
+    {
+        [JsonPropertyName("firstName")]
+        public string? FirstName { get; set; }
+        [JsonPropertyName("lastName")]
+        public string? LastName { get; set; }
+        [JsonPropertyName("bio")]
+        public string? Bio { get; set; }
+        [JsonPropertyName("dateOfBirth")]
+        public DateTime? DateOfBirth { get; set; }
+        [JsonPropertyName("height")]
+        public double? Height { get; set; }
+        [JsonPropertyName("weight")]
+        public double? Weight { get; set; }
+        [JsonPropertyName("phoneNumber")]
+        public string? PhoneNumber { get; set; }
+        [JsonPropertyName("country")]
+        public string? Country { get; set; }
+        [JsonPropertyName("city")]
+        public string? City { get; set; }
+        [JsonPropertyName("address")]
+        public string? Address { get; set; }
+        [JsonPropertyName("zipCode")]
+        public string? ZipCode { get; set; }
+        [JsonPropertyName("state")]
+        public string? State { get; set; }
+        [JsonPropertyName("experienceLevel")]
+        public ClientExperience? ExperienceLevel { get; set; }
+    }
 }

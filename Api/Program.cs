@@ -18,6 +18,12 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 //Register DbContext
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
+
+// Configure JSON serialization to handle enums as strings
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+});
 #endregion
 
 #region CORS Configuration
