@@ -40,10 +40,10 @@ namespace Api.Repositories
         Task<bool> UserExistsAsync(string username, string email);
 
         // Checks if a username exists for another user (for update scenarios)
-        Task<bool> UsernameExistsAsync(string username, int userId);
+        Task<bool> UsernameExistsAsync(string username, int? userId = null);
 
         // Checks if an email exists in the system
-        Task<bool> EmailExistsAsync(string email);
+        Task<bool> EmailExistsAsync(string email, int? userId = null);
 
         // Validates user credentials using BCrypt
         Task<bool> ValidateUserCredentialsAsync(string username, string password);
@@ -400,15 +400,15 @@ namespace Api.Repositories
         }
 
         // Checks if a username exists for another user (for update scenarios)
-        public async Task<bool> UsernameExistsAsync(string username, int userId)
+        public async Task<bool> UsernameExistsAsync(string username, int? userId = null)
         {
-            return await _db.Users.AnyAsync(u => u.Username == username && u.Id != userId);
+            return await _db.Users.AnyAsync(u => u.Username == username && (!userId.HasValue || u.Id != userId.Value));
         }
 
         // Checks if an email exists in the system
-        public async Task<bool> EmailExistsAsync(string email)
+        public async Task<bool> EmailExistsAsync(string email, int? userId = null)
         {
-            return await _db.Users.AnyAsync(u => u.Email == email);
+            return await _db.Users.AnyAsync(u => u.Email == email && (!userId.HasValue || u.Id != userId.Value));
         }
 
         // Validates user credentials using BCrypt

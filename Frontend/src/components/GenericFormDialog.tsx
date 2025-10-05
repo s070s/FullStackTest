@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import InputField from "./InputField";
 import Button from "./Button";
 
@@ -26,6 +26,11 @@ function GenericFormDialog<T extends object>({
     title = "Form",
 }: GenericFormDialogProps<T>) {
     const [values, setValues] = useState<Partial<T>>(initialValues || {});
+
+    // Add this effect to update values when initialValues change
+    useEffect(() => {
+        setValues(initialValues || {});
+    }, [initialValues, open]);
 
     const handleChange = (name: keyof T, value: any) => {
         setValues((prev) => ({ ...prev, [name]: value }));

@@ -161,7 +161,7 @@ namespace Api.Endpoints
                 }
                 if (dto.Email != null)
                 {
-                    if (await unitOfWork.Users.EmailExistsAsync(dto.Email))
+                    if (await unitOfWork.Users.EmailExistsAsync(dto.Email,id))
                         return Results.Conflict("Email already exists.");
                 }
                 if (dto.Role != null)
