@@ -25,6 +25,13 @@ export type LoginUserDto = {
   password: string;
 };
 
+export type TokenPairDto = {
+  accessToken: string;
+  accessTokenExpiresUtc: string;
+  refreshToken: string;
+  refreshTokenExpiresUtc: string;
+};
+
 export type CreateUserDto = {
   username: string;
   email: string;

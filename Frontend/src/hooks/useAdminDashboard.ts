@@ -13,22 +13,45 @@ const useAdminDashboard = () => {
     const [sortBy, setSortBy] = useState<string>("id");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
     const [totalUsers, setTotalUsers] = useState<number>(0);
-    const { token, currentUser } = useAuth();
+    const { ensureAccessToken, currentUser } = useAuth();
 
     useEffect(() => {
-        if (token) {
-            adminFetchAllUsers(token, { page, pageSize, sortBy, sortOrder })
-                .then((data: { users: UserDto[]; total: number }) => {
+        let isMounted = true;
+
+        const fetchUsers = async () => {
+            setLoading(true);
+            try {
+                const accessToken = await ensureAccessToken();
+                if (!accessToken) {
+                    if (isMounted) {
+                        setError("No authentication token found.");
+                    }
+                    return;
+                }
+
+                const data = await adminFetchAllUsers(accessToken, { page, pageSize, sortBy, sortOrder });
+                if (isMounted) {
                     setUsers(data.users);
                     setTotalUsers(data.total);
-                })
-                .catch((err) => setError(err.message))
-                .finally(() => setLoading(false));
-        } else {
-            setError("No authentication token found.");
-            setLoading(false);
-        }
-    }, [token, page, pageSize, sortBy, sortOrder]);
+                    setError(null);
+                }
+            } catch (err: any) {
+                if (isMounted) {
+                    setError(err.message ?? "Failed to fetch users.");
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchUsers();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [ensureAccessToken, page, pageSize, sortBy, sortOrder]);
 
     const totalPages = Math.ceil(totalUsers / pageSize);
 
@@ -42,23 +65,27 @@ const useAdminDashboard = () => {
     };
 
     const handleCreateUser = async (data: CreateUserDto) => {
-        if (!token) return;
-        await adminCreateUser(token, data);
+        const accessToken = await ensureAccessToken();
+        if (!accessToken) return;
+        await adminCreateUser(accessToken, data);
         await refreshUsersList();
     };
 
     const handleDeleteUser = async (selectedUserId: number | null) => {
-        if (!selectedUserId || !token) return;
+        if (!selectedUserId) return;
         if (currentUser && selectedUserId === currentUser.id) {
             setError("You cannot delete your own account.");
             return;
         }
-        await adminDeleteUser(token, selectedUserId);
+        const accessToken = await ensureAccessToken();
+        if (!accessToken) return;
+        await adminDeleteUser(accessToken, selectedUserId);
         await refreshUsersList();
     };
 
     const handleUpdateUser = async (userId: number, data: UpdateUserDto) => {
-        if (!token) return;
+        const accessToken = await ensureAccessToken();
+        if (!accessToken) return;
 
         const roleEnumMap: Record<string, number> = { Admin: 0, Client: 1, Trainer: 2 };
         let roleString = typeof data.role === "string" ? data.role.trim() : "Client";
@@ -80,13 +107,14 @@ const useAdminDashboard = () => {
                     ? data.isActive === "true"
                     : !!data.isActive;
         }
-        await adminUpdateUser(token, userId, fixedData);
+        await adminUpdateUser(accessToken, userId, fixedData);
         await refreshUsersList();
     };
 
     const refreshUsersList = async () => {
-        if (!token) return;
-        const data = await adminFetchAllUsers(token, { page, pageSize, sortBy, sortOrder });
+        const accessToken = await ensureAccessToken();
+        if (!accessToken) return;
+        const data = await adminFetchAllUsers(accessToken, { page, pageSize, sortBy, sortOrder });
         setUsers(data.users);
         setTotalUsers(data.total);
     };

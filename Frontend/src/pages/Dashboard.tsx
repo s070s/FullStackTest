@@ -3,9 +3,10 @@ import { parseJwt } from '../utils/jwtauth/jwtauth';
 import AdminDashboard from './Admin/AdminDashboard';
 import ClientDashboard from './Client/ClientDashboard';
 import TrainerDashboard from './Trainer/TrainerDashboard';
+import { useAuth } from '../utils/contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
-    const token = localStorage.getItem('authToken');
+    const { token } = useAuth();
     if (!token) {
         return <div>Please log in to view your dashboard.</div>;
     }

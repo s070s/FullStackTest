@@ -1,6 +1,7 @@
 using Api.Models.BaseClasses;
 using Api.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 using Api.Dtos;
 
 namespace Api.Models
@@ -29,6 +30,7 @@ namespace Api.Models
 
         public Trainer? TrainerProfile { get; set; }
         public Client? ClientProfile { get; set; }
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
         
         public UserDto ToUserDto()
         {

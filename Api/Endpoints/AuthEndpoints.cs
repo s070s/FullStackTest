@@ -4,6 +4,8 @@ using Api.Models.Enums;
 using Api.Dtos;
 using Api.Services;
 using Api.Repositories.UnitOfWork;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 
 namespace Api.Endpoints
@@ -70,7 +72,7 @@ namespace Api.Endpoints
 
             #region Login
             app.MapPost("/login", async (
-                IValidationService validator,
+                HttpContext httpContext,
                 IJwtService jwtService,
                 LoginDto dto,
                 IConfiguration config,
@@ -83,17 +85,95 @@ namespace Api.Endpoints
                 if (!await unitOfWork.Users.IsUserActiveAsync(dto.Username))
                     return Results.Forbid();
 
-                // Create JWT token
                 var jwtKey = config["Jwt:Key"];
                 var jwtIssuer = config["Jwt:Issuer"];
                 if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
                     return Results.Problem("JWT configuration missing.");
 
-                var tokenString = jwtService.GenerateToken(user, jwtKey, jwtIssuer);
-                return Results.Ok(new { token = tokenString });
+                var accessTokenMinutes = config.GetValue<int?>("Jwt:AccessTokenMinutes") ?? 30;
+                var refreshTokenDays = config.GetValue<int?>("Jwt:RefreshTokenDays") ?? 7;
+                var ipAddress = ResolveClientIp(httpContext);
+
+                var tokenPair = await jwtService.GenerateTokenPairAsync(
+                    user,
+                    jwtKey,
+                    jwtIssuer,
+                    TimeSpan.FromMinutes(accessTokenMinutes),
+                    TimeSpan.FromDays(refreshTokenDays),
+                    ipAddress);
+
+                var response = new TokenPairDto(
+                    tokenPair.AccessToken,
+                    tokenPair.AccessTokenExpiresUtc,
+                    tokenPair.RefreshToken,
+                    tokenPair.RefreshTokenExpiresUtc);
+
+                return Results.Ok(response);
             }).RequireRateLimiting("login");
             #endregion
 
+            #region Refresh
+            app.MapPost("/refresh", async (
+                HttpContext httpContext,
+                RefreshTokenRequestDto dto,
+                IConfiguration config,
+                IJwtService jwtService
+            ) =>
+            {
+                if (string.IsNullOrWhiteSpace(dto.RefreshToken))
+                {
+                    return Results.BadRequest("Refresh token is required.");
+                }
+
+                var jwtKey = config["Jwt:Key"];
+                var jwtIssuer = config["Jwt:Issuer"];
+                if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
+                    return Results.Problem("JWT configuration missing.");
+
+                var accessTokenMinutes = config.GetValue<int?>("Jwt:AccessTokenMinutes") ?? 30;
+                var refreshTokenDays = config.GetValue<int?>("Jwt:RefreshTokenDays") ?? 7;
+                var ipAddress = ResolveClientIp(httpContext);
+
+                var result = await jwtService.RefreshTokenAsync(
+                    dto.RefreshToken,
+                    jwtKey,
+                    jwtIssuer,
+                    TimeSpan.FromMinutes(accessTokenMinutes),
+                    TimeSpan.FromDays(refreshTokenDays),
+                    ipAddress);
+
+                if (!result.Success || result.Tokens is null)
+                {
+                    return Results.Json(
+                        new { message = result.Error ?? "Unable to refresh token." },
+                        statusCode: StatusCodes.Status401Unauthorized);
+                }
+
+                var tokens = result.Tokens;
+
+                var response = new TokenPairDto(
+                    tokens.AccessToken,
+                    tokens.AccessTokenExpiresUtc,
+                    tokens.RefreshToken,
+                    tokens.RefreshTokenExpiresUtc);
+
+                return Results.Ok(response);
+            });
+            #endregion
+
+            static string? ResolveClientIp(HttpContext context)
+            {
+                if (context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor))
+                {
+                    var candidate = forwardedFor.FirstOrDefault();
+                    if (!string.IsNullOrWhiteSpace(candidate))
+                    {
+                        return candidate.Split(',').First().Trim();
+                    }
+                }
+
+                return context.Connection.RemoteIpAddress?.ToString();
+            }
         }
         
     }

@@ -1,4 +1,4 @@
-import type { UserDto, RegisterUserDto, LoginUserDto,CreateUserDto,UpdateUserDto } from "../data/userdtos";
+import type { UserDto, RegisterUserDto, LoginUserDto, CreateUserDto, UpdateUserDto, TokenPairDto } from "../data/userdtos";
 import type { ClientUpdateDto } from "../data/clientdtos";
 import type { TrainerUpdateDto } from "../data/trainerdtos";
 // Base URL of your API - uses environment variable or falls back to production URL
@@ -22,7 +22,7 @@ export async function registerUser(data: RegisterUserDto): Promise<UserDto> {
 }
 
 // Authenticate a user (login and get JWT token)
-export async function authenticateUser(data: LoginUserDto): Promise<{ token: string }> {
+export async function authenticateUser(data: LoginUserDto): Promise<TokenPairDto> {
   const response = await fetch(`${API_BASE_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -31,6 +31,19 @@ export async function authenticateUser(data: LoginUserDto): Promise<{ token: str
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(errorText);
+  }
+  return response.json();
+}
+
+export async function refreshAuthToken(refreshToken: string): Promise<TokenPairDto> {
+  const response = await fetch(`${API_BASE_URL}/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refreshToken }),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Unable to refresh token");
   }
   return response.json();
 }

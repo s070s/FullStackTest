@@ -30,7 +30,7 @@ const AdminDashboard: React.FC = () => {
         PAGE_SIZES
     } = useAdminDashboard();
 
-    const { token, currentUser } = useAuth(); // Needed for selectedUserId logic
+    const { currentUser, ensureAccessToken } = useAuth(); // Needed for selectedUserId logic
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [stats, setStats] = useState<UserStatisticsDto | null>(null);
@@ -63,7 +63,7 @@ const AdminDashboard: React.FC = () => {
                     </Button>
                     <Button
                         onClick={async () => {
-                            if (!selectedUserId || !token) return;
+                            if (!selectedUserId) return;
                             if (currentUser && selectedUserId === currentUser.id) {
                                 setError("You cannot delete your own account.");
                                 setTimeout(() => setError(null), 1000); // Clear after 1s
@@ -190,10 +190,11 @@ const AdminDashboard: React.FC = () => {
                 {/*Display user statistics here in span elements, call the api once upon clicking the button*/}
                 <Button
                     onClick={async () => {
-                        if (!token) return;
                         setStatsLoading(true); // Start spinner
                         try {
-                            const data = await adminFetchUserStatistics(token);
+                            const accessToken = await ensureAccessToken();
+                            if (!accessToken) return;
+                            const data = await adminFetchUserStatistics(accessToken);
                             setStats(data);
                         } finally {
                             setStatsLoading(false); // Stop spinner

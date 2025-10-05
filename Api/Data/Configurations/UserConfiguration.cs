@@ -31,6 +31,11 @@ namespace Api.Data.Configurations
                 .HasForeignKey<Client>(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasMany(u => u.RefreshTokens)
+                .WithOne(rt => rt.User)
+                .HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // NOTE: Ensure navigation properties in User, Trainer, and Client models are set up for these one-to-one relationships.
 
             // TIP: If you add new relationships or properties to User, update this configuration accordingly.

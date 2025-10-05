@@ -37,6 +37,8 @@ namespace Api.Data
         public DbSet<Trainer> Trainers => Set<Trainer>();
         // User Table
         public DbSet<User> Users => Set<User>();
+    // RefreshToken Table
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         // WeeklyProgram Table
         public DbSet<WeeklyProgram> WeeklyPrograms => Set<WeeklyProgram>();
         // Workout Table

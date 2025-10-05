@@ -22,6 +22,13 @@ dotnet ef database update
 dotnet run
 ```
 
+### Running the automated tests
+
+```sh
+cd FullStackTest
+dotnet test Api/Api.sln
+```
+
 Open a new terminal for the frontend:
 
 ```sh
@@ -246,6 +253,17 @@ If using VSCode, you can use the provided `.vscode/tasks.json` to automate commo
                 "Get-ExecutionPolicy -List"
             ],
             "problemMatcher": []
+        },
+        {
+            "label": "Test:API",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "test",
+                "Api.Tests/Api.Tests.csproj"
+            ],
+            "group": "test",
+            "problemMatcher": []
         }
     ],
     "inputs": [
@@ -347,6 +365,13 @@ ASPNETCORE_ENVIRONMENT=Production
 ConnectionStrings__DefaultConnection="Data Source=app.db"
 Jwt__Issuer="TestApi"
 Jwt__Key="the-much-longer-secret-key-which-is-at-least-32-characters-long!"
+JWT__AccessTokenMinutes=30
+JWT__RefreshTokenDays=7
+
+### Authentication Token Lifetimes
+- Access tokens now expire after **30 minutes**. When logging in you receive `accessToken`, `accessTokenExpiresUtc`, `refreshToken`, and `refreshTokenExpiresUtc`.
+- Refresh tokens are valid for **7 days**. Frontend clients should call `POST /refresh` with the refresh token to rotate credentials before the access token expires.
+- The React frontend automatically stores both tokens, refreshes them a minute before expiry, and falls back to `/refresh` whenever a request needs a new access token.
 
 -DockerFile and dockerignore included in the API Root for its deployment
 

@@ -15,7 +15,7 @@ const LoginPage: React.FC = () => {
     const [success, setSuccess] = useState<boolean>(false);
     const [loading, setLoading] = useState(false); 
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, refreshUser } = useAuth();
 
     // Form submission
     const handleSubmit = async (e: React.FormEvent) => {
@@ -29,8 +29,9 @@ const LoginPage: React.FC = () => {
         setLoading(true); 
         try {
             // Login via API
-            const result = await authenticateUser({ username, password });
-            login(result.token);
+            const tokens = await authenticateUser({ username, password });
+            login(tokens);
+            await refreshUser();
             setSuccess(true);
             navigate('/dashboard');
         } catch (err: any) {

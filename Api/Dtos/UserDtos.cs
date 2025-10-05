@@ -51,6 +51,17 @@ namespace Api.Dtos
         string Password
     );
 
+    public record RefreshTokenRequestDto(
+        string RefreshToken
+    );
+
+    public record TokenPairDto(
+        string AccessToken,
+        DateTime AccessTokenExpiresUtc,
+        string RefreshToken,
+        DateTime RefreshTokenExpiresUtc
+    );
+
 public class UserStatisticsDto
 {
     public int TotalUsers { get; set; }

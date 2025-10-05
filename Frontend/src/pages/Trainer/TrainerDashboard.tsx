@@ -8,7 +8,7 @@ import { useAuth } from "../../utils/contexts/AuthContext";
 
 
 const TrainerDashboard: React.FC = () => {
-    const { currentUser, token, refreshUser } = useAuth();
+    const { currentUser, refreshUser, ensureAccessToken } = useAuth();
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -47,16 +47,17 @@ const TrainerDashboard: React.FC = () => {
                     setLoading(true);
                     setError(null);
                     try {
-                        if (!token) {
-                            setError("Authentication token is missing.");
-                            return;
-                        }
                         if (currentUser?.id === undefined) {
                             setError("User ID is missing.");
                             return;
                         }
+                        const accessToken = await ensureAccessToken();
+                        if (!accessToken) {
+                            setError("Authentication token is missing.");
+                            return;
+                        }
                         await updateUserProfile(
-                            token,
+                            accessToken,
                             currentUser.id,
                             values
                         );

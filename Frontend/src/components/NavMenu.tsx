@@ -8,7 +8,7 @@ import { uploadProfilePhoto, fetchCurrentUser,API_BASE_URL } from "../utils/api/
 const NavMenu: React.FC = () => {
     const [hidden, setHidden] = useState(false);
     const navigate = useNavigate();
-    const { isLoggedIn, logout, token, currentUser, setCurrentUser } = useAuth();
+    const { isLoggedIn, logout, currentUser, setCurrentUser, ensureAccessToken } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleNavigate = (path: string) => {
@@ -29,13 +29,15 @@ const NavMenu: React.FC = () => {
 
     // When a file is selected, upload it and refresh user info
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!token || !currentUser) return;
+        if (!currentUser) return;
         const file = e.target.files?.[0];
         if (!file) return;
         try {
-            await uploadProfilePhoto(token, currentUser.id, file);
+            const accessToken = await ensureAccessToken();
+            if (!accessToken) return;
+            await uploadProfilePhoto(accessToken, currentUser.id, file);
             // Refresh user info to get new photo URL
-            const updatedUser = await fetchCurrentUser(token);
+            const updatedUser = await fetchCurrentUser(accessToken);
             setCurrentUser(updatedUser);
         } catch {
             alert("Failed to upload photo");
