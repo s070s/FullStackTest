@@ -6,7 +6,7 @@ namespace Api.Dtos
     public record GoalDto(
         int Id,
         GoalType GoalType,
-        string Description,
+        string? Description,
         DateTime TargetDate,
         GoalStatus Status,
         int? GoalQuantity,
@@ -17,7 +17,7 @@ namespace Api.Dtos
 
     public record CreateGoalDto(
         GoalType GoalType,
-        string Description,
+        string? Description,
         DateTime TargetDate,
         int ClientId,
         GoalStatus Status,

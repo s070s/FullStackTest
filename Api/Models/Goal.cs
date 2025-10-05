@@ -10,9 +10,9 @@ namespace Api.Models
         [Required]
         public GoalType GoalType { get; set; }
 
-        [Required]
+
         [StringLength(255)]
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
 
         [Required]
         public DateTime TargetDate { get; set; }
