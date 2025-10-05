@@ -44,7 +44,7 @@ const useAdminDashboard = () => {
     const handleCreateUser = async (data: CreateUserDto) => {
         if (!token) return;
         await adminCreateUser(token, data);
-        await refreshUsers();
+        await refreshUsersList();
     };
 
     const handleDeleteUser = async (selectedUserId: number | null) => {
@@ -54,7 +54,7 @@ const useAdminDashboard = () => {
             return;
         }
         await adminDeleteUser(token, selectedUserId);
-        await refreshUsers();
+        await refreshUsersList();
     };
 
     const handleUpdateUser = async (userId: number, data: UpdateUserDto) => {
@@ -81,10 +81,10 @@ const useAdminDashboard = () => {
                     : !!data.isActive;
         }
         await adminUpdateUser(token, userId, fixedData);
-        await refreshUsers();
+        await refreshUsersList();
     };
 
-    const refreshUsers = async () => {
+    const refreshUsersList = async () => {
         if (!token) return;
         const data = await adminFetchAllUsers(token, { page, pageSize, sortBy, sortOrder });
         setUsers(data.users);

@@ -11,6 +11,7 @@ interface AuthContextType {
   setCurrentUser: (user: UserDto | null) => void;
   login: (token: string) => void;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -20,6 +21,7 @@ const AuthContext = createContext<AuthContextType>({
   setCurrentUser: () => { },
   login: () => { },
   logout: () => { },
+  refreshUser: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -61,8 +63,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentUser(null);
   };
 
+  const refreshUser = async () => {
+    if (!token) {
+      setCurrentUser(null);
+      return;
+    }
+    try {
+      const user = await fetchCurrentUser(token);
+      setCurrentUser(user);
+    } catch {
+      setCurrentUser(null);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isLoggedIn, token, currentUser, setCurrentUser, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, token, currentUser, setCurrentUser, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

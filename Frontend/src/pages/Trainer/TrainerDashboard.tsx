@@ -8,7 +8,7 @@ import { useAuth } from "../../utils/contexts/AuthContext";
 
 
 const TrainerDashboard: React.FC = () => {
-    const { currentUser, token } = useAuth();
+    const { currentUser, token, refreshUser } = useAuth();
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -61,7 +61,7 @@ const TrainerDashboard: React.FC = () => {
                             values
                         );
                         setDialogOpen(false);
-                        // Optionally refresh user data here
+                        await refreshUser(); // Add this line to refresh user data
                     } catch (e: any) {
                         setError(e.message || "Failed to update profile.");
                     } finally {
