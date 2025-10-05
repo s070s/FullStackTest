@@ -344,9 +344,9 @@ VITE_API_DEV_URL=http://localhost:5203
 ## 6. Important For "Production"- API on Render
 -Env vars for API
 ASPNETCORE_ENVIRONMENT=Production
-ConnectionStrings__DefaultConnection
-Jwt__Issuer
-Jwt__Key
+ConnectionStrings__DefaultConnection="Data Source=app.db"
+Jwt__Issuer="TestApi"
+Jwt__Key="the-much-longer-secret-key-which-is-at-least-32-characters-long!"
 
 -DockerFile and dockerignore included in the API Root for its deployment
 
