@@ -3,3 +3,9 @@ obj/
 app.db
 *.md
 .vscode/
+*.user
+*.suo
+*.DS_Store
+
+# test projects (outside context, but just to be safe)
+../Api.Tests/
