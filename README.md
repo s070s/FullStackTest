@@ -364,32 +364,40 @@ VITE_API_DEV_URL=http://localhost:5203
 ASPNETCORE_ENVIRONMENT=Production
 ConnectionStrings__DefaultConnection="Data Source=app.db"
 Jwt__Issuer="TestApi"
+Frontend__Url="https://full-stack-test-beta.vercel.app"
 Jwt__Key="the-much-longer-secret-key-which-is-at-least-32-characters-long!"
 JWT__AccessTokenMinutes=30
 JWT__RefreshTokenDays=7
 
-### Authentication Token Lifetimes
-- Access tokens now expire after **30 minutes**. When logging in you receive `accessToken`, `accessTokenExpiresUtc`, `refreshToken`, and `refreshTokenExpiresUtc`.
-- Refresh tokens are valid for **7 days**. Frontend clients should call `POST /refresh` with the refresh token to rotate credentials before the access token expires.
-- The React frontend automatically stores both tokens, refreshes them a minute before expiry, and falls back to `/refresh` whenever a request needs a new access token.
-
 -DockerFile and dockerignore included in the API Root for its deployment
 
-## 7. Important For "Production"- Frontend on Vercel
+## 7. Authentication Token Lifetimes and Other information
+- Access token (short-lived JWT, e.g. 30 minutes) kept in memory only (React state / AuthContext) attached to Authorization header  for security reasons If expired or near expiry the client obtains a new access token via the refresh flow.
+
+- Refresh token (long-lived, e.g. 7 days) set by the server as an HttpOnly, Secure cookie (cookie name: `refreshToken`). unreadable with javascript. Client calls `POST /refresh` with fetch option `credentials: "include"` (no token in request body). The browser automatically sends the HttpOnly cookie; the server validates and rotates the refresh token and returns a new access token in JSON.
+- Flows
+  - Login: `POST /login` → server returns access token JSON and sets an HttpOnly refresh cookie.
+  - Silent reload: frontend calls `POST /refresh` once on startup (credentials included) to repopulate in-memory access token after a full page reload.
+  - Refresh: client calls `POST /refresh` (credentials included) to rotate tokens when access token is expired/close to expiry.
+  - Logout: client calls `POST /logout` on the API origin with credentials to clear the refresh cookie; client clears in-memory access token and user state.
+
+
+
+## 8. Important For "Production"- Frontend on Vercel
 -Env vars for frontend
 VITE_API_URL=https://fullstacktest-nokq.onrender.com/api
 
-## 8. Seeded admin account credentials
+## 9. Seeded admin account credentials
 username:admin
 password:admin1234567
 
-## 9. Development URLs for Reference
+## 10. Development URLs for Reference
 Frontend:http://localhost:5173/
 API:http://localhost:5203
 
-## 10. Production URLs for Reference
+## 11. Production URLs for Reference
 Frontend:https://full-stack-test-beta.vercel.app/
 API:https://fullstacktest-nokq.onrender.com/api
 
-## 11. Other Notes
+## 12. Other Notes
 -Uploading Static Files is not supported on Production as persistent storage on Render(the service where the api is deployed) requires a subscription beyond the free plan

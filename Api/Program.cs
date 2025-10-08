@@ -30,12 +30,26 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 //Register CORS service
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins",
+    options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.AllowAnyOrigin()
+            // Prefer Cors:AllowedOrigins array from config; fallback to Frontend:Url (comma-separated)
+            var configured = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+            string[] origins;
+            if (configured is not null && configured.Length > 0)
+            {
+                origins = configured;
+            }
+            else
+            {
+                var frontendConfig = builder.Configuration["Frontend:Url"] ?? "http://localhost:5173";
+                origins = frontendConfig.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            }
+
+            policy.WithOrigins(origins)
                   .AllowAnyMethod()
-                  .AllowAnyHeader();
+                  .AllowAnyHeader()
+                  .AllowCredentials();
         });
 });
 #endregion
@@ -135,7 +149,7 @@ using (var scope = app.Services.CreateScope())
 
 #region Enable Middleware
 //Use CORS before MapGet/MapPost calls
-app.UseCors("AllowAllOrigins");
+app.UseCors("AllowFrontend");
 
 // Enable authentication middleware
 app.UseAuthentication();

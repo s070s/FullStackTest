@@ -8,75 +8,91 @@ import React, {
   useRef,
   useState
 } from "react";
-import type { TokenPairDto, UserDto } from "../data/userdtos";
-import { fetchCurrentUser, refreshAuthToken } from "../api/api";
+import type { AccessTokenDto, UserDto } from "../data/userdtos";
+import { fetchCurrentUser, refreshAuthToken, API_BASE_URL } from "../api/api";
 
 interface AuthContextType {
   isLoggedIn: boolean;
   token: string | null;
-  refreshToken: string | null;
   currentUser: UserDto | null;
   setCurrentUser: (user: UserDto | null) => void;
-  login: (tokens: TokenPairDto) => void;
+  login: (tokens: AccessTokenDto) => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
   ensureAccessToken: () => Promise<string | null>;
+  // true after initial silent auth check (refresh attempt) finished
+  initialized: boolean;
 }
-
-type AuthTokens = TokenPairDto;
-
-const STORAGE_KEY = "auth.tokens";
-
-const loadStoredTokens = (): AuthTokens | null => {
-  if (typeof window === "undefined" || !window.localStorage) {
-    return null;
-  }
-
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as AuthTokens;
-  } catch {
-    window.localStorage.removeItem(STORAGE_KEY);
-    return null;
-  }
+// Keep only access token + expiry in-memory
+type AuthTokens = {
+  accessToken: string;
+  accessTokenExpiresUtc: string;
 };
+
+
 
 const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
   token: null,
-  refreshToken: null,
   currentUser: null,
-  setCurrentUser: () => { },
-  login: () => { },
-  logout: () => { },
-  refreshUser: async () => { },
+  setCurrentUser: () => {},
+  login: () => {},
+  logout: () => {},
+  refreshUser: async () => {},
   ensureAccessToken: async () => null,
+  initialized: false,
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tokens, setTokens] = useState<AuthTokens | null>(() => loadStoredTokens());
+  // start with no tokens in memory (no localStorage)
+  const [tokens, setTokens] = useState<AuthTokens | null>(null);
   const [currentUser, setCurrentUser] = useState<UserDto | null>(null);
+  const [initialized, setInitialized] = useState(false);
   const tokensRef = useRef<AuthTokens | null>(tokens);
   const refreshTimeoutRef = useRef<number | null>(null);
 
+  // Keep tokensRef in sync
   useEffect(() => {
     tokensRef.current = tokens;
   }, [tokens]);
 
+  // In-memory only: do not persist refresh token or access token to localStorage
   const persistTokens = useCallback((next: AuthTokens | null) => {
-    if (typeof window !== "undefined" && window.localStorage) {
-      if (next) {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } else {
-        window.localStorage.removeItem(STORAGE_KEY);
-      }
-    }
-
     setTokens(next);
   }, []);
+
+  // On first load, attempt a silent refresh using the HttpOnly cookie.
+  // If the refresh succeeds we populate the in-memory access token so the user stays logged in after a full page reload.
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const updated = await refreshAuthToken(); // sends cookie via credentials: "include"
+        if (!mounted || !updated) return;
+        persistTokens({
+          accessToken: updated.accessToken,
+          accessTokenExpiresUtc: updated.accessTokenExpiresUtc,
+        });
+      } catch {
+        // Silent failure: remain logged out (do not call logout() here to avoid clearing cookie aggressively)
+      } finally {
+        // signal that initial auth check completed (success or failure)
+        if (mounted) setInitialized(true);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [persistTokens]);
+
+  // ensure login sets initialized so UI can react immediately after user logs in
+  const wrappedLogin = useCallback((nextTokens: AccessTokenDto) => {
+    persistTokens({
+      accessToken: nextTokens.accessToken,
+      accessTokenExpiresUtc: nextTokens.accessTokenExpiresUtc,
+    });
+    setInitialized(true);
+  }, [persistTokens]);
 
   const clearRefreshTimeout = useCallback(() => {
     if (refreshTimeoutRef.current !== null) {
@@ -87,25 +103,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = useCallback(() => {
     clearRefreshTimeout();
+    // best-effort: notify backend to clear HttpOnly refresh cookie on the API origin
+    try {
+      void fetch(`${API_BASE_URL}/logout`, { method: "POST", credentials: "include" });
+    } catch {}
     persistTokens(null);
     setCurrentUser(null);
   }, [clearRefreshTimeout, persistTokens]);
 
-  const login = useCallback((nextTokens: TokenPairDto) => {
-    persistTokens(nextTokens);
-  }, [persistTokens]);
+  // expose wrappedLogin instead of raw login so initialized flag is set
+  const login = wrappedLogin;
 
   const refreshAccessToken = useCallback(async (): Promise<AuthTokens | null> => {
-    const current = tokensRef.current;
-    if (!current?.refreshToken) {
-      logout();
-      return null;
-    }
-
     try {
-      const updated = await refreshAuthToken(current.refreshToken);
-      persistTokens(updated);
-      return updated;
+      // The backend reads the refresh token from the HttpOnly cookie; call refresh endpoint (no token in JS)
+      const updated = await refreshAuthToken();
+      // updated must include accessToken and accessTokenExpiresUtc
+      persistTokens({
+        accessToken: updated.accessToken,
+        accessTokenExpiresUtc: updated.accessTokenExpiresUtc,
+      });
+      return {
+        accessToken: updated.accessToken,
+        accessTokenExpiresUtc: updated.accessTokenExpiresUtc,
+      };
     } catch (error) {
       logout();
       throw error;
@@ -179,14 +200,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const contextValue = useMemo<AuthContextType>(() => ({
     isLoggedIn: !!tokens,
     token: tokens?.accessToken ?? null,
-    refreshToken: tokens?.refreshToken ?? null,
     currentUser,
     setCurrentUser,
     login,
     logout,
     refreshUser,
     ensureAccessToken,
-  }), [tokens, currentUser, login, logout, refreshUser, ensureAccessToken]);
+    initialized,
+  }), [tokens, currentUser, login, logout, refreshUser, ensureAccessToken, initialized]);
 
   return (
     <AuthContext.Provider value={contextValue}>

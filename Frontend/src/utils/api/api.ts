@@ -1,4 +1,4 @@
-import type { UserDto, RegisterUserDto, LoginUserDto, CreateUserDto, UpdateUserDto, TokenPairDto } from "../data/userdtos";
+import type { UserDto, RegisterUserDto, LoginUserDto, CreateUserDto, UpdateUserDto} from "../data/userdtos";
 import type { ClientUpdateDto } from "../data/clientdtos";
 import type { TrainerUpdateDto } from "../data/trainerdtos";
 // Base URL of your API - uses environment variable or falls back to production URL
@@ -22,30 +22,30 @@ export async function registerUser(data: RegisterUserDto): Promise<UserDto> {
 }
 
 // Authenticate a user (login and get JWT token)
-export async function authenticateUser(data: LoginUserDto): Promise<TokenPairDto> {
-  const response = await fetch(`${API_BASE_URL}/login`, {
+export async function authenticateUser(data: LoginUserDto): Promise<{ accessToken: string; accessTokenExpiresUtc: string }> {
+  const res = await fetch(`${API_BASE_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(data),
   });
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText);
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || "Login failed");
   }
-  return response.json();
+  return res.json();
 }
 
-export async function refreshAuthToken(refreshToken: string): Promise<TokenPairDto> {
-  const response = await fetch(`${API_BASE_URL}/refresh`, {
+export async function refreshAuthToken(): Promise<{ accessToken: string; accessTokenExpiresUtc: string }> {
+  const res = await fetch(`${API_BASE_URL}/refresh`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refreshToken }),
+    credentials: "include" // crucial: send HttpOnly refresh cookie
   });
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || "Unable to refresh token");
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || "Unable to refresh token");
   }
-  return response.json();
+  return res.json();
 }
 // Used to fetch data from a protected api endpoint using JWT token after login
 export async function fetchWithAuth(
@@ -53,26 +53,35 @@ export async function fetchWithAuth(
   token: string,
   options: RequestInit = {}
 ) {
-  const isFormData = options.body instanceof FormData;
+  // ensure 'credentials' has the correct RequestCredentials type
+  const opts: RequestInit = { ...options, credentials: "include" as RequestCredentials };
+  const isFormData = opts.body instanceof FormData;
 
   // Convert headers to plain object if needed
   let baseHeaders: Record<string, string> = {};
-  if (options.headers instanceof Headers) {
-    options.headers.forEach((value, key) => {
+
+  if (opts.headers instanceof Headers) {
+    opts.headers.forEach((value, key) => {
       baseHeaders[key] = value;
     });
-  } else if (typeof options.headers === "object" && options.headers !== null) {
-    baseHeaders = { ...options.headers as Record<string, string> };
+  } else if (Array.isArray(opts.headers)) {
+    for (const [key, value] of opts.headers) {
+      baseHeaders[key] = value;
+    }
+  } else if (typeof opts.headers === "object" && opts.headers !== null) {
+    baseHeaders = { ...(opts.headers as Record<string, string>) };
   }
 
-  baseHeaders["Authorization"] = `Bearer ${token}`;
-  if (!isFormData) {
+  if (token) baseHeaders["Authorization"] = `Bearer ${token}`;
+
+  const hasContentType = Object.keys(baseHeaders).some(k => k.toLowerCase() === "content-type");
+  if (!isFormData && !hasContentType) {
     baseHeaders["Content-Type"] = "application/json";
   }
 
   const headers = new Headers(baseHeaders);
   return fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
+    ...opts,
     headers,
   });
 }

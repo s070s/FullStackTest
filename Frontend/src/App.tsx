@@ -8,7 +8,13 @@ import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./utils/contexts/AuthContext";
 
 const App: React.FC = () => {
-    const { isLoggedIn } = useAuth();
+    const { isLoggedIn, initialized } = useAuth();
+
+    // Wait until AuthProvider finishes the initial silent refresh check.
+    // This prevents immediate redirects to /login on page reload while the cookie-based refresh is in-flight.
+    if (!initialized) {
+        return null; // or return a small spinner component if you prefer
+    }
 
     return (
         <>
