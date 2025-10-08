@@ -31,42 +31,6 @@ namespace Api.Models
         public Client Client { get; set; } = null!;
 
 
-        public WeeklyProgramDto ToWeeklyProgramDto()
-        {
-            return new WeeklyProgramDto(
-                Id,
-                Name,
-                Description,
-                DurationInWeeks,
-                CurrentWeek,
-                IsCompleted,
-                Workouts.Select(w => w.ToWorkoutDto()).ToList(),
-                ClientId,
-                Client.ToClientDto()
-            );
-        }
-
-        public CreateWeeklyProgramDto ToCreateWeeklyProgramDto()
-        {
-            return new CreateWeeklyProgramDto(
-                Name,
-                DurationInWeeks,
-                ClientId,
-                Description,
-                Workouts.Select(w => w.Id).ToList()
-            );
-        }
-
-        public UpdateWeeklyProgramDto ToUpdateWeeklyProgramDto()
-        {
-            return new UpdateWeeklyProgramDto(
-                Id,
-                Name,
-                Description,
-                DurationInWeeks,
-                CurrentWeek,
-                Workouts.Select(w => w.Id).ToList()
-            );
-        }
+        
     }
 }

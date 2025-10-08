@@ -33,45 +33,6 @@ namespace Api.Models
         [Required]
         public Client Client { get; set; } = null!;
 
-        public MeasurementDto ToMeasurementDto()
-        {
-            return new MeasurementDto(
-                Id,
-                Unit,
-                Value,
-                Date,
-                Intensity,
-                IsPersonalBest,
-                Notes,
-                ClientId,
-                Client.ToClientDto()
-            );
-        }
-
-        public CreateMeasurementDto ToCreateMeasurementDto()
-        {
-            return new CreateMeasurementDto(
-                Unit,
-                Value,
-                Date,
-                Intensity,
-                IsPersonalBest,
-                Notes,
-                ClientId
-            );
-        }
-
-        public UpdateMeasurementDto ToUpdateMeasurementDto()
-        {
-            return new UpdateMeasurementDto(
-                Id,
-                Unit,
-                Value,
-                Date,
-                Intensity,
-                IsPersonalBest,
-                Notes
-            );
-        }
+        
     }
 }

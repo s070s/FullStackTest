@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251008090944_NewMigration")]
+    [Migration("20251008123543_NewMigration")]
     partial class NewMigration
     {
         /// <inheritdoc />
@@ -722,7 +722,7 @@ namespace Api.Migrations
                     b.Property<DateTime>("UpdatedUtc")
                         .HasColumnType("TEXT");
 
-                    b.Property<float?>("Weight")
+                    b.Property<double?>("Weight")
                         .HasColumnType("REAL");
 
                     b.Property<int>("WorkoutExerciseId")

@@ -22,7 +22,6 @@ export type ClientDto = {
 
 
 
-//Todo convert all record dtos on the backend to classes 
 export type ClientUpdateDto = {
   firstName?: string;
   lastName?: string;

@@ -1,48 +1,120 @@
+using System.Text.Json.Serialization;
 using Api.Models;
 using Api.Models.Enums;
+
 namespace Api.Dtos
 {
-    public record TrainerDto(
-        int Id,
-        int UserId,
-        string? Bio,
-        string? FirstName,
-        string? LastName,
-        DateTime? DateOfBirth,
-        string? PhoneNumber,
-        string? Address,
-        string? City,
-        string? State,
-        string? ZipCode,
-        string? Country,
-        double? Weight,
-        double? Height,
-        double? BMR,
-        double? BMI,
-        int? Age,
-        ICollection<ClientDto> Clients,
-        ICollection<TrainerSpecialization> Specializations,
-        ICollection<WorkoutDto> Workouts
-    );
+    public class TrainerDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
 
-    public record CreateTrainerDto(
-        int UserId,
-        string? Bio = null,
-        ICollection<TrainerSpecialization>? Specializations = null
-    );
+        [JsonPropertyName("userId")]
+        public int UserId { get; set; }
 
-    public record UpdateTrainerProfileDto(
-        string? FirstName,
-        string? LastName,
-        string? Bio,
-        DateTime? DateOfBirth,
-        double? Height,
-        double? Weight,
-        string? PhoneNumber,
-        string? Country,
-        string? City,
-        string? Address,
-        string? ZipCode,
-        string? State
-    );
+        [JsonPropertyName("bio")]
+        public string? Bio { get; set; }
+
+        [JsonPropertyName("firstName")]
+        public string? FirstName { get; set; }
+
+        [JsonPropertyName("lastName")]
+        public string? LastName { get; set; }
+
+        [JsonPropertyName("dateOfBirth")]
+        public DateTime? DateOfBirth { get; set; }
+
+        [JsonPropertyName("phoneNumber")]
+        public string? PhoneNumber { get; set; }
+
+        [JsonPropertyName("address")]
+        public string? Address { get; set; }
+
+        [JsonPropertyName("city")]
+        public string? City { get; set; }
+
+        [JsonPropertyName("state")]
+        public string? State { get; set; }
+
+        [JsonPropertyName("zipCode")]
+        public string? ZipCode { get; set; }
+
+        [JsonPropertyName("country")]
+        public string? Country { get; set; }
+
+        [JsonPropertyName("weight")]
+        public double? Weight { get; set; }
+
+        [JsonPropertyName("height")]
+        public double? Height { get; set; }
+
+        [JsonPropertyName("bmr")]
+        public double? BMR { get; set; }
+
+        [JsonPropertyName("bmi")]
+        public double? BMI { get; set; }
+
+        [JsonPropertyName("age")]
+        public int? Age { get; set; }
+
+        [JsonPropertyName("clients")]
+        public ICollection<ClientDto> Clients { get; set; } = new List<ClientDto>();
+
+        [JsonPropertyName("specializations")]
+        public ICollection<TrainerSpecialization> Specializations { get; set; } = new List<TrainerSpecialization>();
+
+        [JsonPropertyName("workouts")]
+        public ICollection<WorkoutDto> Workouts { get; set; } = new List<WorkoutDto>();
+    }
+
+    public class CreateTrainerDto
+    {
+        [JsonPropertyName("userId")]
+        public int UserId { get; set; }
+
+        [JsonPropertyName("bio")]
+        public string? Bio { get; set; }
+
+        [JsonPropertyName("specializations")]
+        public ICollection<TrainerSpecialization>? Specializations { get; set; }
+    }
+
+    public class UpdateTrainerProfileDto
+    {
+        [JsonPropertyName("firstName")]
+        public string? FirstName { get; set; }
+
+        [JsonPropertyName("lastName")]
+        public string? LastName { get; set; }
+
+        [JsonPropertyName("bio")]
+        public string? Bio { get; set; }
+
+        [JsonPropertyName("dateOfBirth")]
+        public DateTime? DateOfBirth { get; set; }
+
+        [JsonPropertyName("height")]
+        public double? Height { get; set; }
+
+        [JsonPropertyName("weight")]
+        public double? Weight { get; set; }
+
+        [JsonPropertyName("phoneNumber")]
+        public string? PhoneNumber { get; set; }
+
+        [JsonPropertyName("country")]
+        public string? Country { get; set; }
+
+        [JsonPropertyName("city")]
+        public string? City { get; set; }
+
+        [JsonPropertyName("address")]
+        public string? Address { get; set; }
+
+        [JsonPropertyName("zipCode")]
+        public string? ZipCode { get; set; }
+
+        [JsonPropertyName("state")]
+        public string? State { get; set; }
+    }
 }

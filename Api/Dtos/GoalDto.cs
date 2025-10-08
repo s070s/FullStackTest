@@ -1,37 +1,84 @@
+using System.Text.Json.Serialization;
 using Api.Models;
 using Api.Models.Enums;
 
 namespace Api.Dtos
 {
-    public record GoalDto(
-        int Id,
-        GoalType GoalType,
-        string? Description,
-        DateTime TargetDate,
-        GoalStatus Status,
-        int? GoalQuantity,
-        GoalUnit? GoalUnit,
-        int ClientId,
-        ClientDto Client
-    );
+    public class GoalDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
 
-    public record CreateGoalDto(
-        GoalType GoalType,
-        string? Description,
-        DateTime TargetDate,
-        int ClientId,
-        GoalStatus Status,
-        int? GoalQuantity = null,
-        GoalUnit? GoalUnit = null
-    );
+        [JsonPropertyName("goalType")]
+        public GoalType GoalType { get; set; }
 
-    public record UpdateGoalDto(
-        int Id,
-        GoalType? GoalType = null,
-        string? Description = null,
-        DateTime? TargetDate = null,
-        GoalStatus? Status = null,
-        int? GoalQuantity = null,
-        GoalUnit? GoalUnit = null
-    );
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("targetDate")]
+        public DateTime TargetDate { get; set; }
+
+        [JsonPropertyName("status")]
+        public GoalStatus Status { get; set; }
+
+        [JsonPropertyName("goalQuantity")]
+        public int? GoalQuantity { get; set; }
+
+        [JsonPropertyName("goalUnit")]
+        public GoalUnit? GoalUnit { get; set; }
+
+        [JsonPropertyName("clientId")]
+        public int ClientId { get; set; }
+
+        [JsonPropertyName("client")]
+        public ClientDto Client { get; set; } = null!;
+    }
+
+    public class CreateGoalDto
+    {
+        [JsonPropertyName("goalType")]
+        public GoalType GoalType { get; set; }
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("targetDate")]
+        public DateTime TargetDate { get; set; }
+
+        [JsonPropertyName("clientId")]
+        public int ClientId { get; set; }
+
+        [JsonPropertyName("status")]
+        public GoalStatus Status { get; set; }
+
+        [JsonPropertyName("goalQuantity")]
+        public int? GoalQuantity { get; set; }
+
+        [JsonPropertyName("goalUnit")]
+        public GoalUnit? GoalUnit { get; set; }
+    }
+
+    public class UpdateGoalDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("goalType")]
+        public GoalType? GoalType { get; set; }
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("targetDate")]
+        public DateTime? TargetDate { get; set; }
+
+        [JsonPropertyName("status")]
+        public GoalStatus? Status { get; set; }
+
+        [JsonPropertyName("goalQuantity")]
+        public int? GoalQuantity { get; set; }
+
+        [JsonPropertyName("goalUnit")]
+        public GoalUnit? GoalUnit { get; set; }
+    }
 }

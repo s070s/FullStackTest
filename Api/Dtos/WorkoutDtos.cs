@@ -1,38 +1,87 @@
+using System.Text.Json.Serialization;
 using Api.Models.Enums;
 using Api.Models;
 
 namespace Api.Dtos
 {
-    public record WorkoutDto(
-        int Id,
-        ICollection<ClientDto> Clients,
-        int? TrainerId,
-        TrainerDto? Trainer,
-        int? WeeklyProgramId,
-        WeeklyProgramDto? WeeklyProgram,
-        DateTime ScheduledDateTime,
-        string? Type,
-        int DurationInMinutes,
-        string? Notes
-    );
+    public class WorkoutDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
 
-    public record CreateWorkoutDto(
-        ICollection<int> ClientIds,
-        int? TrainerId,
-        int? WeeklyProgramId,
-        DateTime ScheduledDateTime,
-        string? Type,
-        int DurationInMinutes,
-        string? Notes = null
-    );
+        [JsonPropertyName("clients")]
+        public ICollection<ClientDto> Clients { get; set; } = new List<ClientDto>();
 
-    public record UpdateWorkoutDto(
-        ICollection<int>? ClientIds = null,
-        int? TrainerId = null,
-        int? WeeklyProgramId = null,
-        DateTime? ScheduledDateTime = null,
-        string? Type = null,
-        int? DurationInMinutes = null,
-        string? Notes = null
-    );
+        [JsonPropertyName("trainerId")]
+        public int? TrainerId { get; set; }
+
+        [JsonPropertyName("trainer")]
+        public TrainerDto? Trainer { get; set; }
+
+        [JsonPropertyName("weeklyProgramId")]
+        public int? WeeklyProgramId { get; set; }
+
+        [JsonPropertyName("weeklyProgram")]
+        public WeeklyProgramDto? WeeklyProgram { get; set; }
+
+        [JsonPropertyName("scheduledDateTime")]
+        public DateTime ScheduledDateTime { get; set; }
+
+        [JsonPropertyName("type")]
+        public string? Type { get; set; }
+
+        [JsonPropertyName("durationInMinutes")]
+        public int DurationInMinutes { get; set; }
+
+        [JsonPropertyName("notes")]
+        public string? Notes { get; set; }
+    }
+
+    public class CreateWorkoutDto
+    {
+        [JsonPropertyName("clientIds")]
+        public ICollection<int> ClientIds { get; set; } = new List<int>();
+
+        [JsonPropertyName("trainerId")]
+        public int? TrainerId { get; set; }
+
+        [JsonPropertyName("weeklyProgramId")]
+        public int? WeeklyProgramId { get; set; }
+
+        [JsonPropertyName("scheduledDateTime")]
+        public DateTime ScheduledDateTime { get; set; }
+
+        [JsonPropertyName("type")]
+        public string? Type { get; set; }
+
+        [JsonPropertyName("durationInMinutes")]
+        public int DurationInMinutes { get; set; }
+
+        [JsonPropertyName("notes")]
+        public string? Notes { get; set; }
+    }
+
+    public class UpdateWorkoutDto
+    {
+        [JsonPropertyName("clientIds")]
+        public ICollection<int>? ClientIds { get; set; }
+
+        [JsonPropertyName("trainerId")]
+        public int? TrainerId { get; set; }
+
+        [JsonPropertyName("weeklyProgramId")]
+        public int? WeeklyProgramId { get; set; }
+
+        [JsonPropertyName("scheduledDateTime")]
+        public DateTime? ScheduledDateTime { get; set; }
+
+        [JsonPropertyName("type")]
+        public string? Type { get; set; }
+
+        [JsonPropertyName("durationInMinutes")]
+        public int? DurationInMinutes { get; set; }
+
+        [JsonPropertyName("notes")]
+        public string? Notes { get; set; }
+    }
 }

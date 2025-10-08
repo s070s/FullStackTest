@@ -25,35 +25,7 @@ namespace Api.Models
         public string? Notes { get; set; }
 
 
-        public WorkoutExerciseDto ToWorkoutExerciseDto()
-        {
-            return new WorkoutExerciseDto(
-                Id,
-                WorkoutId,
-                Workout.ToWorkoutDto(),
-                ExerciseDefinitionId,
-                ExerciseDefinition.ToExerciseDefinitionDto(),
-                Sets.Select(s => s.ToWorkoutExerciseSetDto()).ToList(),
-                Notes
-            );
-        }
-
-        public CreateWorkoutExerciseDto ToCreateWorkoutExerciseDto()
-        {
-            return new CreateWorkoutExerciseDto(
-                WorkoutId,
-                ExerciseDefinitionId,
-                Notes
-            );
-        }
-
-        public UpdateWorkoutExerciseDto ToUpdateWorkoutExerciseDto()
-        {
-            return new UpdateWorkoutExerciseDto(
-                Id,
-                Notes
-            );
-        }
+        
 
     }
 }

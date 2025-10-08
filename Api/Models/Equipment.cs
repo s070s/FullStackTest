@@ -16,33 +16,6 @@ namespace Api.Models
 
         public ICollection<ExerciseDefinition> Exercises { get; set; } = new List<ExerciseDefinition>();
         
-        public EquipmentDto ToEquipmentDto()
-        {
-            return new EquipmentDto(
-                Id,
-                Name,
-                Description,
-                Exercises.Select(e => e.ToExerciseDefinitionDto()).ToList()
-            );
-        }
-
-        public CreateEquipmentDto ToCreateEquipmentDto()
-        {
-            return new CreateEquipmentDto(
-                Name,
-                Description,
-                Exercises.Select(e => e.Id).ToList()
-            );
-        }
-
-        public UpdateEquipmentDto ToUpdateEquipmentDto()
-        {
-            return new UpdateEquipmentDto(
-                Id,
-                Name,
-                Description,
-                Exercises.Select(e => e.Id).ToList()
-            );
-        }
+        
     }
 }

@@ -441,7 +441,7 @@ namespace Api.Migrations
                     WorkoutExerciseId = table.Column<int>(type: "INTEGER", nullable: false),
                     SetNumber = table.Column<int>(type: "INTEGER", nullable: false),
                     Repetitions = table.Column<int>(type: "INTEGER", nullable: false),
-                    Weight = table.Column<float>(type: "REAL", nullable: true),
+                    Weight = table.Column<double>(type: "REAL", nullable: true),
                     GoalUnit = table.Column<int>(type: "INTEGER", nullable: true),
                     OverallIntensityLevel = table.Column<int>(type: "INTEGER", nullable: false),
                     DurationInSeconds = table.Column<int>(type: "INTEGER", nullable: false),

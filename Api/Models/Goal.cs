@@ -34,46 +34,7 @@ namespace Api.Models
         public Client Client { get; set; } = null!;
 
 
-        public GoalDto ToGoalDto()
-        {
-            return new GoalDto(
-                Id,
-                GoalType,
-                Description,
-                TargetDate,
-                Status,
-                GoalQuantity,
-                GoalUnit,
-                ClientId,
-                Client.ToClientDto()
-            );
-        }
-
-        public CreateGoalDto ToCreateGoalDto()
-        {
-            return new CreateGoalDto(
-                GoalType,
-                Description,
-                TargetDate,
-                ClientId,
-                Status,
-                GoalQuantity,
-                GoalUnit
-            );
-        }
-
-        public UpdateGoalDto ToUpdateGoalDto()
-        {
-            return new UpdateGoalDto(
-                Id,
-                GoalType,
-                Description,
-                TargetDate,
-                Status,
-                GoalQuantity,
-                GoalUnit
-            );
-        }
+        
 
 
     }

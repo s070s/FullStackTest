@@ -26,40 +26,8 @@ namespace Api.Models
         [Required]
         public ICollection<TrainerSpecialization> Specializations { get; set; } = new List<TrainerSpecialization>();
         
-        public TrainerDto ToTrainerDto()
-        {
-            return new TrainerDto(
-                Id,
-                UserId,
-                Bio,
-                FirstName,
-                LastName,
-                DateOfBirth,
-                PhoneNumber,
-                Address,
-                City,
-                State,
-                ZipCode,
-                Country,
-                Weight,
-                Height,
-                BMR,
-                BMI,
-                Age,
-                Clients.Select(c => c.ToClientDto()).ToList(),
-                Specializations,
-                Workouts.Select(w => w.ToWorkoutDto()).ToList()
-            );
-        }
 
-        public CreateTrainerDto ToCreateTrainerDto()
-        {
-            return new CreateTrainerDto(
-                UserId,
-                Bio,
-                Specializations
-            );
-        }
+        
 
     }
 }

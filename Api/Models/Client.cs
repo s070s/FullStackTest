@@ -36,46 +36,7 @@ namespace Api.Models
 
         public ICollection<Measurement> Measurements { get; set; } = new List<Measurement>();
 
-        public ClientDto ToClientDto()
-        {
-            return new ClientDto(
-                Id,
-                UserId,
-                Bio,
-                ExperienceLevel,
-                MedicalHistory?.ToMedicalHistoryDto(),
-                PreferredIntensityLevel,
-                FirstName,
-                LastName,
-                DateOfBirth,
-                PhoneNumber,
-                Address,
-                City,
-                State,
-                ZipCode,
-                Country,
-                Weight,
-                Height,
-                BMR,
-                BMI,
-                Age,
-                Goals.Select(g => g.ToGoalDto()).ToList(),
-                Workouts.Select(w => w.ToWorkoutDto()).ToList(),
-                Trainers.Select(t => t.ToTrainerDto()).ToList(),
-                Measurements.Select(m => m.ToMeasurementDto()).ToList()
-            );
-        }
-
-        public CreateClientDto ToCreateClientDto()
-        {
-            return new CreateClientDto(
-                UserId,
-                Bio,
-                ExperienceLevel,
-                MedicalHistory?.ToMedicalHistoryDto(),
-                PreferredIntensityLevel
-            );
-        }
+        
 
     }
 }

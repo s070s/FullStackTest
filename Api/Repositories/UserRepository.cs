@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Api.Dtos;
 using Api.Services;
 using Api.Models.Enums;
+using Api.Mappings;
 
 namespace Api.Repositories
 {
@@ -129,17 +130,18 @@ namespace Api.Repositories
                 clientProfile = user.ClientProfile.ToClientDto();
             }
 
-            return new UserDto(
-                user.Id,
-                user.CreatedUtc,
-                user.Username,
-                user.Email,
-                user.IsActive,
-                user.Role,
-                user.ProfilePhotoUrl,
-                trainerProfile,
-                clientProfile
-            );
+            return new UserDto
+            {
+                Id = user.Id,
+                CreatedUtc = user.CreatedUtc,
+                Username = user.Username,
+                Email = user.Email,
+                IsActive = user.IsActive,
+                Role = user.Role,
+                ProfilePhotoUrl = user.ProfilePhotoUrl,
+                TrainerProfile = trainerProfile,
+                ClientProfile = clientProfile
+            };
         }
 
         // Gets user by ID, returns as UserDto (no profiles)
@@ -150,17 +152,18 @@ namespace Api.Repositories
                 .SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return null;
 
-            return new UserDto(
-                user.Id,
-                user.CreatedUtc,
-                user.Username,
-                user.Email,
-                user.IsActive,
-                user.Role,
-                user.ProfilePhotoUrl,
-                null,
-                null
-            );
+            return new UserDto
+            {
+                Id = user.Id,
+                CreatedUtc = user.CreatedUtc,
+                Username = user.Username,
+                Email = user.Email,
+                IsActive = user.IsActive,
+                Role = user.Role,
+                ProfilePhotoUrl = user.ProfilePhotoUrl,
+                TrainerProfile = null,
+                ClientProfile = null
+            };
         }
 
         // Assigns a profile (Client/Trainer) to a user, validates assignment
@@ -252,17 +255,18 @@ namespace Api.Repositories
             query = paginationService.ApplySorting(query, sortBy, sortOrder);
             query = paginationService.ApplyPagination(query, page, pageSize);
             var users = await query
-                .Select(u => new UserDto(
-                    u.Id,
-                    u.CreatedUtc,
-                    u.Username,
-                    u.Email,
-                    u.IsActive,
-                    u.Role,
-                    u.ProfilePhotoUrl,
-                    u.TrainerProfile != null ? u.TrainerProfile.ToTrainerDto() : null,
-                    u.ClientProfile != null ? u.ClientProfile.ToClientDto() : null
-                ))
+                .Select(u => new UserDto
+                {
+                    Id = u.Id,
+                    CreatedUtc = u.CreatedUtc,
+                    Username = u.Username,
+                    Email = u.Email,
+                    IsActive = u.IsActive,
+                    Role = u.Role,
+                    ProfilePhotoUrl = u.ProfilePhotoUrl,
+                    TrainerProfile = u.TrainerProfile != null ? u.TrainerProfile.ToTrainerDto() : null,
+                    ClientProfile = u.ClientProfile != null ? u.ClientProfile.ToClientDto() : null
+                })
                 .ToListAsync();
             return (users, total);
         }

@@ -719,7 +719,7 @@ namespace Api.Migrations
                     b.Property<DateTime>("UpdatedUtc")
                         .HasColumnType("TEXT");
 
-                    b.Property<float?>("Weight")
+                    b.Property<double?>("Weight")
                         .HasColumnType("REAL");
 
                     b.Property<int>("WorkoutExerciseId")

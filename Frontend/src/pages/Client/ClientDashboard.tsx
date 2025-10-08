@@ -57,7 +57,7 @@ const ClientDashboard: React.FC = () => {
                         else setError("Profile data not loaded.");
                     }}
                 >
-                    Change Profile Settings
+                    Change Profile Information
                 </Button>
             </section>
 

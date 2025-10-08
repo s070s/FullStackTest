@@ -29,47 +29,7 @@ namespace Api.Models
         [StringLength(500)]
         public string? Notes { get; set; }
         
-        public WorkoutDto ToWorkoutDto()
-        {
-            return new WorkoutDto(
-                Id,
-                Clients.Select(c => c.ToClientDto()).ToList(),
-                TrainerId,
-                Trainer?.ToTrainerDto(),
-                WeeklyProgramId,
-                WeeklyProgram?.ToWeeklyProgramDto(),
-                ScheduledDateTime,
-                Type,
-                DurationInMinutes,
-                Notes
-            );
-        }
-
-        public CreateWorkoutDto ToCreateWorkoutDto()
-        {
-            return new CreateWorkoutDto(
-                Clients.Select(c => c.Id).ToList(),
-                TrainerId,
-                WeeklyProgramId,
-                ScheduledDateTime,
-                Type,
-                DurationInMinutes,
-                Notes
-            );
-        }
-
-        public UpdateWorkoutDto ToUpdateWorkoutDto()
-        {
-            return new UpdateWorkoutDto(
-                Clients.Select(c => c.Id).ToList(),
-                TrainerId,
-                WeeklyProgramId,
-                ScheduledDateTime,
-                Type,
-                DurationInMinutes,
-                Notes
-            );
-        }
+        
 
     }
 }

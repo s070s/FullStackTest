@@ -1,34 +1,75 @@
+using System.Text.Json.Serialization;
 using Api.Models;
 using Api.Models.Enums;
 
 namespace Api.Dtos
 {
-    public record WeeklyProgramDto(
-        int Id,
-        string Name,
-        string? Description,
-        int DurationInWeeks,
-        int CurrentWeek,
-        bool IsCompleted,
-        ICollection<WorkoutDto> Workouts,
-        int ClientId,
-        ClientDto Client
-    );
+    public class WeeklyProgramDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
 
-    public record CreateWeeklyProgramDto(
-        string Name,
-        int DurationInWeeks,
-        int ClientId,
-        string? Description = null,
-        ICollection<int>? WorkoutIds = null
-    );
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = null!;
 
-    public record UpdateWeeklyProgramDto(
-        int Id,
-        string? Name = null,
-        string? Description = null,
-        int? DurationInWeeks = null,
-        int? CurrentWeek = null,
-        ICollection<int>? WorkoutIds = null
-    );
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("durationInWeeks")]
+        public int DurationInWeeks { get; set; }
+
+        [JsonPropertyName("currentWeek")]
+        public int CurrentWeek { get; set; }
+
+        [JsonPropertyName("isCompleted")]
+        public bool IsCompleted { get; set; }
+
+        [JsonPropertyName("workouts")]
+        public ICollection<WorkoutDto> Workouts { get; set; } = new List<WorkoutDto>();
+
+        [JsonPropertyName("clientId")]
+        public int ClientId { get; set; }
+
+        [JsonPropertyName("client")]
+        public ClientDto Client { get; set; } = null!;
+    }
+
+    public class CreateWeeklyProgramDto
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = null!;
+
+        [JsonPropertyName("durationInWeeks")]
+        public int DurationInWeeks { get; set; }
+
+        [JsonPropertyName("clientId")]
+        public int ClientId { get; set; }
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("workoutIds")]
+        public ICollection<int>? WorkoutIds { get; set; }
+    }
+
+    public class UpdateWeeklyProgramDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("durationInWeeks")]
+        public int? DurationInWeeks { get; set; }
+
+        [JsonPropertyName("currentWeek")]
+        public int? CurrentWeek { get; set; }
+
+        [JsonPropertyName("workoutIds")]
+        public ICollection<int>? WorkoutIds { get; set; }
+    }
 }

@@ -32,43 +32,6 @@ namespace Api.Models
         public Client? ClientProfile { get; set; }
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
         
-        public UserDto ToUserDto()
-        {
-            return new UserDto(
-                Id,
-                CreatedUtc,
-                Username,
-                Email,
-                IsActive,
-                Role,
-                ProfilePhotoUrl,
-                TrainerProfile?.ToTrainerDto(),
-                ClientProfile?.ToClientDto()
-            );
-        }
-
-        public CreateUserDto ToCreateUserDto(string password)
-        {
-            return new CreateUserDto(
-                Username,
-                Email,
-                Role,
-                password,
-                IsActive,
-                ProfilePhotoUrl
-            );
-        }
-
-        public UpdateUserDto ToUpdateUserDto(string? password = null)
-        {
-            return new UpdateUserDto(
-                Id,
-                Username,
-                Email,
-                IsActive,
-                Role,
-                password
-            );
-        }
+        
     }
 }

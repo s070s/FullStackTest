@@ -1,43 +1,102 @@
+using System.Text.Json.Serialization;
 using Api.Models;
 using Api.Models.Enums;
 
 namespace Api.Dtos
 {
-    public record WorkoutExerciseSetDto(
-        int Id,
-        int WorkoutExerciseId,
-        WorkoutExerciseDto WorkoutExercise,
-        int SetNumber,
-        int Repetitions,
-        double? Weight,
-        GoalUnit? GoalUnit,
-        IntensityLevel OverallIntensityLevel,
-        int DurationInSeconds,
-        int RestPeriodInSeconds,
-        string? Notes
-    );
+    public class WorkoutExerciseSetDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
 
-    public record CreateWorkoutExerciseSetDto(
-        int WorkoutExerciseId,
-        int SetNumber,
-        int Repetitions,
-        double? Weight,
-        GoalUnit? GoalUnit,
-        IntensityLevel OverallIntensityLevel,
-        int DurationInSeconds,
-        int RestPeriodInSeconds,
-        string? Notes = null
-    );
+        [JsonPropertyName("workoutExerciseId")]
+        public int WorkoutExerciseId { get; set; }
 
-    public record UpdateWorkoutExerciseSetDto(
-        int Id,
-        int? SetNumber = null,
-        int? Repetitions = null,
-        double? Weight = null,
-        GoalUnit? GoalUnit = null,
-        IntensityLevel? OverallIntensityLevel = null,
-        int? DurationInSeconds = null,
-        int? RestPeriodInSeconds = null,
-        string? Notes = null
-    );
+        [JsonPropertyName("workoutExercise")]
+        public WorkoutExerciseDto WorkoutExercise { get; set; } = null!;
+
+        [JsonPropertyName("setNumber")]
+        public int SetNumber { get; set; }
+
+        [JsonPropertyName("repetitions")]
+        public int Repetitions { get; set; }
+
+        [JsonPropertyName("weight")]
+        public double? Weight { get; set; }
+
+        [JsonPropertyName("goalUnit")]
+        public GoalUnit? GoalUnit { get; set; }
+
+        [JsonPropertyName("overallIntensityLevel")]
+        public IntensityLevel OverallIntensityLevel { get; set; }
+
+        [JsonPropertyName("durationInSeconds")]
+        public int DurationInSeconds { get; set; }
+
+        [JsonPropertyName("restPeriodInSeconds")]
+        public int RestPeriodInSeconds { get; set; }
+
+        [JsonPropertyName("notes")]
+        public string? Notes { get; set; }
+    }
+
+    public class CreateWorkoutExerciseSetDto
+    {
+        [JsonPropertyName("workoutExerciseId")]
+        public int WorkoutExerciseId { get; set; }
+
+        [JsonPropertyName("setNumber")]
+        public int SetNumber { get; set; }
+
+        [JsonPropertyName("repetitions")]
+        public int Repetitions { get; set; }
+
+        [JsonPropertyName("weight")]
+        public double? Weight { get; set; }
+
+        [JsonPropertyName("goalUnit")]
+        public GoalUnit? GoalUnit { get; set; }
+
+        [JsonPropertyName("overallIntensityLevel")]
+        public IntensityLevel OverallIntensityLevel { get; set; }
+
+        [JsonPropertyName("durationInSeconds")]
+        public int DurationInSeconds { get; set; }
+
+        [JsonPropertyName("restPeriodInSeconds")]
+        public int RestPeriodInSeconds { get; set; }
+
+        [JsonPropertyName("notes")]
+        public string? Notes { get; set; }
+    }
+
+    public class UpdateWorkoutExerciseSetDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("setNumber")]
+        public int? SetNumber { get; set; }
+
+        [JsonPropertyName("repetitions")]
+        public int? Repetitions { get; set; }
+
+        [JsonPropertyName("weight")]
+        public double? Weight { get; set; }
+
+        [JsonPropertyName("goalUnit")]
+        public GoalUnit? GoalUnit { get; set; }
+
+        [JsonPropertyName("overallIntensityLevel")]
+        public IntensityLevel? OverallIntensityLevel { get; set; }
+
+        [JsonPropertyName("durationInSeconds")]
+        public int? DurationInSeconds { get; set; }
+
+        [JsonPropertyName("restPeriodInSeconds")]
+        public int? RestPeriodInSeconds { get; set; }
+
+        [JsonPropertyName("notes")]
+        public string? Notes { get; set; }
+    }
 }

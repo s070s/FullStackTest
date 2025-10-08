@@ -1,37 +1,84 @@
+using System.Text.Json.Serialization;
 using Api.Models;
 using Api.Models.Enums;
 
 namespace Api.Dtos
 {
-    public record MeasurementDto(
-        int Id,
-        GoalUnit Unit,
-        double Value,
-        DateTime Date,
-        IntensityLevel Intensity,
-        bool IsPersonalBest,
-        string? Notes,
-        int ClientId,
-        ClientDto Client
-    );
+    public class MeasurementDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
 
-    public record CreateMeasurementDto(
-        GoalUnit Unit,
-        double Value,
-        DateTime Date,
-        IntensityLevel Intensity,
-        bool IsPersonalBest = false,
-        string? Notes = null,
-        int ClientId = 0
-    );
+        [JsonPropertyName("unit")]
+        public GoalUnit Unit { get; set; }
 
-    public record UpdateMeasurementDto(
-        int Id,
-        GoalUnit? Unit = null,
-        double? Value = null,
-        DateTime? Date = null,
-        IntensityLevel? Intensity = null,
-        bool? IsPersonalBest = null,
-        string? Notes = null
-    );
+        [JsonPropertyName("value")]
+        public double Value { get; set; }
+
+        [JsonPropertyName("date")]
+        public DateTime Date { get; set; }
+
+        [JsonPropertyName("intensity")]
+        public IntensityLevel Intensity { get; set; }
+
+        [JsonPropertyName("isPersonalBest")]
+        public bool IsPersonalBest { get; set; }
+
+        [JsonPropertyName("notes")]
+        public string? Notes { get; set; }
+
+        [JsonPropertyName("clientId")]
+        public int ClientId { get; set; }
+
+        [JsonPropertyName("client")]
+        public ClientDto Client { get; set; } = null!;
+    }
+
+    public class CreateMeasurementDto
+    {
+        [JsonPropertyName("unit")]
+        public GoalUnit Unit { get; set; }
+
+        [JsonPropertyName("value")]
+        public double Value { get; set; }
+
+        [JsonPropertyName("date")]
+        public DateTime Date { get; set; }
+
+        [JsonPropertyName("intensity")]
+        public IntensityLevel Intensity { get; set; }
+
+        [JsonPropertyName("isPersonalBest")]
+        public bool IsPersonalBest { get; set; } = false;
+
+        [JsonPropertyName("notes")]
+        public string? Notes { get; set; }
+
+        [JsonPropertyName("clientId")]
+        public int ClientId { get; set; } = 0;
+    }
+
+    public class UpdateMeasurementDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("unit")]
+        public GoalUnit? Unit { get; set; }
+
+        [JsonPropertyName("value")]
+        public double? Value { get; set; }
+
+        [JsonPropertyName("date")]
+        public DateTime? Date { get; set; }
+
+        [JsonPropertyName("intensity")]
+        public IntensityLevel? Intensity { get; set; }
+
+        [JsonPropertyName("isPersonalBest")]
+        public bool? IsPersonalBest { get; set; }
+
+        [JsonPropertyName("notes")]
+        public string? Notes { get; set; }
+    }
 }

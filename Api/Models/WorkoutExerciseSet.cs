@@ -20,7 +20,7 @@ namespace Api.Models
         public int Repetitions { get; set; }
 
         [Range(0, 1000)]
-        public float? Weight { get; set; }
+        public double? Weight { get; set; }
 
         public GoalUnit? GoalUnit { get; set; }
 
@@ -35,52 +35,7 @@ namespace Api.Models
 
         [MaxLength(500)]
         public string? Notes { get; set; }
-        public WorkoutExerciseSetDto ToWorkoutExerciseSetDto()
-        {
-            return new WorkoutExerciseSetDto(
-                Id,
-                WorkoutExerciseId,
-                WorkoutExercise.ToWorkoutExerciseDto(),
-                SetNumber,
-                Repetitions,
-                Weight,
-                GoalUnit,
-                OverallIntensityLevel,
-                DurationInSeconds,
-                RestPeriodInSeconds,
-                Notes
-            );
-        }
-
-        public CreateWorkoutExerciseSetDto ToCreateWorkoutExerciseSetDto()
-        {
-            return new CreateWorkoutExerciseSetDto(
-                WorkoutExerciseId,
-                SetNumber,
-                Repetitions,
-                Weight,
-                GoalUnit,
-                OverallIntensityLevel,
-                DurationInSeconds,
-                RestPeriodInSeconds,
-                Notes
-            );
-        }
-
-        public UpdateWorkoutExerciseSetDto ToUpdateWorkoutExerciseSetDto()
-        {
-            return new UpdateWorkoutExerciseSetDto(
-                Id,
-                SetNumber,
-                Repetitions,
-                Weight,
-                GoalUnit,
-                OverallIntensityLevel,
-                DurationInSeconds,
-                RestPeriodInSeconds,
-                Notes
-            );
-        }
+        
     }
 
 }

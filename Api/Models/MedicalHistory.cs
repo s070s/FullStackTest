@@ -28,42 +28,6 @@ namespace Api.Models
         public Client Client { get; set; } = null!;
 
 
-        public MedicalHistoryDto ToMedicalHistoryDto()
-        {
-            return new MedicalHistoryDto(
-                Id,
-                Description,
-                Conditions,
-                MedicationTypes,
-                Surgeries,
-                RecommendedIntensityLevel,
-                ClientId,
-                Client.ToClientDto()
-            );
-        }
-
-        public CreateMedicalHistoryDto ToCreateMedicalHistoryDto()
-        {
-            return new CreateMedicalHistoryDto(
-                Description,
-                Conditions,
-                MedicationTypes,
-                Surgeries,
-                RecommendedIntensityLevel,
-                ClientId
-            );
-        }
-
-        public UpdateMedicalHistoryDto ToUpdateMedicalHistoryDto()
-        {
-            return new UpdateMedicalHistoryDto(
-                Id,
-                Description,
-                Conditions,
-                MedicationTypes,
-                Surgeries,
-                RecommendedIntensityLevel
-            );
-        }
+        
     }
 }

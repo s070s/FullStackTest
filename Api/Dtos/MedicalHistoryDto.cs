@@ -1,34 +1,75 @@
+using System.Text.Json.Serialization;
 using Api.Models;
 using Api.Models.Enums;
 
 namespace Api.Dtos
 {
-    public record MedicalHistoryDto(
-        int Id,
-        string? Description,
-        ICollection<MedicalCondition> Conditions,
-        ICollection<MedicationType> MedicationTypes,
-        ICollection<SurgeryType> Surgeries,
-        IntensityLevel? RecommendedIntensityLevel,
-        int ClientId,
-        ClientDto Client
-    );
+    public class MedicalHistoryDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
 
-    public record CreateMedicalHistoryDto(
-        string? Description,
-        ICollection<MedicalCondition> Conditions,
-        ICollection<MedicationType> MedicationTypes,
-        ICollection<SurgeryType> Surgeries,
-        IntensityLevel? RecommendedIntensityLevel,
-        int ClientId
-    );
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
 
-    public record UpdateMedicalHistoryDto(
-        int Id,
-        string? Description = null,
-        ICollection<MedicalCondition>? Conditions = null,
-        ICollection<MedicationType>? MedicationTypes = null,
-        ICollection<SurgeryType>? Surgeries = null,
-        IntensityLevel? RecommendedIntensityLevel = null
-    );
+        [JsonPropertyName("conditions")]
+        public ICollection<MedicalCondition> Conditions { get; set; } = new List<MedicalCondition>();
+
+        [JsonPropertyName("medicationTypes")]
+        public ICollection<MedicationType> MedicationTypes { get; set; } = new List<MedicationType>();
+
+        [JsonPropertyName("surgeries")]
+        public ICollection<SurgeryType> Surgeries { get; set; } = new List<SurgeryType>();
+
+        [JsonPropertyName("recommendedIntensityLevel")]
+        public IntensityLevel? RecommendedIntensityLevel { get; set; }
+
+        [JsonPropertyName("clientId")]
+        public int ClientId { get; set; }
+
+        [JsonPropertyName("client")]
+        public ClientDto Client { get; set; } = null!;
+    }
+
+    public class CreateMedicalHistoryDto
+    {
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("conditions")]
+        public ICollection<MedicalCondition> Conditions { get; set; } = new List<MedicalCondition>();
+
+        [JsonPropertyName("medicationTypes")]
+        public ICollection<MedicationType> MedicationTypes { get; set; } = new List<MedicationType>();
+
+        [JsonPropertyName("surgeries")]
+        public ICollection<SurgeryType> Surgeries { get; set; } = new List<SurgeryType>();
+
+        [JsonPropertyName("recommendedIntensityLevel")]
+        public IntensityLevel? RecommendedIntensityLevel { get; set; }
+
+        [JsonPropertyName("clientId")]
+        public int ClientId { get; set; }
+    }
+
+    public class UpdateMedicalHistoryDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("conditions")]
+        public ICollection<MedicalCondition>? Conditions { get; set; }
+
+        [JsonPropertyName("medicationTypes")]
+        public ICollection<MedicationType>? MedicationTypes { get; set; }
+
+        [JsonPropertyName("surgeries")]
+        public ICollection<SurgeryType>? Surgeries { get; set; }
+
+        [JsonPropertyName("recommendedIntensityLevel")]
+        public IntensityLevel? RecommendedIntensityLevel { get; set; }
+    }
 }

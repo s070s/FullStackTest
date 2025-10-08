@@ -1,63 +1,127 @@
+using System.Text.Json.Serialization;
 using Api.Models.Enums;
 using Api.Models;
-using System.Globalization; // Add this
+using System.Globalization;
 
 namespace Api.Dtos
 {
-    // For returning user data
-    public record UserDto(
-        int Id,
-        DateTime CreatedUtc,
-        string Username,
-        string Email,
-        bool IsActive,
-        UserRole Role,
-        string? ProfilePhotoUrl,
-        TrainerDto? TrainerProfile,
-        ClientDto? ClientProfile
-    )
+    public class UserDto
     {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("createdUtc")]
+        public DateTime CreatedUtc { get; set; }
+
+        [JsonPropertyName("username")]
+        public string Username { get; set; } = null!;
+
+        [JsonPropertyName("email")]
+        public string Email { get; set; } = null!;
+
+        [JsonPropertyName("isActive")]
+        public bool IsActive { get; set; }
+
+        [JsonPropertyName("role")]
+        public UserRole Role { get; set; }
+
+        [JsonPropertyName("profilePhotoUrl")]
+        public string? ProfilePhotoUrl { get; set; }
+
+        [JsonPropertyName("trainerProfile")]
+        public TrainerDto? TrainerProfile { get; set; }
+
+        [JsonPropertyName("clientProfile")]
+        public ClientDto? ClientProfile { get; set; }
+
+        [JsonPropertyName("createdUtcFormatted")]
         public string CreatedUtcFormatted => CreatedUtc.ToString("MMMM d, yyyy, h:mm tt", CultureInfo.InvariantCulture);
     }
 
-    // For creating a user, all fields except Id are required
-    public record CreateUserDto(
-        string Username,
-        string Email,
-        UserRole Role,
-        string Password,
-        bool IsActive = true,
-        string? ProfilePhotoUrl = null
-    );
+    public class CreateUserDto
+    {
+        [JsonPropertyName("username")]
+        public string Username { get; set; } = null!;
 
-    public record UpdateUserDto(
-        int Id,
-        string? Username = null,
-        string? Email = null,
-        bool? IsActive = null,
-        UserRole? Role = null,
-        string? Password = null
-    );
+        [JsonPropertyName("email")]
+        public string Email { get; set; } = null!;
 
-    public record RegisterUserDto(
-        string Username,
-        string Email,
-        string Password,
-        string Role
-    );
+        [JsonPropertyName("role")]
+        public UserRole Role { get; set; }
 
-    public record LoginDto(
-        string Username,
-        string Password
-    );
+        [JsonPropertyName("password")]
+        public string Password { get; set; } = null!;
 
-public class UserStatisticsDto
-{
-    public int TotalUsers { get; set; }
-    public int ActiveUsers { get; set; }
-    public int InactiveUsers { get; set; }
-    public int Admins { get; set; }
-    public int Trainers { get; set; }
-    public int Clients { get; set; }
-}
+        [JsonPropertyName("isActive")]
+        public bool IsActive { get; set; } = true;
+
+        [JsonPropertyName("profilePhotoUrl")]
+        public string? ProfilePhotoUrl { get; set; }
+    }
+
+    public class UpdateUserDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("username")]
+        public string? Username { get; set; }
+
+        [JsonPropertyName("email")]
+        public string? Email { get; set; }
+
+        [JsonPropertyName("isActive")]
+        public bool? IsActive { get; set; }
+
+        [JsonPropertyName("role")]
+        public UserRole? Role { get; set; }
+
+        [JsonPropertyName("password")]
+        public string? Password { get; set; }
+    }
+
+    public class RegisterUserDto
+    {
+        [JsonPropertyName("username")]
+        public string Username { get; set; } = null!;
+
+        [JsonPropertyName("email")]
+        public string Email { get; set; } = null!;
+
+        [JsonPropertyName("password")]
+        public string Password { get; set; } = null!;
+
+        [JsonPropertyName("role")]
+        public string Role { get; set; } = null!;
+    }
+
+    public class LoginDto
+    {
+        [JsonPropertyName("username")]
+        public string Username { get; set; } = null!;
+
+        [JsonPropertyName("password")]
+        public string Password { get; set; } = null!;
+    }
+
+    public class UserStatisticsDto
+    {
+        [JsonPropertyName("totalUsers")]
+        public int TotalUsers { get; set; }
+
+        [JsonPropertyName("activeUsers")]
+        public int ActiveUsers { get; set; }
+
+        [JsonPropertyName("inactiveUsers")]
+        public int InactiveUsers { get; set; }
+
+        [JsonPropertyName("admins")]
+        public int Admins { get; set; }
+
+        [JsonPropertyName("trainers")]
+        public int Trainers { get; set; }
+
+        [JsonPropertyName("clients")]
+        public int Clients { get; set; }
+    }
 }
