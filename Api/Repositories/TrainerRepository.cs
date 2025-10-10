@@ -16,6 +16,10 @@ namespace Api.Repositories
 
         // Updates a Trainer's profile using the provided DTO, returns updated Trainer or null if not found
         Task<Trainer?> UpdateTrainerProfileAsync(int userId, UpdateTrainerProfileDto updatedTrainer);
+        // Retrieves a paginated list of Trainers with optional sorting, returns the list and total count
+        Task<(IEnumerable<Trainer> trainers, int total)> GetTrainersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder);
+        // Retrieves a Trainer by their unique TrainerId
+        Task<Trainer?> GetTrainerByIdAsync(int trainerId);
     }
 
     // Concrete implementation of ITrainerRepository using Entity Framework Core
@@ -66,5 +70,20 @@ namespace Api.Repositories
             await _db.SaveChangesAsync();
             return existingTrainer;
         }
+
+        public async Task<(IEnumerable<Trainer> trainers, int total)> GetTrainersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder)
+        {
+            var query = _db.Trainers.AsNoTracking();
+            var total = await query.CountAsync();
+            query = paginationService.ApplySorting(query, sortBy, sortOrder);
+            query = paginationService.ApplyPagination(query, page, pageSize);
+            return (await query.ToListAsync(), total);
+        }
+
+        public async Task<Trainer?> GetTrainerByIdAsync(int trainerId)
+        {
+            return await _db.Trainers.AsNoTracking().SingleOrDefaultAsync(t => t.Id == trainerId);
+        }
+        
     }
 }

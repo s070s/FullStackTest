@@ -1,8 +1,6 @@
 using Api.Models.BaseClasses;
 using Api.Models.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
-using Api.Dtos;
 
 namespace Api.Models
 {

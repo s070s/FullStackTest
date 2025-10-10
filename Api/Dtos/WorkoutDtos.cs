@@ -1,6 +1,4 @@
 using System.Text.Json.Serialization;
-using Api.Models.Enums;
-using Api.Models;
 
 namespace Api.Dtos
 {

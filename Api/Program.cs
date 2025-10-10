@@ -178,6 +178,7 @@ app.MapGet("/", () => $"This server is running and ready to accept requests");
 AdminUserEndpoints.MapAdminUserEndpoints(app);
 UserProfileEndpoints.MapUserProfileEndpoints(app);
 AuthEndpoints.MapAuthEndpoints(app);
+TrainerUserEndpoints.MapTrainerUserEndpoints(app);
 #endregion
 
 app.Run();

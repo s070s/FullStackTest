@@ -6,7 +6,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Linq;
 
 /// <summary>
 /// Represents a pair of access and refresh tokens along with their expiry metadata.

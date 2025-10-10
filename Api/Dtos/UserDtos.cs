@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using Api.Models.Enums;
-using Api.Models;
 using System.Globalization;
 
 namespace Api.Dtos

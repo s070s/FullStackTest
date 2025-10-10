@@ -1,7 +1,6 @@
 using Api.Services;
 using Api.Repositories.UnitOfWork;
 using Api.Dtos;
-using Api.Models;
 using Api.Models.Enums;
 
 namespace Api.Endpoints

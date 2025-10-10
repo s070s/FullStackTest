@@ -1,7 +1,5 @@
 using Api.Models.BaseClasses;
-using Api.Models.Enums;
 using System.ComponentModel.DataAnnotations;
-using Api.Dtos;
 
 namespace Api.Models
 {

@@ -1,5 +1,4 @@
 using Api.Data;
-using Api.Repositories;
 
 namespace Api.Repositories.UnitOfWork
 {

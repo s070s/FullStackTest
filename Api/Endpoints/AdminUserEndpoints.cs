@@ -12,7 +12,7 @@ namespace Api.Endpoints
         public static void MapAdminUserEndpoints(this WebApplication app)
         {
 
-            #region Admin:Read All Users
+            #region Admin:Read All Users Paged
             app.MapGet("/users", async (
                 IUnitOfWork unitOfWork,
                 IPaginationService paginationService,
