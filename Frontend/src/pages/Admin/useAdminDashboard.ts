@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { CreateUserDto, UserDto, UpdateUserDto } from "../utils/data/userdtos";
-import { adminFetchAllUsers, adminDeleteUser, adminCreateUser, adminUpdateUser } from "../utils/api/api";
-import { useAuth } from "../utils/contexts/AuthContext";
+import type { CreateUserDto, UserDto, UpdateUserDto } from "../../utils/data/userdtos";
+import { adminFetchAllUsers, adminDeleteUser, adminCreateUser, adminUpdateUser } from "../../utils/api/api";
+import { useAuth } from "../../utils/contexts/AuthContext";
 
 const useAdminDashboard = () => {
     const [users, setUsers] = useState<UserDto[]>([]);

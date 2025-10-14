@@ -4,7 +4,7 @@ import Dropdown from "../../components/Dropdown";
 import Button from "../../components/Button";
 import GenericFormDialog from "../../components/GenericFormDialog";
 import type { CreateUserDto, UserStatisticsDto, UserDto, UpdateUserDto } from "../../utils/data/userdtos";
-import useAdminDashboard from "../../hooks/useAdminDashboard";
+import useAdminDashboard from "./useAdminDashboard";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { useAuth } from "../../utils/contexts/AuthContext";
 import { adminFetchUserStatistics } from "../../utils/api/api";

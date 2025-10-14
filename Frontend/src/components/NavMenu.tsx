@@ -1,8 +1,8 @@
-import { useState, useRef  } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 import { useAuth } from "../utils/contexts/AuthContext";
-import { uploadProfilePhoto, fetchCurrentUser,API_BASE_URL } from "../utils/api/api";
+import { uploadProfilePhoto, fetchCurrentUser, API_BASE_URL } from "../utils/api/api";
 
 
 const NavMenu: React.FC = () => {
@@ -54,9 +54,9 @@ const NavMenu: React.FC = () => {
                         <div>
                             <img
                                 src={
-                                  currentUser.profilePhotoUrl
-                                    ? `${API_BASE_URL}${currentUser.profilePhotoUrl}?t=${Date.now()}`
-                                    : "/default-avatar.png"
+                                    currentUser.profilePhotoUrl
+                                        ? `${API_BASE_URL}${currentUser.profilePhotoUrl}?t=${Date.now()}`
+                                        : "/default-avatar.png"
                                 }
                                 alt="Profile"
                                 width={40}
@@ -86,6 +86,11 @@ const NavMenu: React.FC = () => {
                     )}
                     {isLoggedIn && (
                         <>
+                            {currentUser?.role === "Client" && (
+                                <Button onClick={() => handleNavigate("/trainers")}>
+                                    Find Trainers
+                                </Button>
+                            )}
                             <Button onClick={() => handleNavigate("/dashboard")}>
                                 Dashboard
                             </Button>

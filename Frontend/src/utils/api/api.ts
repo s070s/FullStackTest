@@ -1,6 +1,6 @@
-import type { UserDto, RegisterUserDto, LoginUserDto, CreateUserDto, UpdateUserDto} from "../data/userdtos";
+import type { UserDto, RegisterUserDto, LoginUserDto, CreateUserDto, UpdateUserDto } from "../data/userdtos";
 import type { ClientUpdateDto } from "../data/clientdtos";
-import type { TrainerUpdateDto } from "../data/trainerdtos";
+import type { TrainerUpdateDto,TrainerDto } from "../data/trainerdtos";
 // Base URL of your API - uses environment variable or falls back to production URL
 export const API_BASE_URL = import.meta.env.VITE_API_DEV_URL || import.meta.env.VITE_API_URL;
 
@@ -87,10 +87,8 @@ export async function fetchWithAuth(
 }
 //#endregion
 
-
-
 //#region Admin Only User Management API Functions
-// Admin:Fetch all users
+// Admin:Fetch all users with Pagination and Sorting
 export async function adminFetchAllUsers(
   token: string,
   options?: {
@@ -221,6 +219,22 @@ export async function updateUserProfile(
 }
 //#endregion
 
-
-
+//#region Client Dashboard Specific API Functions
+export async function readAllTrainersPaginated(token: string, page: number, pageSize: number, sortBy?: string, sortOrder?: "asc" | "desc"): Promise<{ trainers: TrainerDto[]; total: number }>
+{
+  const params = new URLSearchParams();
+  if(page) params.append("page",page.toString());
+  if(pageSize) params.append("pageSize",pageSize.toString());
+  if(sortBy) params.append("sortBy",sortBy);
+  if(sortOrder) params.append("sortOrder",sortOrder);
+  
+  const endpoint =`/trainers${params.toString() ? "?" + params.toString() : ""}`;
+  const response = await fetchWithAuth(endpoint, token);
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText);
+  }
+  return response.json();
+}
+//#endregion
 
