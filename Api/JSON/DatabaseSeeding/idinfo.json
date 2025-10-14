@@ -1,0 +1,128 @@
+{
+    "LastNames": [
+        "Smith",
+        "Johnson",
+        "Brown",
+        "Taylor",
+        "Anderson",
+        "Thomas",
+        "Jackson",
+        "White"
+    ],
+    "Countries": [
+        "USA",
+        "Canada",
+        "UK",
+        "Australia",
+        "Germany",
+        "France",
+        "Italy"
+    ],
+    "CitiesByCountry": {
+        "USA": [
+            "New York",
+            "Los Angeles",
+            "Chicago",
+            "Houston",
+            "Phoenix"
+        ],
+        "Canada": [
+            "Toronto",
+            "Vancouver",
+            "Montreal",
+            "Calgary",
+            "Ottawa"
+        ],
+        "UK": [
+            "London",
+            "Manchester",
+            "Birmingham",
+            "Glasgow",
+            "Liverpool"
+        ],
+        "Australia": [
+            "Sydney",
+            "Melbourne",
+            "Brisbane",
+            "Perth",
+            "Adelaide"
+        ],
+        "Germany": [
+            "Berlin",
+            "Munich",
+            "Frankfurt",
+            "Hamburg",
+            "Cologne"
+        ],
+        "France": [
+            "Paris",
+            "Marseille",
+            "Lyon",
+            "Toulouse",
+            "Nice"
+        ],
+        "Italy": [
+            "Rome",
+            "Milan",
+            "Naples",
+            "Turin",
+            "Palermo"
+        ]
+    },
+    "States": [
+        "CA",
+        "NY",
+        "TX",
+        "FL",
+        "IL",
+        "PA",
+        "OH",
+        "MI",
+        "GA",
+        "NC"
+    ],
+    "StreetNamesByCountry": {
+        "USA": [
+            "Main St",
+            "Oak St",
+            "Pine St",
+            "Maple Ave",
+            "Cedar Rd"
+        ],
+        "UK": [
+            "High St",
+            "Station Rd",
+            "Church St",
+            "London Rd",
+            "Victoria St"
+        ],
+        "Australia": [
+            "George St",
+            "King St",
+            "Queen St",
+            "Elizabeth St",
+            "Market St"
+        ],
+        "Germany": [
+            "Hauptstrasse",
+            "Bahnhofstrasse",
+            "Schulstrasse",
+            "Gartenweg",
+            "Dorfstrasse"
+        ],
+        "France": [
+            "Rue de la Paix",
+            "Avenue des Champs",
+            "Boulevard Saint-Michel",
+            "Rue du Faubourg",
+            "Place de la République"
+        ],
+        "Italy": [
+            "Via Roma",
+            "Corso Vittorio",
+            "Piazza Navona",
+            "Via Milano",
+            "Largo Augusto"
+        ]
+    }
+}

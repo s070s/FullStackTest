@@ -41,30 +41,29 @@ namespace Api.Services
     {
         private readonly AppDbContext _dbContext;
 
-        /// <summary>
-        /// Injects the application's database context.
-        /// </summary>
+        /// <inheritdoc />
         public ValidationService(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }
-        // Simple email validation using regex pattern for basic format checking
+
+        /// <inheritdoc />
         public bool IsValidEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email)) return false;
-            // Simple email regex
             var pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
             return Regex.IsMatch(email, pattern, RegexOptions.IgnoreCase);
         }
-        // Password must be at least 8 characters, contain at least one letter and one number
+
+        /// <inheritdoc />
         public bool IsValidPassword(string password)
         {
             if (string.IsNullOrWhiteSpace(password)) return false;
-            // Example: min 8 chars, at least one letter and one number
             var pattern = @"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$";
             return Regex.IsMatch(password, pattern);
         }
-        // Checks if the user does not already have a Trainer or Client profile assigned
+
+        /// <inheritdoc />
         public async Task<bool> CanAssignProfile(int userId)
         {
             var user = await _dbContext.Users
@@ -74,14 +73,14 @@ namespace Api.Services
 
             return user != null && user.TrainerProfile == null && user.ClientProfile == null;
         }
-        // Check if a user with the given username or email already exists
+
+        /// <inheritdoc />
         public async Task<bool> UserExistsAsync(string username, string email)
         {
             return await _dbContext.Users.AnyAsync(u => u.Username == username || u.Email == email);
         }
 
-
-        // Check if a user is active by username
+        /// <inheritdoc />
         public async Task<bool> IsUserActiveAsync(string username)
         {
             var user = await _dbContext.Users
@@ -90,12 +89,11 @@ namespace Api.Services
             return user != null && user.IsActive;
         }
 
-
-
-        // Only allow JPEG and PNG images up to 2MB for security and performance reasons
+        /// <inheritdoc />
         public bool IsValidImage(IFormFile file)
         {
             // Allow only JPEG and PNG, max 2MB
+
             var allowedTypes = new[] { "image/jpeg", "image/png" };
             const long maxSize = 2 * 1024 * 1024; // 2MB
 
@@ -105,6 +103,5 @@ namespace Api.Services
 
             return true;
         }
-
     }
 }

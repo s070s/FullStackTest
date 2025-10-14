@@ -1,0 +1,82 @@
+{
+    "ClientPrefixes": [
+        "crazy",
+        "curious",
+        "gymrat",
+        "otaku",
+        "hiker",
+        "foodie",
+        "pirate",
+        "ninja",
+        "wizard",
+        "fight",
+        "hot",
+        "fast",
+        "secret",
+        "dark",
+        "mystery",
+        "star",
+        "shadow",
+        "blade"
+    ],
+    "ClientMiddleNames": [
+        "Mike",
+        "Sara",
+        "Tom",
+        "Emma",
+        "Lucy",
+        "David",
+        "Nina",
+        "Liam",
+        "Olivia",
+        "John",
+        "Alex",
+        "Chris",
+        "Sam",
+        "Jordan",
+        "Maria",
+        "Helen",
+        "Kate",
+        "Alice",
+        "George",
+        "James",
+        "Sophia",
+        "Mia",
+        "Ethan"
+    ],
+    "ClientSuffixes": [
+        "1000",
+        "go",
+        "life",
+        "now",
+        "zone",
+        "world",
+        "global",
+        "plus",
+        "noGainWithoutPain",
+        "yolo",
+        "Excalibur"
+    ],
+    "ClientBios": {
+    "Beginner": [
+      ". I'm new to fitness and excited to start my journey towards a healthier lifestyle.",
+      ". As a beginner, I'm looking forward to learning the basics and building a strong foundation.",
+      ". I'm eager to explore different workouts and find what works best for me."
+    ],
+    "Occasional": [
+      ". I've been working out for a while and want to take my fitness to the next level.",
+      ". With some experience under my belt, I'm ready to challenge myself and achieve new goals.",
+      ". I'm looking to refine my techniques and push my limits further."
+    ],
+    "Regular": [
+      ". As a regular fitness enthusiast, I'm committed to maintaining a consistent workout routine.",
+      ". I have a solid fitness background and am always looking for ways to improve my performance.",
+      ". I'm passionate about staying active and exploring new fitness trends."
+    ],
+    "Athlete": [
+      ". With advanced experience, I'm focused on optimizing my training and achieving peak performance.",
+      ". I'm dedicated to pushing my boundaries and mastering complex workout techniques.",
+      ". As an athlete, I'm always seeking new challenges and opportunities for growth."
+    ]
+  }
+}

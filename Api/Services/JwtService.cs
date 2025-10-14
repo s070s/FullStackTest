@@ -68,6 +68,7 @@ public class JwtService : IJwtService
         _dbContext = dbContext;
     }
 
+    /// <inheritdoc />
     public async Task<TokenPair> GenerateTokenPairAsync(
         User user,
         string jwtKey,
@@ -95,6 +96,7 @@ public class JwtService : IJwtService
             refreshTokenEnvelope.Entity.ExpiresUtc);
     }
 
+    /// <inheritdoc />
     public async Task<(bool Success, string? Error, TokenPair? Tokens)> RefreshTokenAsync(
         string refreshToken,
         string jwtKey,
@@ -142,6 +144,7 @@ public class JwtService : IJwtService
             newRefreshEnvelope.Entity.ExpiresUtc));
     }
 
+    /// <inheritdoc />
     public async Task<bool> RevokeRefreshTokenAsync(
         int userId,
         string refreshToken,
@@ -164,6 +167,9 @@ public class JwtService : IJwtService
         return true;
     }
 
+    /// <summary>
+    /// Creates a JWT access token for the specified user with the given expiration.
+    /// </summary>
     private static string CreateJwtToken(User user, string jwtKey, string jwtIssuer, DateTime expiresUtc)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
@@ -188,6 +194,9 @@ public class JwtService : IJwtService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
+    /// <summary>
+    /// Computes a SHA256 hash for the provided token string.
+    /// </summary>
     private static string ComputeTokenHash(string token)
     {
         using var sha256 = SHA256.Create();
@@ -202,12 +211,18 @@ public class JwtService : IJwtService
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Generates a cryptographically secure random token string.
+    /// </summary>
     private static string GenerateSecureToken()
     {
         var bytes = RandomNumberGenerator.GetBytes(64);
         return Convert.ToBase64String(bytes);
     }
 
+    /// <summary>
+    /// Creates a new refresh token envelope for the specified user and lifetime.
+    /// </summary>
     private static RefreshTokenEnvelope CreateRefreshToken(User user, TimeSpan lifetime, string? ipAddress)
     {
         var rawToken = GenerateSecureToken();
@@ -225,6 +240,9 @@ public class JwtService : IJwtService
         return new RefreshTokenEnvelope(rawToken, tokenHash, entity);
     }
 
+    /// <summary>
+    /// Removes expired refresh tokens for the specified user from the database.
+    /// </summary>
     private async Task RemoveExpiredTokensAsync(int userId, CancellationToken cancellationToken)
     {
         var expiredTokens = await _dbContext.RefreshTokens

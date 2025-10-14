@@ -1,13 +1,16 @@
-using Microsoft.EntityFrameworkCore;
 using Api.Data;
+using Api.Endpoints;
+using Api.Repositories.UnitOfWork;
+using Api.ServiceUtilities.SeederService;
+using Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Api.Services;
-using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
-using Api.Repositories.UnitOfWork;
-using Api.Endpoints;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -115,6 +118,23 @@ builder.Services.AddScoped<IValidationService, ValidationService>();
 builder.Services.AddScoped<IDbContextLifecycleService, DbContextLifecycleService>();
 // Register PaginationServices(Sorting and Pagination)
 builder.Services.AddScoped<IPaginationService, PaginationService>();
+// Register Seeding Data 
+builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/trainer.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/client.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/idinfo.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/contactinfo.json", optional: false, reloadOnChange: true);
+
+builder.Services.Configure<TrainerData>(builder.Configuration);
+builder.Services.Configure<ClientData>(builder.Configuration);
+builder.Services.Configure<IdInfoData>(builder.Configuration);
+builder.Services.Configure<ContactInfoData>(builder.Configuration);
+
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<TrainerData>>().Value);
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<ClientData>>().Value);
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<IdInfoData>>().Value);
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<ContactInfoData>>().Value);
+//Register SeederHelperMethods
+builder.Services.AddScoped<SeederHelperMethods>();
 // Register DatabaseSeederService
 builder.Services.AddScoped<DatabaseSeederService>();
 

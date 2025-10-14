@@ -8,17 +8,29 @@ namespace Api.Repositories
     // Interface for Trainer repository, defines contract for Trainer data operations
     public interface ITrainerRepository
     {
-        // Adds a new Trainer to the database
+        /// <summary>
+        /// Adds a new Trainer to the database.
+        /// </summary>
         Task AddTrainerAsync(Trainer trainer);
 
-        // Retrieves a Trainer by the associated UserId, or null if not found
+        /// <summary>
+        /// Retrieves a Trainer by the associated UserId, or null if not found.
+        /// </summary>
         Task<Trainer?> GetTrainerByUserIdAsync(int userId);
 
-        // Updates a Trainer's profile using the provided DTO, returns updated Trainer or null if not found
+        /// <summary>
+        /// Updates a Trainer's profile using the provided DTO, returns updated Trainer or null if not found.
+        /// </summary>
         Task<Trainer?> UpdateTrainerProfileAsync(int userId, UpdateTrainerProfileDto updatedTrainer);
-        // Retrieves a paginated list of Trainers with optional sorting, returns the list and total count
+
+        /// <summary>
+        /// Retrieves a paginated list of Trainers with optional sorting, returns the list and total count.
+        /// </summary>
         Task<(IEnumerable<Trainer> trainers, int total)> GetTrainersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder);
-        // Retrieves a Trainer by their unique TrainerId
+
+        /// <summary>
+        /// Retrieves a Trainer by their unique TrainerId.
+        /// </summary>
         Task<Trainer?> GetTrainerByIdAsync(int trainerId);
     }
 
@@ -33,23 +45,26 @@ namespace Api.Repositories
             _db = db;
         }
 
-        // Adds a new Trainer entity and saves changes asynchronously
+        /// <inheritdoc />
         public async Task AddTrainerAsync(Trainer trainer)
         {
+            // Adds a new Trainer entity and saves changes asynchronously
             _db.Trainers.Add(trainer);
             await _db.SaveChangesAsync();
         }
 
-        // Retrieves a Trainer entity by UserId, returns null if not found
+        /// <inheritdoc />
         public async Task<Trainer?> GetTrainerByUserIdAsync(int userId)
         {
+            // Retrieves a Trainer entity by UserId, returns null if not found
             return await _db.Trainers.SingleOrDefaultAsync(t => t.UserId == userId);
         }
 
-        // Updates an existing Trainer's profile fields and saves changes
-        // Returns the updated Trainer or null if not found
+        /// <inheritdoc />
         public async Task<Trainer?> UpdateTrainerProfileAsync(int userId, UpdateTrainerProfileDto updatedTrainer)
         {
+            // Updates an existing Trainer's profile fields and saves changes
+            // Returns the updated Trainer or null if not found
             var existingTrainer = await _db.Trainers.SingleOrDefaultAsync(t => t.UserId == userId);
             if (existingTrainer == null) return null;
 
@@ -71,8 +86,10 @@ namespace Api.Repositories
             return existingTrainer;
         }
 
+        /// <inheritdoc />
         public async Task<(IEnumerable<Trainer> trainers, int total)> GetTrainersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder)
         {
+            // Retrieves a paginated list of Trainers with optional sorting, returns the list and total count
             var query = _db.Trainers.AsNoTracking();
             var total = await query.CountAsync();
             query = paginationService.ApplySorting(query, sortBy, sortOrder);
@@ -80,10 +97,11 @@ namespace Api.Repositories
             return (await query.ToListAsync(), total);
         }
 
+        /// <inheritdoc />
         public async Task<Trainer?> GetTrainerByIdAsync(int trainerId)
         {
+            // Retrieves a Trainer by their unique TrainerId
             return await _db.Trainers.AsNoTracking().SingleOrDefaultAsync(t => t.Id == trainerId);
         }
-        
     }
 }

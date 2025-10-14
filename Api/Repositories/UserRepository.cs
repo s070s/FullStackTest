@@ -10,55 +10,89 @@ namespace Api.Repositories
 {
     public interface IUserRepository
     {
-        // Returns user with both client and trainer profiles (if any)
+        /// <summary>
+        /// Returns user with both client and trainer profiles (if any).
+        /// </summary>
         Task<UserDto?> GetUserWithProfilesByIdAsync(int userId);
 
-        // Returns user basic info (no profiles)
+        /// <summary>
+        /// Returns user basic info (no profiles).
+        /// </summary>
         Task<UserDto?> GetUserByIdAsync(int userId);
 
-        // Returns User entity by username (null if not found)
+        /// <summary>
+        /// Returns User entity by username (null if not found).
+        /// </summary>
         Task<User?> GetUserByUsernameAsync(string username);
 
-        // Returns User entity by email (null if not found)
+        /// <summary>
+        /// Returns User entity by email (null if not found).
+        /// </summary>
         Task<User?> GetUserByEmailAsync(string email);
 
-        // Returns paged list of users with total count, supports sorting and pagination
+        /// <summary>
+        /// Returns paged list of users with total count, supports sorting and pagination.
+        /// </summary>
         Task<(IEnumerable<UserDto> users, int total)> GetUsersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder);
 
-        // Returns statistics about users (counts by role, active/inactive, etc)
+        /// <summary>
+        /// Returns statistics about users (counts by role, active/inactive, etc).
+        /// </summary>
         Task<UserStatisticsDto> GetUserStatisticsAsync();
 
-        // Adds a new user to the database
+        /// <summary>
+        /// Adds a new user to the database.
+        /// </summary>
         Task AddUserAsync(User user);
 
-        // Updates an existing user and handles profile switching logic
+        /// <summary>
+        /// Updates an existing user and handles profile switching logic.
+        /// </summary>
         Task UpdateUserAsync(User user);
 
-        // Deletes a user and their profiles (if any)
+        /// <summary>
+        /// Deletes a user and their profiles (if any).
+        /// </summary>
         Task<(bool success, string? message)> DeleteUserAsync(int userId);
 
-        // Checks if a user exists by username or email
+        /// <summary>
+        /// Checks if a user exists by username or email.
+        /// </summary>
         Task<bool> UserExistsAsync(string username, string email);
 
-        // Checks if a username exists for another user (for update scenarios)
+        /// <summary>
+        /// Checks if a username exists for another user (for update scenarios).
+        /// </summary>
         Task<bool> UsernameExistsAsync(string username, int? userId = null);
 
-        // Checks if an email exists in the system
+        /// <summary>
+        /// Checks if an email exists in the system.
+        /// </summary>
         Task<bool> EmailExistsAsync(string email, int? userId = null);
 
-        // Validates user credentials using BCrypt
+        /// <summary>
+        /// Validates user credentials using BCrypt.
+        /// </summary>
         Task<bool> ValidateUserCredentialsAsync(string username, string password);
 
-        // Checks if a user is active by username
+        /// <summary>
+        /// Checks if a user is active by username.
+        /// </summary>
         Task<bool> IsUserActiveAsync(string username);
 
-        // Switches user role between Client and Trainer, handles profile changes
+        /// <summary>
+        /// Switches user role between Client and Trainer, handles profile changes.
+        /// </summary>
         Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository);
 
-        // Assigns a profile (Client or Trainer) to a user, validates assignment
+        /// <summary>
+        /// Assigns a profile (Client or Trainer) to a user, validates assignment.
+        /// </summary>
         Task<(bool success, string? message)> AssignProfileAsync(int userId, UserRole role, IClientRepository clientRepository, ITrainerRepository trainerRepository, IValidationService validator);
 
-        // Handles uploading and replacing user profile photo, returns new photo URL
+        /// <summary>
+        /// Handles uploading and replacing user profile photo, returns new photo URL.
+        /// </summary>
         Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env);
     }
 
@@ -71,6 +105,7 @@ namespace Api.Repositories
         }
 
         // Uploads a new profile photo for the user, deletes old photo if exists
+        /// <inheritdoc />
         public async Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env)
         {
             var user = await _db.Users.FindAsync(userId);
@@ -106,7 +141,7 @@ namespace Api.Repositories
             return (true, null, user.ProfilePhotoUrl);
         }
 
-        // Gets user with both profiles (if any), returns as UserDto
+        /// <inheritdoc />
         public async Task<UserDto?> GetUserWithProfilesByIdAsync(int userId)
         {
             var user = await _db.Users
@@ -144,7 +179,7 @@ namespace Api.Repositories
             };
         }
 
-        // Gets user by ID, returns as UserDto (no profiles)
+        /// <inheritdoc />
         public async Task<UserDto?> GetUserByIdAsync(int userId)
         {
             var user = await _db.Users
@@ -166,7 +201,7 @@ namespace Api.Repositories
             };
         }
 
-        // Assigns a profile (Client/Trainer) to a user, validates assignment
+        /// <inheritdoc />
         public async Task<(bool success, string? message)> AssignProfileAsync(int userId, UserRole role, IClientRepository clientRepository, ITrainerRepository trainerRepository, IValidationService validator)
         {
             var user = await _db.Users.Include(u => u.ClientProfile).Include(u => u.TrainerProfile).FirstOrDefaultAsync(u => u.Id == userId);
@@ -199,7 +234,7 @@ namespace Api.Repositories
             return (false, "Invalid role.");
         }
 
-        // Switches user role between Client and Trainer, updates profiles accordingly
+        /// <inheritdoc />
         public async Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository)
         {
             var user = await _db.Users.Include(u => u.ClientProfile).Include(u => u.TrainerProfile).FirstOrDefaultAsync(u => u.Id == userId);
@@ -244,7 +279,7 @@ namespace Api.Repositories
             return (true, null, user.Role);
         }
 
-        // Returns paged and sorted list of users with profiles, and total count
+        /// <inheritdoc />
         public async Task<(IEnumerable<UserDto> users, int total)> GetUsersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder)
         {
             var query = _db.Users
@@ -271,7 +306,7 @@ namespace Api.Repositories
             return (users, total);
         }
 
-        // Returns statistics about users (counts by role, active/inactive, etc)
+        /// <inheritdoc />
         public async Task<UserStatisticsDto> GetUserStatisticsAsync()
         {
             var totalUsers = await _db.Users.CountAsync();
@@ -292,14 +327,14 @@ namespace Api.Repositories
             return stats;
         }
 
-        // Adds a new user to the database
+        /// <inheritdoc />
         public async Task AddUserAsync(User user)
         {
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
         }
 
-        // Deletes a user and their profiles (if any)
+        /// <inheritdoc />
         public async Task<(bool success, string? message)> DeleteUserAsync(int userId)
         {
             var user = await _db.Users.Include(u => u.ClientProfile).Include(u => u.TrainerProfile).FirstOrDefaultAsync(u => u.Id == userId);
@@ -311,7 +346,7 @@ namespace Api.Repositories
             return (true, null);
         }
 
-        // Updates an existing user, handles profile switching logic
+        /// <inheritdoc />
         public async Task UpdateUserAsync(User user)
         {
             var existingUser = await _db.Users
@@ -385,37 +420,37 @@ namespace Api.Repositories
             await _db.SaveChangesAsync();
         }
 
-        // Gets user by username (returns User entity)
+        /// <inheritdoc />
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
             return await _db.Users.SingleOrDefaultAsync(u => u.Username == username);
         }
 
-        // Gets user by email (returns User entity)
+        /// <inheritdoc />
         public async Task<User?> GetUserByEmailAsync(string email)
         {
             return await _db.Users.SingleOrDefaultAsync(u => u.Email == email);
         }
 
-        // Checks if a user exists by username or email
+        /// <inheritdoc />
         public async Task<bool> UserExistsAsync(string username, string email)
         {
             return await _db.Users.AnyAsync(u => u.Username == username || u.Email == email);
         }
 
-        // Checks if a username exists for another user (for update scenarios)
+        /// <inheritdoc />
         public async Task<bool> UsernameExistsAsync(string username, int? userId = null)
         {
             return await _db.Users.AnyAsync(u => u.Username == username && (!userId.HasValue || u.Id != userId.Value));
         }
 
-        // Checks if an email exists in the system
+        /// <inheritdoc />
         public async Task<bool> EmailExistsAsync(string email, int? userId = null)
         {
             return await _db.Users.AnyAsync(u => u.Email == email && (!userId.HasValue || u.Id != userId.Value));
         }
 
-        // Validates user credentials using BCrypt
+        /// <inheritdoc />
         public async Task<bool> ValidateUserCredentialsAsync(string username, string password)
         {
             var user = await _db.Users.SingleOrDefaultAsync(u => u.Username == username);
@@ -423,7 +458,7 @@ namespace Api.Repositories
             return BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
         }
 
-        // Checks if a user is active by username
+        /// <inheritdoc />
         public async Task<bool> IsUserActiveAsync(string username)
         {
             var user = await _db.Users.SingleOrDefaultAsync(u => u.Username == username);

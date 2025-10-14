@@ -1,0 +1,45 @@
+{
+    "TrainerPrefixes": [
+        "Prof. ",
+        "Coach ",
+        "Strong",
+        "Muscle",
+        "Fit"
+    ],
+    "TrainerMiddleNames": [
+        "John",
+        "Alex",
+        "Chris",
+        "Sam",
+        "Jordan",
+        "Maria",
+        "Helen",
+        "Kate",
+        "Alice"
+    ],
+    "TrainerSuffixes": [
+        "101",
+        "pro",
+        "coach",
+        "expert",
+        "global",
+        "karateka",
+        "soccer",
+        "runner",
+        "yogi",
+        "cyclist",
+        "navy",
+        "army",
+        "force",
+        "strongman"
+    ],
+    "TrainerBio": {
+    "Adjectives": [ "Dedicated", "Experienced", "Passionate", "Certified", "Motivated" ],
+    "Fillers": [ "fitness", "health", "wellness", "strength", "conditioning" ],
+    "Templates": [
+      "{adj} trainer specializing in {spec} and overall {filler}.",
+      "Helping clients achieve their goals with personalized {spec} programs and expert guidance.",
+      "Committed to improving lives through effective {spec} coaching and holistic health approaches."
+    ]
+  }
+}

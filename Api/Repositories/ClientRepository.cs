@@ -9,13 +9,19 @@ namespace Api.Repositories
     // Interface for client repository operations
     public interface IClientRepository
     {
-        // Adds a new client to the database
+        /// <summary>
+        /// Adds a new client to the database.
+        /// </summary>
         Task AddClientAsync(Client client);
 
-        // Retrieves a client by their associated user ID
+        /// <summary>
+        /// Retrieves a client by their associated user ID.
+        /// </summary>
         Task<Client?> GetClientByUserIdAsync(int userId);
 
-        // Updates a client's profile using the provided DTO and returns the updated client
+        /// <summary>
+        /// Updates a client's profile using the provided DTO and returns the updated client.
+        /// </summary>
         Task<Client?> UpdateClientProfileAsync(int userId, UpdateClientProfileDto updatedClient);
     }
 
@@ -30,23 +36,26 @@ namespace Api.Repositories
             _db = db;
         }
 
-        // Adds a new client entity and saves changes asynchronously
+        /// <inheritdoc />
         public async Task AddClientAsync(Client client)
         {
+            // Adds a new client entity and saves changes asynchronously
             _db.Clients.Add(client);
             await _db.SaveChangesAsync();
         }
 
-        // Retrieves a single client by user ID, or null if not found
+        /// <inheritdoc />
         public async Task<Client?> GetClientByUserIdAsync(int userId)
         {
+            // Retrieves a single client by user ID, or null if not found
             return await _db.Clients.SingleOrDefaultAsync(c => c.UserId == userId);
         }
 
-        // Updates an existing client's profile fields and saves changes
-        // Returns the updated client, or null if not found
+        /// <inheritdoc />
         public async Task<Client?> UpdateClientProfileAsync(int userId, UpdateClientProfileDto updatedClient)
         {
+            // Updates an existing client's profile fields and saves changes
+            // Returns the updated client, or null if not found
             var existingClient = await _db.Clients.SingleOrDefaultAsync(c => c.UserId == userId);
             if (existingClient == null) return null;
 
