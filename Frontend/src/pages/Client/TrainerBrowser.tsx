@@ -10,8 +10,7 @@ import { readAllTrainersPaginated } from "../../utils/api/api";
 
 
 
-//Todo:Search the User of a Trainer to get the photo from or Refactor Models
-//add photos to PersonalInformation Class on the backend
+
 const TrainerBrowser: React.FC = () => {
     const navigate = useNavigate();
     const [trainers, setTrainers] = useState<TrainerDto[]>([]);

@@ -118,7 +118,7 @@ builder.Services.AddScoped<IValidationService, ValidationService>();
 builder.Services.AddScoped<IDbContextLifecycleService, DbContextLifecycleService>();
 // Register PaginationServices(Sorting and Pagination)
 builder.Services.AddScoped<IPaginationService, PaginationService>();
-// Register Seeding Data 
+// Register Seeding JSON Data 
 builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/trainer.json", optional: false, reloadOnChange: true);
 builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/client.json", optional: false, reloadOnChange: true);
 builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/idinfo.json", optional: false, reloadOnChange: true);
@@ -135,7 +135,11 @@ builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<IdInfoData>>(
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<ContactInfoData>>().Value);
 //Register SeederHelperMethods
 builder.Services.AddScoped<SeederHelperMethods>();
-// Register DatabaseSeederService
+
+// Register Database Seeder Services
+builder.Services.AddScoped<UserSeederService>();
+builder.Services.AddScoped<TrainerSeederService>();
+builder.Services.AddScoped<ClientSeederService>();
 builder.Services.AddScoped<DatabaseSeederService>();
 
 #region Repositories
