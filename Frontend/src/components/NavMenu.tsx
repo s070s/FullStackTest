@@ -40,7 +40,7 @@ const NavMenu: React.FC = () => {
             const updatedUser = await fetchCurrentUser(accessToken);
             setCurrentUser(updatedUser);
         } catch {
-            alert("Failed to upload photo");
+            alert("Admins do not have permission to upload profile photos.");
         }
     };
 
@@ -54,8 +54,10 @@ const NavMenu: React.FC = () => {
                         <div>
                             <img
                                 src={
-                                    currentUser.profilePhotoUrl
-                                        ? `${API_BASE_URL}${currentUser.profilePhotoUrl}?t=${Date.now()}`
+                                    currentUser.role === "Client" && currentUser.clientProfile?.profilePhotoUrl
+                                        ? `${API_BASE_URL}${currentUser.clientProfile.profilePhotoUrl}?t=${Date.now()}`
+                                        : currentUser.role === "Trainer" && currentUser.trainerProfile?.profilePhotoUrl
+                                        ? `${API_BASE_URL}${currentUser.trainerProfile.profilePhotoUrl}?t=${Date.now()}`
                                         : "/default-avatar.png"
                                 }
                                 alt="Profile"

@@ -35,7 +35,8 @@ namespace Api.Mappings
                 Goals = src.Goals?.Select(g => new GoalDto()).ToList() ?? new List<GoalDto>(),
                 Workouts = src.Workouts?.Select(w => new WorkoutDto()).ToList() ?? new List<WorkoutDto>(),
                 Trainers = src.Trainers?.Select(t => new TrainerDto()).ToList() ?? new List<TrainerDto>(),
-                Measurements = src.Measurements?.Select(m => new MeasurementDto()).ToList() ?? new List<MeasurementDto>()
+                Measurements = src.Measurements?.Select(m => new MeasurementDto()).ToList() ?? new List<MeasurementDto>(),
+                ProfilePhotoUrl = src.ProfilePhotoUrl
             };
         }
 
@@ -75,7 +76,8 @@ namespace Api.Mappings
                 {
                     Id = w.Id,
                     // map more workout fields if needed
-                }).ToList() ?? new List<WorkoutDto>()
+                }).ToList() ?? new List<WorkoutDto>(),
+                ProfilePhotoUrl = src.ProfilePhotoUrl
             };
         }
     }

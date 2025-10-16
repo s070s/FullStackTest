@@ -107,7 +107,8 @@ const TrainerBrowser: React.FC = () => {
                 <TableGeneric
                     data={trainers.map(u => ({
                         id: u.id,
-                        fullName: `${u.firstName} ${u.lastName}`
+                        profilePhotoUrl:u.profilePhotoUrl,
+                        fullName: `${u.firstName} ${u.lastName}`,
                     }))}
                     onSort={handleSort}
                     sortBy={sortBy}

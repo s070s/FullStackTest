@@ -64,6 +64,9 @@ namespace Api.Dtos
 
         [JsonPropertyName("workouts")]
         public ICollection<WorkoutDto> Workouts { get; set; } = new List<WorkoutDto>();
+
+        [JsonPropertyName("profilePhotoUrl")]
+        public string? ProfilePhotoUrl { get; set; }
     }
 
     public class CreateTrainerDto

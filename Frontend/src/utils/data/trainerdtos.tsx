@@ -2,6 +2,7 @@ import type { ClientDto } from './clientdtos';
 export type TrainerDto = {
     id: number;
     userId: number;
+    profilePhotoUrl?: string;
     bio?: string;
     firstName?: string;
     lastName?: string;

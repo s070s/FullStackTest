@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251014154707_NewMigration")]
+    [Migration("20251016121918_NewMigration")]
     partial class NewMigration
     {
         /// <inheritdoc />
@@ -78,6 +78,9 @@ namespace Api.Migrations
 
                     b.Property<int>("PreferredIntensityLevel")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("ProfilePhotoUrl")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("State")
                         .HasMaxLength(50)
@@ -456,6 +459,9 @@ namespace Api.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ProfilePhotoUrl")
+                        .HasColumnType("TEXT");
+
                     b.PrimitiveCollection<string>("Specializations")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -512,9 +518,6 @@ namespace Api.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ProfilePhotoUrl")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Role")

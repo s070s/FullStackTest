@@ -17,7 +17,7 @@ namespace Api.Services
         // Stores generated middle names for each username to use in profile seeding (Trainer/Client)
         private Dictionary<string, string> _usernameMiddleNames = new();
         // Number of sample users to seed when SeedSampleData is enabled
-        int seedUsers = 200;
+        int seedUsers = 50;
         public DatabaseSeederService(
             AppDbContext context,
             IConfiguration configuration,
@@ -124,7 +124,7 @@ namespace Api.Services
                         Email = mail,
                         Role = role,
                         PasswordHash = BCrypt.Net.BCrypt.HashPassword(testPassword),
-                        IsActive = true
+                        IsActive = true,
                     });
                     _usernameMiddleNames[username] = middleName;
                 }
@@ -205,6 +205,8 @@ namespace Api.Services
                     BMI = weightKg / Math.Pow(heightCm / 100.0, 2) // BMI calculation
                 };
                 trainers.Add(trainer);
+                user.TrainerProfile = trainer;
+                _context.Users.Update(user);
             }
 
             // Add all generated trainers to the database
@@ -273,6 +275,8 @@ namespace Api.Services
                     BMI = weightKg / Math.Pow(heightCm / 100.0, 2) // BMI calculation
                 };
                 clients.Add(client);
+                user.ClientProfile = client;
+                _context.Users.Update(user);
             }
             // Add all generated clients to the database
             if (clients.Any())

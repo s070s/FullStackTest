@@ -76,6 +76,9 @@ namespace Api.Migrations
                     b.Property<int>("PreferredIntensityLevel")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("ProfilePhotoUrl")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("State")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
@@ -453,6 +456,9 @@ namespace Api.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ProfilePhotoUrl")
+                        .HasColumnType("TEXT");
+
                     b.PrimitiveCollection<string>("Specializations")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -509,9 +515,6 @@ namespace Api.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ProfilePhotoUrl")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Role")

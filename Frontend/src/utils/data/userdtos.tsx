@@ -8,7 +8,6 @@ export type UserDto = {
   createdUtcFormatted?: string;
   isActive: boolean;
   role: string;
-  profilePhotoUrl?: string;
   trainerProfile?: TrainerDto;
   clientProfile?: ClientDto;
 };

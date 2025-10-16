@@ -5,6 +5,9 @@ namespace Api.Models.ChildrenClasses
 {
     public class PersonalInformation : BaseEntity
     {
+
+        [Url]
+        public string? ProfilePhotoUrl { get; set; }
         [MaxLength(30)]
         public string? FirstName { get; set; } = null!;
 

@@ -86,11 +86,6 @@ namespace Api.Repositories
         Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository);
 
         /// <summary>
-        /// Assigns a profile (Client or Trainer) to a user, validates assignment.
-        /// </summary>
-        Task<(bool success, string? message)> AssignProfileAsync(int userId, UserRole role, IClientRepository clientRepository, ITrainerRepository trainerRepository, IValidationService validator);
-
-        /// <summary>
         /// Handles uploading and replacing user profile photo, returns new photo URL.
         /// </summary>
         Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env);
@@ -108,14 +103,38 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env)
         {
-            var user = await _db.Users.FindAsync(userId);
+            var user = await _db.Users
+                .Include(u => u.ClientProfile)
+                .Include(u => u.TrainerProfile)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+            string oldProfilePhotoUrl;
+            string newProfilePhotoUrl;
             if (user == null)
                 return (false, "User not found.", null);
 
-            // Delete old photo if it exists
-            if (!string.IsNullOrEmpty(user.ProfilePhotoUrl))
+            if (user.Role == UserRole.Admin)
+                return (false, "Admins cannot have profile photos.", null);
+            if (user.Role == UserRole.Client && user.ClientProfile != null)
             {
-                var oldFilePath = Path.Combine(env.WebRootPath ?? "wwwroot", user.ProfilePhotoUrl.TrimStart('/', '\\'));
+                oldProfilePhotoUrl = user.ClientProfile.ProfilePhotoUrl ?? "";
+
+            }
+            else if (user.Role == UserRole.Trainer && user.TrainerProfile != null)
+            {
+                oldProfilePhotoUrl = user.TrainerProfile.ProfilePhotoUrl ?? "";
+
+            }
+            else
+            {
+                return (false, "User must have a profile to upload a photo.", null);
+            }
+
+
+
+            // Delete old photo if it exists
+            if (!string.IsNullOrEmpty(oldProfilePhotoUrl))
+            {
+                var oldFilePath = Path.Combine(env.WebRootPath ?? "wwwroot", oldProfilePhotoUrl.TrimStart('/', '\\'));
                 if (File.Exists(oldFilePath))
                 {
                     File.Delete(oldFilePath);
@@ -135,10 +154,24 @@ namespace Api.Repositories
                 await file.CopyToAsync(stream);
             }
 
-            user.ProfilePhotoUrl = $"/uploads/{newFileName}";
-            await _db.SaveChangesAsync();
+            if (user.Role == UserRole.Client && user.ClientProfile != null)
+            {
+                user.ClientProfile.ProfilePhotoUrl = $"/uploads/{newFileName}";
+                newProfilePhotoUrl = user.ClientProfile.ProfilePhotoUrl;
+                await _db.SaveChangesAsync();
 
-            return (true, null, user.ProfilePhotoUrl);
+                return (true, null, newProfilePhotoUrl);
+            }
+
+            else if (user.Role == UserRole.Trainer && user.TrainerProfile != null)
+            {
+                user.TrainerProfile.ProfilePhotoUrl = $"/uploads/{newFileName}";
+                newProfilePhotoUrl = user.TrainerProfile.ProfilePhotoUrl;
+                await _db.SaveChangesAsync();
+
+                return (true, null, newProfilePhotoUrl);
+            }
+            return (false, "Failed to update profile photo.", null);
         }
 
         /// <inheritdoc />
@@ -151,19 +184,8 @@ namespace Api.Repositories
                 .SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return null;
 
-            TrainerDto? trainerProfile = null;
-            if (user.TrainerProfile != null && !user.TrainerProfile.GetType().GetProperties().All(p =>
-                p.Name == "UserId" || p.Name == "User" || p.GetValue(user.TrainerProfile) == null))
-            {
-                trainerProfile = user.TrainerProfile.ToTrainerDto();
-            }
-
-            ClientDto? clientProfile = null;
-            if (user.ClientProfile != null && !user.ClientProfile.GetType().GetProperties().All(p =>
-                p.Name == "UserId" || p.Name == "User" || p.GetValue(user.ClientProfile) == null))
-            {
-                clientProfile = user.ClientProfile.ToClientDto();
-            }
+            TrainerDto? trainerProfile = user.TrainerProfile?.ToTrainerDto();
+            ClientDto? clientProfile = user.ClientProfile?.ToClientDto();
 
             return new UserDto
             {
@@ -173,7 +195,6 @@ namespace Api.Repositories
                 Email = user.Email,
                 IsActive = user.IsActive,
                 Role = user.Role,
-                ProfilePhotoUrl = user.ProfilePhotoUrl,
                 TrainerProfile = trainerProfile,
                 ClientProfile = clientProfile
             };
@@ -195,44 +216,12 @@ namespace Api.Repositories
                 Email = user.Email,
                 IsActive = user.IsActive,
                 Role = user.Role,
-                ProfilePhotoUrl = user.ProfilePhotoUrl,
                 TrainerProfile = null,
                 ClientProfile = null
             };
         }
 
-        /// <inheritdoc />
-        public async Task<(bool success, string? message)> AssignProfileAsync(int userId, UserRole role, IClientRepository clientRepository, ITrainerRepository trainerRepository, IValidationService validator)
-        {
-            var user = await _db.Users.Include(u => u.ClientProfile).Include(u => u.TrainerProfile).FirstOrDefaultAsync(u => u.Id == userId);
-            if (user == null)
-                return (false, "User not found.");
-            if (user.Role != role)
-                return (false, "User role does not match the profile to be assigned.");
-            if (!await validator.CanAssignProfile(userId))
-                return (false, "User already has a profile assigned.");
-            if (role == UserRole.Client)
-            {
-                var client = new Client
-                {
-                    UserId = user.Id,
-                    User = user
-                };
-                await clientRepository.AddClientAsync(client);
-                return (true, "Client profile assigned successfully.");
-            }
-            else if (role == UserRole.Trainer)
-            {
-                var trainer = new Trainer
-                {
-                    UserId = user.Id,
-                    User = user
-                };
-                await trainerRepository.AddTrainerAsync(trainer);
-                return (true, "Trainer profile assigned successfully.");
-            }
-            return (false, "Invalid role.");
-        }
+
 
         /// <inheritdoc />
         public async Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository)
@@ -298,7 +287,6 @@ namespace Api.Repositories
                     Email = u.Email,
                     IsActive = u.IsActive,
                     Role = u.Role,
-                    ProfilePhotoUrl = u.ProfilePhotoUrl,
                     TrainerProfile = u.TrainerProfile != null ? u.TrainerProfile.ToTrainerDto() : null,
                     ClientProfile = u.ClientProfile != null ? u.ClientProfile.ToClientDto() : null
                 })
@@ -382,6 +370,7 @@ namespace Api.Repositories
                     _db.Clients.Add(client);
                     existingUser.ClientProfile = client;
                 }
+
             }
             else if (user.Role == UserRole.Trainer)
             {
@@ -402,6 +391,7 @@ namespace Api.Repositories
                     _db.Trainers.Add(trainer);
                     existingUser.TrainerProfile = trainer;
                 }
+
             }
             else if (user.Role == UserRole.Admin)
             {

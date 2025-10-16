@@ -23,9 +23,6 @@ namespace Api.Models
         [StringLength(256)]
         public string PasswordHash { get; set; } = null!;
 
-        [Url]
-        public string? ProfilePhotoUrl { get; set; }
-
         public Trainer? TrainerProfile { get; set; }
         public Client? ClientProfile { get; set; }
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();

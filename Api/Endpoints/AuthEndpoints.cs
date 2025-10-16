@@ -62,6 +62,8 @@ namespace Api.Endpoints
                         User = user
                     };
                     await unitOfWork.Clients.AddClientAsync(client);
+                    user.ClientProfile = client;
+                    await unitOfWork.Users.UpdateUserAsync(user);
                 }
                 else if (role == UserRole.Trainer)
                 {
@@ -71,6 +73,8 @@ namespace Api.Endpoints
                         User = user
                     };
                     await unitOfWork.Trainers.AddTrainerAsync(trainer);
+                    user.TrainerProfile = trainer;
+                    await unitOfWork.Users.UpdateUserAsync(user);
                 }
 
                 // Commit after both user and role-specific records are saved.

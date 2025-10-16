@@ -1,6 +1,7 @@
 export type ClientDto = {
   id: number;
   userId: number;
+  profilePhotoUrl?: string;
   bio?: string;
   experienceLevel: string; // or enum type if defined
   preferredIntensityLevel: string; // or enum type if defined

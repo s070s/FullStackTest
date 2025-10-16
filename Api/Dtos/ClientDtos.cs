@@ -1,4 +1,3 @@
-
 using Api.Models.Enums;
 using System.Text.Json.Serialization;
 
@@ -55,6 +54,8 @@ namespace Api.Dtos
         public ICollection<TrainerDto> Trainers { get; set; } = new List<TrainerDto>();
         [JsonPropertyName("measurements")]
         public ICollection<MeasurementDto> Measurements { get; set; } = new List<MeasurementDto>();
+        [JsonPropertyName("profilePhotoUrl")]
+        public string? ProfilePhotoUrl { get; set; }
     }
 
 public class CreateClientDto

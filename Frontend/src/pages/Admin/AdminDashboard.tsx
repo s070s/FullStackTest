@@ -111,14 +111,20 @@ const AdminDashboard: React.FC = () => {
                     <TableGeneric
                         data={users.map(u => ({
                             id: u.id,
+                            profilePhotoUrl:
+                                u.role === "Client" && u.clientProfile?.profilePhotoUrl
+                                    ? u.clientProfile.profilePhotoUrl
+                                    : u.role === "Trainer" && u.trainerProfile?.profilePhotoUrl
+                                        ? u.trainerProfile.profilePhotoUrl
+                                        : undefined,
                             createdUtc: u.createdUtcFormatted || u.createdUtc,
-                            profilePhotoUrl: u.profilePhotoUrl,
                             username: u.username,
                             email: u.email,
                             isActive: u.isActive,
                             role: u.role,
                             trainerProfile: u.trainerProfile,
                             clientProfile: u.clientProfile
+                            
                         }))}
                         onSort={handleSort}
                         sortBy={sortBy}

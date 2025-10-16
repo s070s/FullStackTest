@@ -56,27 +56,6 @@ namespace Api.Endpoints
                         }).RequireAuthorization("Admin");
             #endregion
 
-            #region Admin:Assign User Profile if nonexistent
-            app.MapPost("/users/{id:int}/assign-profile", async (
-                int id,
-                UserRole role,
-                IUnitOfWork unitOfWork,
-                IValidationService validator
-            ) =>
-            {
-                var (success, message) = await unitOfWork.Users.AssignProfileAsync(id, role, unitOfWork.Clients, unitOfWork.Trainers, validator);
-                if (!success)
-                {
-                    if (message == "User not found.")
-                        return Results.NotFound(message);
-                    if (message == "User already has a profile assigned.")
-                        return Results.Conflict(message);
-                    return Results.BadRequest(message);
-                }
-                return Results.Ok(new { message });
-            }).RequireAuthorization("Admin");
-            #endregion
-
             #region Admin: Read One User By Id
             app.MapGet("/users/{id:int}", async (
                 int id,
@@ -125,6 +104,8 @@ namespace Api.Endpoints
                         User = user
                     };
                     await unitOfWork.Clients.AddClientAsync(client);
+                    user.ClientProfile = client;
+                    await unitOfWork.Users.UpdateUserAsync(user);
                 }
                 else if (role == UserRole.Trainer)
                 {
@@ -134,6 +115,8 @@ namespace Api.Endpoints
                         User = user
                     };
                     await unitOfWork.Trainers.AddTrainerAsync(trainer);
+                    user.TrainerProfile = trainer;
+                    await unitOfWork.Users.UpdateUserAsync(user);
                 }
                 return Results.Created($"/users/{user.Id}", $"User {user.Username} with id {user.Id} created successfully.");
             }).RequireAuthorization("Admin");
@@ -161,7 +144,7 @@ namespace Api.Endpoints
                 }
                 if (dto.Email != null)
                 {
-                    if (await unitOfWork.Users.EmailExistsAsync(dto.Email,id))
+                    if (await unitOfWork.Users.EmailExistsAsync(dto.Email, id))
                         return Results.Conflict("Email already exists.");
                 }
                 if (dto.Role != null)
@@ -177,7 +160,6 @@ namespace Api.Endpoints
                     Email = dto.Email ?? getUser.Email,
                     IsActive = dto.IsActive ?? false,
                     Role = dto.Role ?? getUser.Role,
-                    ProfilePhotoUrl = getUser.ProfilePhotoUrl,
                 };
                 if (!string.IsNullOrEmpty(dto.Password))
                 {

@@ -24,9 +24,6 @@ namespace Api.Dtos
         [JsonPropertyName("role")]
         public UserRole Role { get; set; }
 
-        [JsonPropertyName("profilePhotoUrl")]
-        public string? ProfilePhotoUrl { get; set; }
-
         [JsonPropertyName("trainerProfile")]
         public TrainerDto? TrainerProfile { get; set; }
 
@@ -53,9 +50,6 @@ namespace Api.Dtos
 
         [JsonPropertyName("isActive")]
         public bool IsActive { get; set; } = true;
-
-        [JsonPropertyName("profilePhotoUrl")]
-        public string? ProfilePhotoUrl { get; set; }
     }
 
     public class UpdateUserDto
