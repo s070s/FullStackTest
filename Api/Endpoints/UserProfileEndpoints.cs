@@ -37,8 +37,7 @@ namespace Api.Endpoints
                 IWebHostEnvironment env
             ) =>
             {
-                var userIdClaim = context.User.FindFirst("userid")?.Value;
-                if (userIdClaim == null || int.Parse(userIdClaim) != id)
+                if (!validator.IsUserIdClaimMatchingRouteId(context, id))
                     return Results.Forbid();
 
                 if (!context.Request.HasFormContentType)
@@ -71,19 +70,18 @@ namespace Api.Endpoints
                 IValidationService validator
             ) =>
             {
-                var userIdClaim = context.User.FindFirst("userid")?.Value;
-                if (userIdClaim == null || int.Parse(userIdClaim) != id)
+                if (!validator.IsUserIdClaimMatchingRouteId(context, id))
                     return Results.Forbid();
-            
+
                 var userDto = await unitOfWork.Users.GetUserWithProfilesByIdAsync(id);
                 if (userDto == null) return Results.NotFound("User not found.");
-            
+
                 if (userDto.Role == UserRole.Client && userDto.ClientProfile != null)
                 {
                     var updateData = await context.Request.ReadFromJsonAsync<UpdateClientProfileDto>();
-                    if (updateData == null)
+                    if (updateData == null || !validator.IsValidClientProfileUpdate(updateData))
                         return Results.BadRequest("Invalid request data.");
-            
+
                     var result = await unitOfWork.Clients.UpdateClientProfileAsync(id, updateData);
                     if (result == null)
                         return Results.NotFound("Client profile not found.");
@@ -91,9 +89,9 @@ namespace Api.Endpoints
                 else if (userDto.Role == UserRole.Trainer && userDto.TrainerProfile != null)
                 {
                     var updateData = await context.Request.ReadFromJsonAsync<UpdateTrainerProfileDto>();
-                    if (updateData == null)
+                    if (updateData == null || !validator.IsValidTrainerProfileUpdate(updateData))
                         return Results.BadRequest("Invalid request data.");
-            
+
                     var result = await unitOfWork.Trainers.UpdateTrainerProfileAsync(id, updateData);
                     if (result == null)
                         return Results.NotFound("Trainer profile not found.");
@@ -102,7 +100,7 @@ namespace Api.Endpoints
                 {
                     return Results.BadRequest("Invalid user role or profile.");
                 }
-            
+
                 await unitOfWork.SaveChangesAsync();
                 return Results.Ok(userDto);
             });

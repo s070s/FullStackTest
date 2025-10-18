@@ -1,5 +1,7 @@
 using System.Text.RegularExpressions;
 using Api.Data;
+using Api.Dtos;
+using Api.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Services
@@ -35,6 +37,21 @@ namespace Api.Services
         /// Checks if a user is active by username.
         /// </summary>
         Task<bool> IsUserActiveAsync(string username);
+
+        /// <summary>
+        /// Validates that the userId claim matches the route id.
+        /// </summary>
+        bool IsUserIdClaimMatchingRouteId(HttpContext context, int routeId);
+
+        /// <summary>
+        /// Validates the client profile update data.
+        /// </summary>
+        bool IsValidClientProfileUpdate(UpdateClientProfileDto dto);
+
+        /// <summary>
+        /// Validates the trainer profile update data.
+        /// </summary>
+        bool IsValidTrainerProfileUpdate(UpdateTrainerProfileDto dto);
     }
 
     public class ValidationService : IValidationService
@@ -101,6 +118,60 @@ namespace Api.Services
             if (!allowedTypes.Contains(file.ContentType)) return false;
             if (file.Length > maxSize) return false;
 
+            return true;
+        }
+
+        /// <inheritdoc />
+        public bool IsUserIdClaimMatchingRouteId(HttpContext context, int routeId)
+        {
+            var userIdClaim = context.User.FindFirst("userid")?.Value;
+            if (userIdClaim == null) return false;
+            return int.TryParse(userIdClaim, out int userId) && userId == routeId;
+        }
+
+        /// <inheritdoc />
+        public bool IsValidClientProfileUpdate(UpdateClientProfileDto dto)
+        {
+            if (dto == null) return false;
+
+            if (string.IsNullOrWhiteSpace(dto.FirstName))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(dto.LastName))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(dto.Bio))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(dto.Country))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(dto.Address))
+                return false;
+
+            if (dto.ExperienceLevel.HasValue && !Enum.IsDefined(typeof(ClientExperience), dto.ExperienceLevel.Value))
+                return false;
+
+            return true;
+        }
+        /// <inheritdoc />
+        public bool IsValidTrainerProfileUpdate(UpdateTrainerProfileDto dto)
+        {
+            if (dto == null) return false;
+
+            if (string.IsNullOrWhiteSpace(dto.FirstName))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(dto.LastName))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(dto.Bio))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(dto.Country))
+                return false;
+            if (string.IsNullOrWhiteSpace(dto.Address))
+                return false;
             return true;
         }
     }
