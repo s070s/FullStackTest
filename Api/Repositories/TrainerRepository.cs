@@ -48,6 +48,9 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task AddTrainerAsync(Trainer trainer)
         {
+            if (trainer == null)
+                throw new ArgumentNullException(nameof(trainer));
+
             // Adds a new Trainer entity and saves changes asynchronously
             _db.Trainers.Add(trainer);
             await _db.SaveChangesAsync();
@@ -63,8 +66,10 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task<Trainer?> UpdateTrainerProfileAsync(int userId, UpdateTrainerProfileDto updatedTrainer)
         {
+            if (updatedTrainer == null)
+                throw new ArgumentNullException(nameof(updatedTrainer));
+
             // Updates an existing Trainer's profile fields and saves changes
-            // Returns the updated Trainer or null if not found
             var existingTrainer = await _db.Trainers.SingleOrDefaultAsync(t => t.UserId == userId);
             if (existingTrainer == null) return null;
 
@@ -89,6 +94,9 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task<(IEnumerable<Trainer> trainers, int total)> GetTrainersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder)
         {
+            if (paginationService == null)
+                throw new ArgumentNullException(nameof(paginationService));
+
             // Retrieves a paginated list of Trainers with optional sorting, returns the list and total count
             var query = _db.Trainers.AsNoTracking();
             var total = await query.CountAsync();

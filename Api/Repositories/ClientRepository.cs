@@ -39,6 +39,9 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task AddClientAsync(Client client)
         {
+            if (client == null)
+                throw new ArgumentNullException(nameof(client));
+
             // Adds a new client entity and saves changes asynchronously
             _db.Clients.Add(client);
             await _db.SaveChangesAsync();
@@ -54,8 +57,10 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task<Client?> UpdateClientProfileAsync(int userId, UpdateClientProfileDto updatedClient)
         {
+            if (updatedClient == null)
+                throw new ArgumentNullException(nameof(updatedClient));
+
             // Updates an existing client's profile fields and saves changes
-            // Returns the updated client, or null if not found
             var existingClient = await _db.Clients.SingleOrDefaultAsync(c => c.UserId == userId);
             if (existingClient == null) return null;
 

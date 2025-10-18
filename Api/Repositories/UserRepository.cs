@@ -103,6 +103,12 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env)
         {
+            if (file == null || file.Length == 0)
+                return (false, "No file uploaded.", null);
+
+            if (env == null)
+                throw new ArgumentNullException(nameof(env));
+
             var user = await _db.Users
                 .Include(u => u.ClientProfile)
                 .Include(u => u.TrainerProfile)
@@ -117,20 +123,15 @@ namespace Api.Repositories
             if (user.Role == UserRole.Client && user.ClientProfile != null)
             {
                 oldProfilePhotoUrl = user.ClientProfile.ProfilePhotoUrl ?? "";
-
             }
             else if (user.Role == UserRole.Trainer && user.TrainerProfile != null)
             {
                 oldProfilePhotoUrl = user.TrainerProfile.ProfilePhotoUrl ?? "";
-
             }
             else
             {
                 return (false, "User must have a profile to upload a photo.", null);
             }
-
-
-
             // Delete old photo if it exists
             if (!string.IsNullOrEmpty(oldProfilePhotoUrl))
             {
@@ -226,6 +227,11 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository)
         {
+            if (clientRepository == null)
+                throw new ArgumentNullException(nameof(clientRepository));
+            if (trainerRepository == null)
+                throw new ArgumentNullException(nameof(trainerRepository));
+
             var user = await _db.Users.Include(u => u.ClientProfile).Include(u => u.TrainerProfile).FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
                 return (false, "User not found.", null);
@@ -271,6 +277,9 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task<(IEnumerable<UserDto> users, int total)> GetUsersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder)
         {
+            if (paginationService == null)
+                throw new ArgumentNullException(nameof(paginationService));
+
             var query = _db.Users
                 .AsNoTracking()
                 .Include(u => u.TrainerProfile)
@@ -318,6 +327,9 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task AddUserAsync(User user)
         {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
         }
@@ -337,6 +349,9 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task UpdateUserAsync(User user)
         {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
             var existingUser = await _db.Users
                 .Include(u => u.ClientProfile)
                 .Include(u => u.TrainerProfile)
@@ -443,6 +458,8 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task<bool> ValidateUserCredentialsAsync(string username, string password)
         {
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
+                return false;
             var user = await _db.Users.SingleOrDefaultAsync(u => u.Username == username);
             if (user == null) return false;
             return BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
@@ -451,6 +468,9 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task<bool> IsUserActiveAsync(string username)
         {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Username cannot be null or empty.", nameof(username));
+
             var user = await _db.Users.SingleOrDefaultAsync(u => u.Username == username);
             return user != null && user.IsActive;
         }
