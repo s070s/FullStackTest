@@ -1,8 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using Api.ServiceUtilities.SeederService;
 using Api.Data;
-using Api.Models;
-using Api.Models.Enums;
 
 
 namespace Api.Services
