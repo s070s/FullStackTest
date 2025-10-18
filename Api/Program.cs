@@ -203,6 +203,7 @@ AdminUserEndpoints.MapAdminUserEndpoints(app);
 UserProfileEndpoints.MapUserProfileEndpoints(app);
 AuthEndpoints.MapAuthEndpoints(app);
 TrainerUserEndpoints.MapTrainerUserEndpoints(app);
+ClientUserEndpoints.MapClientUserEndpoints(app);
 #endregion
 
 app.Run();

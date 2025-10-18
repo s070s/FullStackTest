@@ -23,6 +23,15 @@ namespace Api.Repositories
         /// Updates a client's profile using the provided DTO and returns the updated client.
         /// </summary>
         Task<Client?> UpdateClientProfileAsync(int userId, UpdateClientProfileDto updatedClient);
+        /// <summary>
+        /// As a Client subscribe to a Trainer
+        /// </summary>
+        Task<bool> SubscribeToTrainerAsync(int clientId, int trainerId);
+
+        /// <summary>
+        /// Unsubscribes a client from a trainer.
+        /// </summary>
+        Task<bool> UnsubscribeFromTrainerAsync(int clientId, int trainerId);
     }
 
     // Implementation of the client repository
@@ -50,8 +59,10 @@ namespace Api.Repositories
         /// <inheritdoc />
         public async Task<Client?> GetClientByUserIdAsync(int userId)
         {
-            // Retrieves a single client by user ID, or null if not found
-            return await _db.Clients.SingleOrDefaultAsync(c => c.UserId == userId);
+            // FIX: Include Trainers so subscriptions are loaded!
+            return await _db.Clients
+                .Include(c => c.Trainers)
+                .SingleOrDefaultAsync(c => c.UserId == userId);
         }
 
         /// <inheritdoc />
@@ -81,6 +92,39 @@ namespace Api.Repositories
 
             await _db.SaveChangesAsync();
             return existingClient;
+        }
+        /// <inheritdoc />
+        public async Task<bool> SubscribeToTrainerAsync(int clientId, int trainerId)
+        {
+            var client = await _db.Clients
+                .Include(c => c.Trainers)
+                .SingleOrDefaultAsync(c => c.Id == clientId);
+            var trainer = await _db.Trainers.FindAsync(trainerId);
+            if (client == null || trainer == null)
+                return false;
+            if (!client.Trainers.Contains(trainer))
+            {
+                client.Trainers.Add(trainer);
+                await _db.SaveChangesAsync();
+            }
+            return true;
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> UnsubscribeFromTrainerAsync(int clientId, int trainerId)
+        {
+            var client = await _db.Clients
+                .Include(c => c.Trainers)
+                .SingleOrDefaultAsync(c => c.Id == clientId);
+            var trainer = await _db.Trainers.FindAsync(trainerId);
+            if (client == null || trainer == null)
+                return false;
+            if (client.Trainers.Contains(trainer))
+            {
+                client.Trainers.Remove(trainer);
+                await _db.SaveChangesAsync();
+            }
+            return true;
         }
     }
 }

@@ -87,6 +87,9 @@ export async function fetchWithAuth(
 }
 //#endregion
 
+
+
+
 //#region Admin Only User Management API Functions
 // Admin:Fetch all users with Pagination and Sorting
 export async function adminFetchAllUsers(
@@ -148,7 +151,6 @@ export async function adminDeleteUser(token: string, userId: number): Promise<vo
   }
 }
 
-
 //Admin:Update a user by ID
 export async function adminUpdateUser(
   token: string,
@@ -166,11 +168,9 @@ export async function adminUpdateUser(
   }
   return response.json();
 }
-
 //#endregion
 
 //#region User Profile API Functions
-
 export async function fetchCurrentUser(token: string): Promise<UserDto> {
   const response = await fetchWithAuth("/users/me", token);
   if (!response.ok) {
@@ -219,6 +219,8 @@ export async function updateUserProfile(
 }
 //#endregion
 
+
+
 //#region Client Dashboard Specific API Functions
 export async function readAllTrainersPaginated(token: string, page: number, pageSize: number, sortBy?: string, sortOrder?: "asc" | "desc"): Promise<{ trainers: TrainerDto[]; total: number }>
 {
@@ -235,6 +237,33 @@ export async function readAllTrainersPaginated(token: string, page: number, page
     throw new Error(errorText);
   }
   return response.json();
+}
+// Subscribe a client to a trainer
+export async function subscribeToTrainer(token: string, userId: number, trainerId: number): Promise<void> {
+  const response = await fetchWithAuth(`/clients/${userId}/subscribe/${trainerId}`, token, {
+    method: "POST",
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Failed to subscribe to trainer.");
+  }
+}
+// Unsubscribe a client from a trainer
+export async function unsubscribeFromTrainer(token: string, userId: number, trainerId: number): Promise<void> {
+  const response = await fetchWithAuth(`/clients/${userId}/unsubscribe/${trainerId}`, token, {
+    method: "POST",
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Failed to unsubscribe from trainer.");
+  }
+}
+
+// Get list of trainer IDs the client is subscribed to
+export async function getSubscribedTrainerIds(token: string, userId: number): Promise<number[]> {
+  const response = await fetchWithAuth(`/clients/${userId}/subscriptions`, token);
+  if (!response.ok) throw new Error("Failed to fetch subscribed trainers.");
+  return await response.json();
 }
 //#endregion
 

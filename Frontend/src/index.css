@@ -248,6 +248,12 @@ input[type="reset"]:disabled {
   box-shadow: none;
 }
 
+.success-button {
+  background-color: #4caf50 !important;
+  color: white !important;
+  border: none;
+}
+
 /* --- Custom Button Variants --- */
 .primary-button {
   background-color: var(--secondary-blue);

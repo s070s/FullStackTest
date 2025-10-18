@@ -6,28 +6,23 @@ import type { TrainerDto } from "../../utils/data/trainerdtos";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { useAuth } from "../../utils/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { readAllTrainersPaginated } from "../../utils/api/api";
-
-
-
+import { readAllTrainersPaginated, subscribeToTrainer, unsubscribeFromTrainer, getSubscribedTrainerIds } from "../../utils/api/api";
 
 const TrainerBrowser: React.FC = () => {
     const navigate = useNavigate();
     const [trainers, setTrainers] = useState<TrainerDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null); // Success message state
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
     const PAGE_SIZES = [5, 10, 50, 100];
     const [sortBy, setSortBy] = useState<string>("id");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
     const [totalUsers, setTotalUsers] = useState<number>(0);
-    const { ensureAccessToken} = useAuth();
-
-
-
-
-
+    const [subscribingTrainerId, setSubscribingTrainerId] = useState<number | null>(null);
+    const [subscribedTrainerIds, setSubscribedTrainerIds] = useState<number[]>([]); // Track subscribed trainers
+    const { ensureAccessToken, currentUser } = useAuth();
 
     useEffect(() => {
         let isMounted = true;
@@ -67,6 +62,23 @@ const TrainerBrowser: React.FC = () => {
         };
     }, [ensureAccessToken, page, pageSize, sortBy, sortOrder]);
 
+    useEffect(() => {
+        let isMounted = true;
+        const fetchSubscriptions = async () => {
+            if (!currentUser) return;
+            try {
+                const accessToken = await ensureAccessToken();
+                if (!accessToken) return;
+                const ids = await getSubscribedTrainerIds(accessToken, currentUser.id);
+                if (isMounted) setSubscribedTrainerIds(ids);
+            } catch (err: any) {
+                if (isMounted) setError(err?.message ?? "Failed to fetch subscriptions.");
+            }
+        };
+        fetchSubscriptions();
+        return () => { isMounted = false; };
+    }, [currentUser, ensureAccessToken]);
+
     const totalPages = Math.ceil(totalUsers / pageSize);
 
     const handleSort = (col: string) => {
@@ -78,7 +90,38 @@ const TrainerBrowser: React.FC = () => {
         }
     };
 
-
+    // Handler to subscribe to a trainer
+    const handleToggleSubscribe = async (trainerId: number) => {
+        if (!currentUser) {
+            setError("You must be logged in.");
+            return;
+        }
+        setSubscribingTrainerId(trainerId);
+        setError(null);
+        setSuccess(null);
+        try {
+            const accessToken = await ensureAccessToken();
+            if (!accessToken) {
+                setError("No authentication token found.");
+                return;
+            }
+            if (subscribedTrainerIds.includes(trainerId)) {
+                await unsubscribeFromTrainer(accessToken, currentUser.id, trainerId);
+                setSuccess("Unsubscribed from trainer successfully!");
+            } else {
+                await subscribeToTrainer(accessToken, currentUser.id, trainerId);
+                setSuccess("Subscribed to trainer successfully!");
+            }
+            // Always fetch the latest subscriptions from backend
+            const ids = await getSubscribedTrainerIds(accessToken, currentUser.id);
+            setSubscribedTrainerIds(ids);
+            setError(null);
+        } catch (err: any) {
+            setError(err.message ?? "Failed to update subscription.");
+        } finally {
+            setSubscribingTrainerId(null);
+        }
+    };
 
     return (
         <div>
@@ -106,16 +149,38 @@ const TrainerBrowser: React.FC = () => {
                 <TableGeneric
                     data={trainers.map(u => ({
                         id: u.id,
-                        profilePhotoUrl:u.profilePhotoUrl,
+                        profilePhotoUrl: u.profilePhotoUrl,
                         fullName: `${u.firstName} ${u.lastName}`,
                     }))}
                     onSort={handleSort}
                     sortBy={sortBy}
                     sortOrder={sortOrder}
+                    renderCell={(col, row) => {
+                        if (col === "__actions") {
+                            const isSubscribed = subscribedTrainerIds.includes(row.id);
+                            return (
+                                <Button
+                                    onClick={() => handleToggleSubscribe(row.id)}
+                                    disabled={subscribingTrainerId === row.id}
+                                    className={isSubscribed ? "success-button" : undefined}
+                                >
+                                    {subscribingTrainerId === row.id
+                                        ? <LoadingSpinner />
+                                        : isSubscribed
+                                            ? (<><i className="fas fa-check" style={{ marginRight: 6 }}></i>Subscribed</>)
+                                            : "Subscribe"}
+                                </Button>
+                            );
+                        }
+                        return undefined;
+                    }}
                 />
             )}
             {error && (
                 <div style={{ color: "red", marginTop: "1rem" }}>{error}</div>
+            )}
+            {success && (
+                <div style={{ color: "green", marginTop: "1rem" }}>{success}</div>
             )}
             <Button onClick={() => navigate("/dashboard")}>
                 Back to Dashboard
