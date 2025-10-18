@@ -25,22 +25,6 @@ namespace Api.Endpoints
                 return Results.Ok(new { trainers, total });
             }).RequireAuthorization();
             #endregion
-
-            #region Read Trainer By Id
-            app.MapGet("/trainers/{id:int}", async (
-                int id,
-                IUnitOfWork unitOfWork
-            ) =>
-            {
-                var trainer = await unitOfWork.Trainers.GetTrainerByIdAsync(id);
-                if (trainer == null)
-                { return Results.NotFound("Trainer not found."); }
-                else
-                {
-                    return Results.Ok(trainer);
-                }
-            }).RequireAuthorization();
-            #endregion
         }
     }
 }
