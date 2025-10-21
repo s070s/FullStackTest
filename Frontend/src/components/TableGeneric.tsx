@@ -1,4 +1,5 @@
-import { API_BASE_URL } from "../utils/api/api"; // Import your API base URL
+import React, { useMemo } from "react";
+import { API_BASE_URL } from "../utils/api/api";
 
 type TableGenericProps<T extends object> = {
   data: T[];
@@ -23,10 +24,56 @@ function TableGeneric<T extends { id?: number }>({
 }: TableGenericProps<T>) {
   if (!data || data.length === 0 || !data[0]) return <div>No data available.</div>;
 
-  let columns = Object.keys(data[0]);
-  if (renderCell && data.length > 0 && renderCell("__actions", data[0]) !== undefined) {
-    columns = [...columns, "__actions"];
-  }
+  //memoize columns  
+  const columns = useMemo(()=>{
+    const base = Object.keys(data[0]);
+    const hasActions = !!(renderCell && data.length > 0 && renderCell("__actions", data[0]) !== undefined);
+    return hasActions ? [...base, "__actions"] : base;
+  }, [data, renderCell]);
+
+//memoize rows
+const rows = useMemo(() => {
+    return data.map((row, idx) => {
+      const isSelected = selectable && selectedRowId === (row as any).id;
+      return (
+        <tr
+          key={(row as any).id ?? idx}
+          style={isSelected ? { backgroundColor: "#e0f7fa" } : {}}
+          onClick={() => {
+            if (selectable && onRowSelect) {
+              onRowSelect(row);
+            }
+          }}
+        >
+          {columns.map((col) => (
+            <td key={col}>
+              {renderCell && renderCell(col, row) !== undefined
+                ? renderCell(col, row)
+                : col === "profilePhotoUrl" ? (
+                  <img
+                    src={
+                      (row as any)[col]
+                        ? `${API_BASE_URL}${(row as any)[col]}?t=${(row as any).id}`
+                        : "/default-avatar.png"
+                    }
+                    alt="Profile"
+                    width={40}
+                    height={40}
+                    style={{ borderRadius: "50%", objectFit: "cover" }}
+                    onError={e => {
+                      (e.currentTarget as HTMLImageElement).src = "/default-avatar.png";
+                    }}
+                  />
+                ) : (
+                  String((row as any)[col])
+                )}
+            </td>
+          ))}
+        </tr>
+      );
+    });
+  // include deps that, when changed, should recompute rows
+  }, [data, columns, renderCell, selectable, selectedRowId, onRowSelect]);
 
   return (
     <table>
@@ -47,48 +94,11 @@ function TableGeneric<T extends { id?: number }>({
         </tr>
       </thead>
       <tbody>
-        {data.map((row, idx) => {
-          const isSelected = selectable && selectedRowId === (row as any).id;
-          return (
-            <tr
-              key={idx}
-              style={isSelected ? { backgroundColor: "#e0f7fa" } : {}}
-              onClick={() => {
-                if (selectable && onRowSelect) {
-                  onRowSelect(row);
-                }
-              }}
-            >
-              {columns.map((col) => (
-                <td key={col}>
-                  {renderCell && renderCell(col, row) !== undefined
-                    ? renderCell(col, row)
-                    : col === "profilePhotoUrl" ? (
-                      <img
-                        src={
-                          (row as any)[col]
-                            ? `${API_BASE_URL}${(row as any)[col]}?t=${(row as any).id}`
-                            : "/default-avatar.png"
-                        }
-                        alt="Profile"
-                        width={40}
-                        height={40}
-                        style={{ borderRadius: "50%", objectFit: "cover" }}
-                        onError={e => {
-                          (e.currentTarget as HTMLImageElement).src = "/default-avatar.png";
-                        }}
-                      />
-                    ) : (
-                      String((row as any)[col])
-                    )}
-                </td>
-              ))}
-            </tr>
-          );
-        })}
+        {rows}
       </tbody>
     </table>
   );
 }
 
-export default TableGeneric;
+// memoize component to prevent unnecessary re-renders when props are shallowly equal
+export default React.memo(TableGeneric) as unknown as typeof TableGeneric;

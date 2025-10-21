@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import TableGeneric from "../../components/TableGeneric";
 import Dropdown from "../../components/Dropdown";
 import Button from "../../components/Button";
@@ -36,6 +36,45 @@ const AdminDashboard: React.FC = () => {
     const [stats, setStats] = useState<UserStatisticsDto | null>(null);
     const [editUser, setEditUser] = useState<UserDto | null>(null);
     const [statsLoading, setStatsLoading] = useState(false);
+
+    // memoize table data so TableGeneric doesn't receive a new array each render
+    const tableData = useMemo(() => users.map(u => ({
+        id: u.id,
+        profilePhotoUrl:
+            u.role === "Client" && u.clientProfile?.profilePhotoUrl
+                ? u.clientProfile.profilePhotoUrl
+                : u.role === "Trainer" && u.trainerProfile?.profilePhotoUrl
+                    ? u.trainerProfile.profilePhotoUrl
+                    : undefined,
+        createdUtc: u.createdUtcFormatted || u.createdUtc,
+        username: u.username,
+        email: u.email,
+        isActive: u.isActive,
+        role: u.role,
+        trainerProfile: u.trainerProfile,
+        clientProfile: u.clientProfile
+    })), [users]);
+
+    // memoize renderCell to keep stable function identity
+    const renderCell = useCallback((col: string, row: any) =>
+        col === "username" ? (
+            <a
+                href="#"
+                style={{
+                    color: "blue",
+                    textDecoration: "underline",
+                    cursor: "pointer"
+                }}
+                onClick={e => {
+                    e.preventDefault();
+                    const user = users.find(u => u.id === row.id);
+                    if (user) setEditUser(user);
+                }}
+            >
+                {row.username}
+            </a>
+        ) : undefined
+    , [users, setEditUser]);
 
     return (
         <div>
@@ -109,48 +148,14 @@ const AdminDashboard: React.FC = () => {
                     <LoadingSpinner />
                 ) : (
                     <TableGeneric
-                        data={users.map(u => ({
-                            id: u.id,
-                            profilePhotoUrl:
-                                u.role === "Client" && u.clientProfile?.profilePhotoUrl
-                                    ? u.clientProfile.profilePhotoUrl
-                                    : u.role === "Trainer" && u.trainerProfile?.profilePhotoUrl
-                                        ? u.trainerProfile.profilePhotoUrl
-                                        : undefined,
-                            createdUtc: u.createdUtcFormatted || u.createdUtc,
-                            username: u.username,
-                            email: u.email,
-                            isActive: u.isActive,
-                            role: u.role,
-                            trainerProfile: u.trainerProfile,
-                            clientProfile: u.clientProfile
-                            
-                        }))}
+                        data={tableData}
                         onSort={handleSort}
                         sortBy={sortBy}
                         sortOrder={sortOrder}
                         selectable
                         selectedRowId={selectedUserId}
                         onRowSelect={row => setSelectedUserId(row?.id ?? null)}
-                        renderCell={(col, row) =>
-                            col === "username" ? (
-                                <a
-                                    href="#"
-                                    style={{
-                                        color: "blue",
-                                        textDecoration: "underline",
-                                        cursor: "pointer"
-                                    }}
-                                    onClick={e => {
-                                        e.preventDefault();
-                                        const user = users.find(u => u.id === row.id);
-                                        if (user) setEditUser(user);
-                                    }}
-                                >
-                                    {row.username}
-                                </a>
-                            ) : undefined
-                        }
+                        renderCell={renderCell}
                     />
                 )}
                 {error && (

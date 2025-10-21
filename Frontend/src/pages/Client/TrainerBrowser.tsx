@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import TableGeneric from "../../components/TableGeneric";
 import Dropdown from "../../components/Dropdown";
 import Button from "../../components/Button";
@@ -81,17 +81,29 @@ const TrainerBrowser: React.FC = () => {
 
     const totalPages = Math.ceil(totalUsers / pageSize);
 
-    const handleSort = (col: string) => {
-        if (sortBy === col) {
-            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-        } else {
-            setSortBy(col);
+    // memoize sort handler to avoid new function each render
+    const handleSort = useCallback((col: string) => {
+        setSortBy(prev => {
+            if (prev === col) {
+                setSortOrder(prevOrder => (prevOrder === "asc" ? "desc" : "asc"));
+                return prev;
+            }
             setSortOrder("asc");
-        }
-    };
+            return col;
+        });
+    }, []);
 
-    // Handler to subscribe to a trainer
-    const handleToggleSubscribe = async (trainerId: number) => {
+    // memoize mapped table data to avoid recreating array each render
+    const tableData = useMemo(() => {
+        return trainers.map(u => ({
+            id: u.id,
+            profilePhotoUrl: u.profilePhotoUrl,
+            fullName: `${u.firstName} ${u.lastName}`,
+        }));
+    }, [trainers]);
+
+    // memoize subscription toggle handler
+    const handleToggleSubscribe = useCallback(async (trainerId: number) => {
         if (!currentUser) {
             setError("You must be logged in.");
             return;
@@ -112,7 +124,7 @@ const TrainerBrowser: React.FC = () => {
                 await subscribeToTrainer(accessToken, currentUser.id, trainerId);
                 setSuccess("Subscribed to trainer successfully!");
             }
-            // Always fetch the latest subscriptions from backend
+            // refresh subscriptions
             const ids = await getSubscribedTrainerIds(accessToken, currentUser.id);
             setSubscribedTrainerIds(ids);
             setError(null);
@@ -121,7 +133,28 @@ const TrainerBrowser: React.FC = () => {
         } finally {
             setSubscribingTrainerId(null);
         }
-    };
+    }, [ensureAccessToken, currentUser, subscribedTrainerIds]);
+
+    // memoize renderCell so TableGeneric receives a stable callback
+    const renderCell = useCallback((col: string, row: { id?: number; profilePhotoUrl?: string; fullName?: string }) => {
+        if (col === "__actions") {
+            const isSubscribed = row.id ? subscribedTrainerIds.includes(row.id) : false;
+            return (
+                <Button
+                    onClick={() => row.id && handleToggleSubscribe(row.id)}
+                    disabled={subscribingTrainerId === row.id}
+                    className={isSubscribed ? "success-button" : undefined}
+                >
+                    {subscribingTrainerId === row.id
+                        ? <LoadingSpinner />
+                        : isSubscribed
+                            ? (<><i className="fas fa-check" style={{ marginRight: 6 }}></i>Subscribed</>)
+                            : "Subscribe"}
+                </Button>
+            );
+        }
+        return undefined;
+    }, [subscribedTrainerIds, subscribingTrainerId, handleToggleSubscribe]);
 
     return (
         <div>
@@ -147,33 +180,11 @@ const TrainerBrowser: React.FC = () => {
                 <LoadingSpinner />
             ) : (
                 <TableGeneric
-                    data={trainers.map(u => ({
-                        id: u.id,
-                        profilePhotoUrl: u.profilePhotoUrl,
-                        fullName: `${u.firstName} ${u.lastName}`,
-                    }))}
+                    data={tableData}
                     onSort={handleSort}
                     sortBy={sortBy}
                     sortOrder={sortOrder}
-                    renderCell={(col, row) => {
-                        if (col === "__actions") {
-                            const isSubscribed = subscribedTrainerIds.includes(row.id);
-                            return (
-                                <Button
-                                    onClick={() => handleToggleSubscribe(row.id)}
-                                    disabled={subscribingTrainerId === row.id}
-                                    className={isSubscribed ? "success-button" : undefined}
-                                >
-                                    {subscribingTrainerId === row.id
-                                        ? <LoadingSpinner />
-                                        : isSubscribed
-                                            ? (<><i className="fas fa-check" style={{ marginRight: 6 }}></i>Subscribed</>)
-                                            : "Subscribe"}
-                                </Button>
-                            );
-                        }
-                        return undefined;
-                    }}
+                    renderCell={renderCell}
                 />
             )}
             {error && (

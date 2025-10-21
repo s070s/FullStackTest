@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 
 /// <summary>
 /// Service interface for applying sorting and pagination to IQueryable queries.
@@ -31,23 +32,35 @@ public class PaginationService : IPaginationService
     /// <inheritdoc/>
     public IQueryable<T> ApplySorting<T>(IQueryable<T> query, string? sortBy, string? sortOrder)
     {
-        if (string.IsNullOrEmpty(sortBy))
+        if (string.IsNullOrWhiteSpace(sortBy))
             return query;
 
-        // Build a lambda expression for the property to sort by (e.g., x => x.Property)
-        var param = Expression.Parameter(typeof(T), "x");
-        var property = Expression.PropertyOrField(param, sortBy);
-        var lambda = Expression.Lambda(property, param);
+        var rootType = typeof(T);
+        var param = Expression.Parameter(rootType, "x");
+        Expression propertyAccess = param;
+        Type currentType = rootType;
 
-        // Determine the sorting method based on sortOrder
+        // support dot-separated nested properties and case-insensitive lookup
+        var parts = sortBy.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var part in parts)
+        {
+            var prop = currentType.GetProperty(part, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+            if (prop == null)
+                throw new ArgumentException($"'{sortBy}' is not a member of type '{rootType.Name}'", nameof(sortBy));
+
+            propertyAccess = Expression.Property(propertyAccess, prop);
+            currentType = prop.PropertyType;
+        }
+
+        var lambda = Expression.Lambda(propertyAccess, param);
+
         string methodName = string.Equals(sortOrder, "desc", StringComparison.OrdinalIgnoreCase) ? "OrderByDescending" : "OrderBy";
 
-        // Use reflection to call the appropriate OrderBy/OrderByDescending method
-        var result = typeof(Queryable).GetMethods()
+        var method = typeof(Queryable).GetMethods()
             .First(m => m.Name == methodName && m.GetParameters().Length == 2)
-            .MakeGenericMethod(typeof(T), property.Type)
-            .Invoke(null, new object[] { query, lambda });
+            .MakeGenericMethod(rootType, currentType);
 
+        var result = method.Invoke(null, new object[] { query, lambda });
         return (IQueryable<T>)result!;
     }
 

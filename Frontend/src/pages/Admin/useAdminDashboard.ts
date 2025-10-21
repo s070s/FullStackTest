@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { CreateUserDto, UserDto, UpdateUserDto } from "../../utils/data/userdtos";
 import { adminFetchAllUsers, adminDeleteUser, adminCreateUser, adminUpdateUser } from "../../utils/api/api";
 import { useAuth } from "../../utils/contexts/AuthContext";
@@ -55,14 +55,14 @@ const useAdminDashboard = () => {
 
     const totalPages = Math.ceil(totalUsers / pageSize);
 
-    const handleSort = (col: string) => {
+    const handleSort = useCallback((col: string) => {
         if (sortBy === col) {
-            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+            setSortOrder(prevOrder => (prevOrder === "asc" ? "desc" : "asc"));
         } else {
             setSortBy(col);
             setSortOrder("asc");
         }
-    };
+    }, [sortBy]);
 
     const handleCreateUser = async (data: CreateUserDto) => {
         const accessToken = await ensureAccessToken();

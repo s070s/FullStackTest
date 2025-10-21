@@ -352,7 +352,7 @@ input[type="reset"]:disabled {
   left: 0;
   top: 0;
   width: 200px;
-  height: 100vh;
+  height: 100%;
   background: var(--background-light);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 2px 0 8px rgba(33, 33, 33, 0.10);
