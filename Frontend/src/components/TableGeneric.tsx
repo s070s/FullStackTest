@@ -1,6 +1,15 @@
 import React, { useMemo } from "react";
 import { API_BASE_URL } from "../utils/api/api";
 
+/**
+ * Generic, memoized table component.
+ * - Displays rows for an array of objects (T). Uses Object.keys of the first item for columns.
+ * - Optional renderCell(col, row) lets callers override cell rendering (used for action cells).
+ * - Memoizes columns and row JSX to avoid unnecessary re-renders when props are stable.
+ * - Handles profile photo rendering with a default avatar and an onError fallback.
+ * - Supports selectable rows (highlights selectedRowId and calls onRowSelect).
+ * - Emits onSort when a column header is clicked (skip __actions column).
+ */
 type TableGenericProps<T extends object> = {
   data: T[];
   onSort?: (col: string) => void;

@@ -4,7 +4,14 @@ import Button from "./Button";
 import { useAuth } from "../utils/contexts/AuthContext";
 import { uploadProfilePhoto, fetchCurrentUser, API_BASE_URL } from "../utils/api/api";
 
-
+/**
+ * NavMenu
+ * - Auth-aware navigation panel: shows Login/Register when unauthenticated,
+ *   or role-specific links + Logout when authenticated.
+ * - Displays user avatar (click-to-upload) and refreshes currentUser after a successful upload.
+ * - Maintains a compact/hidden state for a collapsible UI; uses react-router for navigation.
+ * - Relies on AuthContext for user/token actions and keeps presentation responsibilities to CSS.
+ */
 const NavMenu: React.FC = () => {
     const [hidden, setHidden] = useState(false);
     const navigate = useNavigate();

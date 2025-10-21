@@ -17,6 +17,13 @@ type GenericFormDialogProps<T extends object> = {
     title?: string;
 };
 
+/**
+ * GenericFormDialog
+ * - Lightweight, controlled dialog that renders a list of fields defined by props.fields.
+ * - Supports text inputs, selects, and checkboxes; easily extended for other types.
+ * - Keeps local form state in `values`, initialized from `initialValues` and refreshed
+ *   when `initialValues` or `open` change so the dialog can be reused for edit/create flows.
+ */
 function GenericFormDialog<T extends object>({
     open,
     onClose,
@@ -25,17 +32,20 @@ function GenericFormDialog<T extends object>({
     fields,
     title = "Form",
 }: GenericFormDialogProps<T>) {
+    // Local form values (partial T). Start from provided initialValues.
     const [values, setValues] = useState<Partial<T>>(initialValues || {});
 
-    // Add this effect to update values when initialValues change
+    // Keep local state in sync when dialog opens or initialValues change.
     useEffect(() => {
         setValues(initialValues || {});
     }, [initialValues, open]);
 
+    // Generic change handler used by all input types.
     const handleChange = (name: keyof T, value: any) => {
         setValues((prev) => ({ ...prev, [name]: value }));
     };
 
+    // Prevent default form submit and forward typed values to caller.
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit(values as T);
@@ -51,12 +61,14 @@ function GenericFormDialog<T extends object>({
                     {fields.map((field) => (
                         <div key={String(field.name)}>
                             {field.options ? (
+                                // Render a select when options are provided.
                                 <label>
                                     {field.label || String(field.name)}
                                     {field.required && <span style={{ color: "red" }}> *</span>}
                                     <select
                                         className="dialog-select"
-                                        value={values[field.name] as any ||field.options?.[0]?.value || ""}
+                                        // Prefer existing value, fall back to first option or empty string.
+                                        value={(values[field.name] as any) || field.options?.[0]?.value || ""}
                                         onChange={e => handleChange(field.name, e.target.value)}
                                         required={field.required}
                                     >
@@ -66,6 +78,7 @@ function GenericFormDialog<T extends object>({
                                     </select>
                                 </label>
                             ) : field.type === "checkbox" ? (
+                                // Checkbox input expects boolean values.
                                 <label>
                                     {field.label || String(field.name)}
                                     {field.required && <span style={{ color: "red" }}> *</span>}
@@ -75,14 +88,14 @@ function GenericFormDialog<T extends object>({
                                         onChange={e => handleChange(field.name, e.target.checked)}
                                         name={String(field.name)}
                                     />
-
                                 </label>
                             ) : (
+                                // Default to our InputField for text/date/password/etc.
                                 <InputField
                                     label={field.label || String(field.name)}
                                     type={field.type || "text"}
                                     name={String(field.name)}
-                                    value={values[field.name] as any || ""}
+                                    value={(values[field.name] as any) || ""}
                                     onChange={e => handleChange(field.name, e.target.value)}
                                     required={field.required}
                                     showPasswordToggle={field.name === "password"}
