@@ -3,6 +3,7 @@ using Api.Endpoints;
 using Api.Repositories.UnitOfWork;
 using Api.ServiceUtilities.SeederService;
 using Api.Services;
+using Api.Services.Mapping;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -118,6 +119,8 @@ builder.Services.AddScoped<IValidationService, ValidationService>();
 builder.Services.AddScoped<IDbContextLifecycleService, DbContextLifecycleService>();
 // Register PaginationServices(Sorting and Pagination)
 builder.Services.AddScoped<IPaginationService, PaginationService>();
+// Register ModelToDtoMapper
+builder.Services.AddSingleton<IModelToDtoMapper, ModelToDtoMapper>();
 // Register Seeding JSON Data 
 builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/trainer.json", optional: false, reloadOnChange: true);
 builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/client.json", optional: false, reloadOnChange: true);

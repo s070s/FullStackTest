@@ -10,6 +10,8 @@ Clone this repository to your local machine.
 
 ## 2. Manual Setup Instructions
 
+
+### API
 Open a terminal and run the following commands step by step:
 
 ```sh
@@ -28,6 +30,14 @@ dotnet run
 cd FullStackTest
 dotnet test Api/Api.sln
 ```
+### Frontend
+create on the root of the Frontend Project an .env file
+Frontend/.env
+
+inside copy paste the port of the API for development
+VITE_API_DEV_URL=http://localhost:5203
+
+Then..
 
 Open a new terminal for the frontend:
 
@@ -37,7 +47,6 @@ npm install
 npm run build
 npm run dev
 ```
-
 ---
 
 ## 3. VSCode Tasks
@@ -204,6 +213,14 @@ If using VSCode, you can use the provided `.vscode/tasks.json` to automate commo
             "label": "List-NpmVersion",
             "type": "shell",
             "command": "npm -v",
+            "options": {
+                "cwd": "${workspaceFolder}/${input:frontendPath}"
+            }
+        },
+        {
+            "label": "Frontend-AuditFixPackages",
+            "type": "shell",
+            "command": "npm audit fix",
             "options": {
                 "cwd": "${workspaceFolder}/${input:frontendPath}"
             }

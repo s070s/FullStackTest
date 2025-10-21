@@ -2,9 +2,8 @@ using Api.Models;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Api.Dtos;
-using Api.Services;
+using Api.Services.Mapping;
 using Api.Models.Enums;
-using Api.Mappings;
 
 namespace Api.Repositories
 {
@@ -94,9 +93,13 @@ namespace Api.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly AppDbContext _db;
-        public UserRepository(AppDbContext db)
+        private readonly IModelToDtoMapper _mapper;
+
+        public UserRepository(AppDbContext db, IModelToDtoMapper mapper)
         {
             _db = db;
+            _mapper = mapper;
+
         }
 
         // Uploads a new profile photo for the user, deletes old photo if exists
@@ -185,8 +188,8 @@ namespace Api.Repositories
                 .SingleOrDefaultAsync(u => u.Id == userId);
             if (user == null) return null;
 
-            TrainerDto? trainerProfile = user.TrainerProfile?.ToTrainerDto();
-            ClientDto? clientProfile = user.ClientProfile?.ToClientDto();
+            TrainerDto? trainerProfile = _mapper.ToTrainerDto(user.TrainerProfile);
+            ClientDto? clientProfile =  _mapper.ToClientDto(user.ClientProfile);
 
             return new UserDto
             {
@@ -296,8 +299,8 @@ namespace Api.Repositories
                     Email = u.Email,
                     IsActive = u.IsActive,
                     Role = u.Role,
-                    TrainerProfile = u.TrainerProfile != null ? u.TrainerProfile.ToTrainerDto() : null,
-                    ClientProfile = u.ClientProfile != null ? u.ClientProfile.ToClientDto() : null
+                    TrainerProfile = u.TrainerProfile != null ? _mapper.ToTrainerDto(u.TrainerProfile) : null,
+                    ClientProfile = u.ClientProfile != null ? _mapper.ToClientDto(u.ClientProfile) : null
                 })
                 .ToListAsync();
             return (users, total);

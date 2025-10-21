@@ -1,4 +1,5 @@
 using Api.Data;
+using Api.Services.Mapping;
 
 namespace Api.Repositories.UnitOfWork
 {
@@ -17,18 +18,20 @@ namespace Api.Repositories.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _db; // EF Core database context
+        private readonly IModelToDtoMapper _mapper;
 
         public IClientRepository Clients { get; }   // Client repository instance
         public ITrainerRepository Trainers { get; } // Trainer repository instance
         public IUserRepository Users { get; }       // User repository instance
 
         // Constructor injects the database context and initializes repositories.
-        public UnitOfWork(AppDbContext db)
+        public UnitOfWork(AppDbContext db,IModelToDtoMapper mapper)
         {
             _db = db;
+            _mapper = mapper;
             Clients = new ClientRepository(db);
             Trainers = new TrainerRepository(db);
-            Users = new UserRepository(db);
+            Users = new UserRepository(db, _mapper);
         }
 
         // Saves all changes made in the context to the database asynchronously.

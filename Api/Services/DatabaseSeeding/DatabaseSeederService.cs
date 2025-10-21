@@ -10,7 +10,6 @@ namespace Api.Services
         private readonly IConfiguration _configuration;
         private readonly ILogger<DatabaseSeederService> _logger;
         private readonly SeederHelperMethods _seederHelper;
-        private readonly int seedUsers = 50;
 
         // Seeder services from DI
         private readonly UserSeederService _userSeeder;

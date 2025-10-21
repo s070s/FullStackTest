@@ -2,13 +2,19 @@ using Api.Models;
 using Api.Dtos;
 using Api.Models.Enums;
 
-namespace Api.Mappings
+namespace Api.Services.Mapping
 {
-    public static class ModelToDtoExtensions
+    public interface IModelToDtoMapper
     {
-        public static ClientDto ToClientDto(this Client src)
+        ClientDto? ToClientDto(Client? src);
+        TrainerDto? ToTrainerDto(Trainer? src);
+    }
+
+    public class ModelToDtoMapper : IModelToDtoMapper
+    {
+        public ClientDto? ToClientDto(Client? src)
         {
-            if (src == null) return null!;
+            if (src == null) return null;
 
             return new ClientDto
             {
@@ -40,9 +46,9 @@ namespace Api.Mappings
             };
         }
 
-        public static TrainerDto ToTrainerDto(this Trainer src)
+        public TrainerDto? ToTrainerDto(Trainer? src)
         {
-            if (src == null) return null!;
+            if (src == null) return null;
 
             return new TrainerDto
             {
@@ -68,14 +74,12 @@ namespace Api.Mappings
                     Id = c.Id,
                     UserId = c.UserId,
                     FirstName = c.FirstName,
-                    LastName = c.LastName,
-                    // leave other client fields empty to avoid deep mapping here
+                    LastName = c.LastName
                 }).ToList() ?? new List<ClientDto>(),
-                Specializations = src.Specializations.ToList() ?? new List<TrainerSpecialization>(),
+                Specializations = src.Specializations?.ToList() ?? new List<TrainerSpecialization>(),
                 Workouts = src.Workouts?.Select(w => new WorkoutDto
                 {
-                    Id = w.Id,
-                    // map more workout fields if needed
+                    Id = w.Id
                 }).ToList() ?? new List<WorkoutDto>(),
                 ProfilePhotoUrl = src.ProfilePhotoUrl
             };
