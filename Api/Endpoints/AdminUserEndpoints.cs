@@ -13,6 +13,7 @@ namespace Api.Endpoints
         {
 
             #region Admin:Fetch all users with Pagination and Sorting
+            //Returns  sorted and paged list of users along with total count
             app.MapGet("/users", async (
                 IUnitOfWork unitOfWork,
                 IPaginationService paginationService,
@@ -28,6 +29,7 @@ namespace Api.Endpoints
             #endregion
 
             #region Admin:Read All User Statistics
+            //Returns total users along with count per role
             app.MapGet("/users/statistics", async (
                 IUnitOfWork unitOfWork
             ) =>
@@ -35,25 +37,6 @@ namespace Api.Endpoints
                 var stats = await unitOfWork.Users.GetUserStatisticsAsync();
                 return Results.Ok(stats);
             }).RequireAuthorization("Admin");
-            #endregion
-
-            #region Admin:Switch User Role
-            app.MapPost("/users/{id:int}/switch-role", async (
-                            int id,
-                            IUnitOfWork unitOfWork
-                        ) =>
-                        {
-                            var (success, message, newRole) = await unitOfWork.Users.SwitchUserRoleAsync(id, unitOfWork.Clients, unitOfWork.Trainers);
-                            if (!success)
-                            {
-                                if (message == "User not found.")
-                                    return Results.NotFound(message);
-                                if (message == "Cannot change role of an Admin.")
-                                    return Results.BadRequest(message);
-                                return Results.BadRequest(message);
-                            }
-                            return Results.Ok(new { message = $"User role switched to {newRole}" });
-                        }).RequireAuthorization("Admin");
             #endregion
 
             #region Admin: Read One User By Id

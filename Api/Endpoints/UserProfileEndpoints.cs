@@ -11,6 +11,7 @@ namespace Api.Endpoints
         {
 
             #region Get Current Logged User Profile
+            //The individual current logged in user
             app.MapGet("/users/me", async (
                 HttpContext context,
                 IUnitOfWork unitOfWork
@@ -63,7 +64,7 @@ namespace Api.Endpoints
             #endregion
 
             #region Update User Profile
-                        app.MapPut("/users/{id:int}/profile", async (
+            app.MapPut("/users/{id:int}/profile", async (
                 int id,
                 HttpContext context,
                 IUnitOfWork unitOfWork,

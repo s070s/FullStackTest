@@ -8,6 +8,7 @@ namespace Api.Endpoints
         public static void MapTrainerUserEndpoints(this WebApplication app)
         {
             #region Read All Trainers Paginated
+            //Returns  sorted and paged list of all trainers along with total count
             app.MapGet("/trainers", async (
                 IUnitOfWork unitOfWork,
                 IPaginationService paginationService,

@@ -80,11 +80,6 @@ namespace Api.Repositories
         Task<bool> IsUserActiveAsync(string username);
 
         /// <summary>
-        /// Switches user role between Client and Trainer, handles profile changes.
-        /// </summary>
-        Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository);
-
-        /// <summary>
         /// Handles uploading and replacing user profile photo, returns new photo URL.
         /// </summary>
         Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env);
@@ -225,57 +220,6 @@ namespace Api.Repositories
             };
         }
 
-
-
-        /// <inheritdoc />
-        public async Task<(bool success, string? message, UserRole? newRole)> SwitchUserRoleAsync(int userId, IClientRepository clientRepository, ITrainerRepository trainerRepository)
-        {
-            if (clientRepository == null)
-                throw new ArgumentNullException(nameof(clientRepository));
-            if (trainerRepository == null)
-                throw new ArgumentNullException(nameof(trainerRepository));
-
-            var user = await _db.Users.Include(u => u.ClientProfile).Include(u => u.TrainerProfile).FirstOrDefaultAsync(u => u.Id == userId);
-            if (user == null)
-                return (false, "User not found.", null);
-            if (user.Role == UserRole.Admin)
-                return (false, "Cannot change role of an Admin.", null);
-
-            if (user.Role == UserRole.Client)
-            {
-                // Switch to Trainer
-                if (user.ClientProfile != null)
-                {
-                    _db.Clients.Remove(user.ClientProfile);
-                    user.ClientProfile = null;
-                }
-                var trainer = new Trainer
-                {
-                    UserId = user.Id,
-                    User = user
-                };
-                await trainerRepository.AddTrainerAsync(trainer);
-                user.Role = UserRole.Trainer;
-            }
-            else if (user.Role == UserRole.Trainer)
-            {
-                // Switch to Client
-                if (user.TrainerProfile != null)
-                {
-                    _db.Trainers.Remove(user.TrainerProfile);
-                    user.TrainerProfile = null;
-                }
-                var client = new Client
-                {
-                    UserId = user.Id,
-                    User = user
-                };
-                await clientRepository.AddClientAsync(client);
-                user.Role = UserRole.Client;
-            }
-            await _db.SaveChangesAsync();
-            return (true, null, user.Role);
-        }
 
         /// <inheritdoc />
         public async Task<(IEnumerable<UserDto> users, int total)> GetUsersPagedAsync(IPaginationService paginationService, int? page, int? pageSize, string? sortBy, string? sortOrder)

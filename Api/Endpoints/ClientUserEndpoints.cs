@@ -10,6 +10,7 @@ namespace Api.Endpoints
         {
 
             #region Client Subscription to Trainer
+            //Allows a client to subscribe to trainers that they like
             app.MapPost("/clients/{userId:int}/subscribe/{trainerId:int}", async (
                 int userId,
                 int trainerId,
@@ -32,8 +33,9 @@ namespace Api.Endpoints
             #endregion
 
 
-            
+
             #region Client Unsubscribe from Trainer
+            //Allows a client to unsubscribe from trainers
             app.MapPost("/clients/{userId:int}/unsubscribe/{trainerId:int}", async (
                 int userId,
                 int trainerId,
@@ -57,6 +59,7 @@ namespace Api.Endpoints
 
 
             #region Get Subscribed Trainers
+            //Returns list of trainer IDs that the client is subscribed to
             app.MapGet("/clients/{userId:int}/subscriptions", async (
                 int userId,
                 HttpContext context,
