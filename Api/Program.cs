@@ -122,10 +122,10 @@ builder.Services.AddScoped<IPaginationService, PaginationService>();
 // Register ModelToDtoMapper
 builder.Services.AddSingleton<IModelToDtoMapper, ModelToDtoMapper>();
 // Register Seeding JSON Data 
-builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/trainer.json", optional: false, reloadOnChange: true);
-builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/client.json", optional: false, reloadOnChange: true);
-builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/idinfo.json", optional: false, reloadOnChange: true);
-builder.Configuration.AddJsonFile("JSON/DatabaseSeeding/contactinfo.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile("ServiceUtilities/SeederService/JSON/trainer.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile("ServiceUtilities/SeederService/JSON/client.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile("ServiceUtilities/SeederService/JSON/idinfo.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile("ServiceUtilities/SeederService/JSON/contactinfo.json", optional: false, reloadOnChange: true);
 
 builder.Services.Configure<TrainerData>(builder.Configuration);
 builder.Services.Configure<ClientData>(builder.Configuration);
