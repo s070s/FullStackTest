@@ -27,6 +27,7 @@ namespace Api.Models
 
         public WeeklyProgram? CurrentWeeklyProgram { get; set; }
 
+        //[Required] is unecessary for collections
         public ICollection<Goal> Goals { get; set; } = new List<Goal>();
 
         public ICollection<Workout> Workouts { get; set; } = new List<Workout>();

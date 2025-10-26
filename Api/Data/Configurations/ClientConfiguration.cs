@@ -17,6 +17,10 @@ namespace Api.Data.Configurations
                 .WithOne(u => u.ClientProfile)
                 .HasForeignKey<Client>(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Ensure 1:1 by making UserId unique on Clients
+            builder.HasIndex(c => c.UserId).IsUnique();
+
             //One-to-Many relationship between Client and Goals
             builder.HasMany(c => c.Goals)
                 .WithOne(g => g.Client)

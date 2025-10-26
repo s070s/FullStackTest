@@ -14,15 +14,12 @@ namespace Api.Models
 
         [StringLength(1000, ErrorMessage = "Bio cannot be longer than 1000 characters.")]
         public string? Bio { get; set; }
-
-        // Collections are usually not validated, but you can add [Required] if you want to ensure they are not null
-        [Required]
+        
+        //[Required] is unecessary for collections
         public ICollection<Client> Clients { get; set; } = new List<Client>();
 
-        [Required]
         public ICollection<Workout> Workouts { get; set; } = new List<Workout>();
 
-        [Required]
         public ICollection<TrainerSpecialization> Specializations { get; set; } = new List<TrainerSpecialization>();
         
 

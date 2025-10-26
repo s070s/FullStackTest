@@ -19,6 +19,9 @@ namespace Api.Data.Configurations
                 .HasForeignKey<Trainer>(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Ensure 1:1 by making UserId unique on Trainers
+            builder.HasIndex(t => t.UserId).IsUnique();
+
             // Many-to-many relationship with Clients
             builder.HasMany(t => t.Clients)
                 .WithMany(c => c.Trainers)
