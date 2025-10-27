@@ -22,62 +22,83 @@ namespace Api.Endpoints
                 IUnitOfWork unitOfWork
             ) =>
             {
-                // Quick input checks
+                // Validate email format
                 if (!validator.IsValidEmail(dto.Email))
                     return Results.BadRequest("Invalid email format.");
+
+                // Validate password strength
                 if (!validator.IsValidPassword(dto.Password))
                     return Results.BadRequest("Password must be at least 8 characters, include letters and numbers.");
+
+                // Check if username or email already exists
                 if (await validator.UserExistsAsync(dto.Username, dto.Email) == true)
                     return Results.Conflict("Username or Email already exists.");
+
+                // Validate role
                 if (!Enum.TryParse<UserRole>(dto.Role, true, out UserRole role))
                     return Results.BadRequest("Invalid role. Allowed values: Client, Trainer, Admin.");
 
-                // Start DB transaction to keep user and profile writes atomic
+                // Begin a database transaction to ensure atomicity
                 using var transaction = await db.Database.BeginTransactionAsync();
-
-                // Build and persist user
-                var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-                var user = new User
+                try
                 {
-                    Username = dto.Username,
-                    Email = dto.Email,
-                    PasswordHash = passwordHash,
-                    CreatedUtc = DateTime.UtcNow,
-                    IsActive = true,
-                    Role = role
-                };
+                    // Hash the user's password
+                    var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
-                await unitOfWork.Users.AddUserAsync(user);
-
-                // Create role-specific profile
-                if (role == UserRole.Client)
-                {
-                    var client = new Client
+                    // Create the user entity
+                    var user = new User
                     {
-                        UserId = user.Id,
-                        User = user
+                        Username = dto.Username,
+                        Email = dto.Email,
+                        PasswordHash = passwordHash,
+                        CreatedUtc = DateTime.UtcNow,
+                        IsActive = true,
+                        Role = role
                     };
-                    await unitOfWork.Clients.AddClientAsync(client);
-                    user.ClientProfile = client;
-                    await unitOfWork.Users.UpdateUserAsync(user);
-                }
-                else if (role == UserRole.Trainer)
-                {
-                    var trainer = new Trainer
+
+                    // Add user to the database (ID will be generated here)
+                    await unitOfWork.Users.AddUserAsync(user);
+
+                    // Create and link the appropriate profile based on role
+                    if (role == UserRole.Client)
                     {
-                        UserId = user.Id,
-                        User = user
-                    };
-                    await unitOfWork.Trainers.AddTrainerAsync(trainer);
-                    user.TrainerProfile = trainer;
-                    await unitOfWork.Users.UpdateUserAsync(user);
+                        var client = new Client
+                        {
+                            UserId = user.Id,
+                            User = user
+                        };
+                        await unitOfWork.Clients.AddClientAsync(client);
+                        user.ClientProfile = client;
+                        await unitOfWork.Users.UpdateUserAsync(user); // Link profile to user
+                    }
+                    else if (role == UserRole.Trainer)
+                    {
+                        var trainer = new Trainer
+                        {
+                            UserId = user.Id,
+                            User = user
+                        };
+                        await unitOfWork.Trainers.AddTrainerAsync(trainer);
+                        user.TrainerProfile = trainer;
+                        await unitOfWork.Users.UpdateUserAsync(user); // Link profile to user
+                    }
+                    // Note: No profile is created for Admins
+
+                    // Commit the transaction if all operations succeed
+                    await transaction.CommitAsync();
+
+                    // Return a success response with the new user's info
+                    return Results.Created($"/users/{user.Id}", $"User {user.Username} with id {user.Id} registered successfully.");
                 }
-
-                // Commit transaction after all writes succeed
-                await transaction.CommitAsync();
-
-                // Return 201 with resource location
-                return Results.Created($"/users/{user.Id}", $"User {user.Username} with id {user.Id} registered successfully.");
+                catch (Exception ex)
+                {
+                    // Roll back the transaction on any error to maintain data integrity
+                    await transaction.RollbackAsync();
+                    // Log the exception for diagnostics
+                    Console.Error.WriteLine($"Registration failed: {ex.Message}");
+                    // Return a generic error response
+                    return Results.Problem("Registration failed. Please try again.");
+                }
             });
             #endregion
 
