@@ -55,7 +55,10 @@ const useAdminDashboard = () => {
 
     const totalPages = Math.ceil(totalUsers / pageSize);
 
+    const validSortKeys = ["id", "username", "email", "role", "isActive", "createdUtc"];
+    
     const handleSort = useCallback((col: string) => {
+        if (!validSortKeys.includes(col)) return; // Ignore invalid sort keys
         if (sortBy === col) {
             setSortOrder(prevOrder => (prevOrder === "asc" ? "desc" : "asc"));
         } else {

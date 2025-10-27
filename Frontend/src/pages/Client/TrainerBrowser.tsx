@@ -81,24 +81,27 @@ const TrainerBrowser: React.FC = () => {
 
     const totalPages = Math.ceil(totalUsers / pageSize);
 
+
+    const validSortKeys = ["id", "firstName", "lastName"];
+
     // memoize sort handler to avoid new function each render
     const handleSort = useCallback((col: string) => {
-        setSortBy(prev => {
-            if (prev === col) {
-                setSortOrder(prevOrder => (prevOrder === "asc" ? "desc" : "asc"));
-                return prev;
-            }
+        if (!validSortKeys.includes(col)) return; // Ignore invalid sort keys
+        if (sortBy === col) {
+            setSortOrder(prevOrder => (prevOrder === "asc" ? "desc" : "asc"));
+        } else {
+            setSortBy(col);
             setSortOrder("asc");
-            return col;
-        });
-    }, []);
+        }
+    }, [sortBy]);
 
     // memoize mapped table data to avoid recreating array each render
     const tableData = useMemo(() => {
         return trainers.map(u => ({
             id: u.id,
             profilePhotoUrl: u.profilePhotoUrl,
-            fullName: `${u.firstName} ${u.lastName}`,
+            firstName: u.firstName,
+            lastName: u.lastName
         }));
     }, [trainers]);
 
@@ -156,6 +159,14 @@ const TrainerBrowser: React.FC = () => {
         return undefined;
     }, [subscribedTrainerIds, subscribingTrainerId, handleToggleSubscribe]);
 
+    const columns = [
+        { key: "id", label: "Id" },
+        { key: "profilePhotoUrl", label: "Photo" },
+        { key: "firstName", label: "First Name" },
+        { key: "lastName", label: "Last Name" }
+        // Add other columns as needed
+    ];
+
     return (
         <div>
             <h2>Find Trainers</h2>
@@ -181,6 +192,7 @@ const TrainerBrowser: React.FC = () => {
             ) : (
                 <TableGeneric
                     data={tableData}
+                    columns={columns}
                     onSort={handleSort}
                     sortBy={sortBy}
                     sortOrder={sortOrder}

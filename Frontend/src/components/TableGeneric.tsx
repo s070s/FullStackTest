@@ -1,17 +1,16 @@
 import React, { useMemo } from "react";
 import { API_BASE_URL } from "../utils/api/api";
 
-/**
- * Generic, memoized table component.
- * - Displays rows for an array of objects (T). Uses Object.keys of the first item for columns.
- * - Optional renderCell(col, row) lets callers override cell rendering (used for action cells).
- * - Memoizes columns and row JSX to avoid unnecessary re-renders when props are stable.
- * - Handles profile photo rendering with a default avatar and an onError fallback.
- * - Supports selectable rows (highlights selectedRowId and calls onRowSelect).
- * - Emits onSort when a column header is clicked (skip __actions column).
- */
+// Table column definition
+type TableColumn = {
+  key: string;
+  label: string;
+};
+
+// Props for generic table component
 type TableGenericProps<T extends object> = {
   data: T[];
+  columns?: TableColumn[];
   onSort?: (col: string) => void;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
@@ -23,6 +22,7 @@ type TableGenericProps<T extends object> = {
 
 function TableGeneric<T extends { id?: number }>({
   data,
+  columns: customColumns,
   onSort,
   sortBy,
   sortOrder,
@@ -31,17 +31,22 @@ function TableGeneric<T extends { id?: number }>({
   onRowSelect,
   renderCell,
 }: TableGenericProps<T>) {
+  // Show message if no data
   if (!data || data.length === 0 || !data[0]) return <div>No data available.</div>;
 
-  //memoize columns  
-  const columns = useMemo(()=>{
-    const base = Object.keys(data[0]);
+  // Determine columns: use custom or infer from data
+  const columns = useMemo(() => {
+    if (customColumns && customColumns.length > 0) {
+      const hasActions = !!(renderCell && data.length > 0 && renderCell("__actions", data[0]) !== undefined);
+      return hasActions ? [...customColumns, { key: "__actions", label: "" }] : customColumns;
+    }
+    const base = Object.keys(data[0]).map(key => ({ key, label: key }));
     const hasActions = !!(renderCell && data.length > 0 && renderCell("__actions", data[0]) !== undefined);
-    return hasActions ? [...base, "__actions"] : base;
-  }, [data, renderCell]);
+    return hasActions ? [...base, { key: "__actions", label: "" }] : base;
+  }, [customColumns, data, renderCell]);
 
-//memoize rows
-const rows = useMemo(() => {
+  // Render table rows
+  const rows = useMemo(() => {
     return data.map((row, idx) => {
       const isSelected = selectable && selectedRowId === (row as any).id;
       return (
@@ -55,14 +60,15 @@ const rows = useMemo(() => {
           }}
         >
           {columns.map((col) => (
-            <td key={col}>
-              {renderCell && renderCell(col, row) !== undefined
-                ? renderCell(col, row)
-                : col === "profilePhotoUrl" ? (
+            <td key={col.key}>
+              {renderCell && renderCell(col.key, row) !== undefined
+                ? renderCell(col.key, row)
+                // Special rendering for profile photo
+                : col.key === "profilePhotoUrl" ? (
                   <img
                     src={
-                      (row as any)[col]
-                        ? `${API_BASE_URL}${(row as any)[col]}?t=${(row as any).id}`
+                      (row as any)[col.key]
+                        ? `${API_BASE_URL}${(row as any)[col.key]}?t=${(row as any).id}`
                         : "/default-avatar.png"
                     }
                     alt="Profile"
@@ -74,14 +80,13 @@ const rows = useMemo(() => {
                     }}
                   />
                 ) : (
-                  String((row as any)[col])
+                  String((row as any)[col.key])
                 )}
             </td>
           ))}
         </tr>
       );
     });
-  // include deps that, when changed, should recompute rows
   }, [data, columns, renderCell, selectable, selectedRowId, onRowSelect]);
 
   return (
@@ -89,9 +94,9 @@ const rows = useMemo(() => {
       <thead>
         <tr>
           {columns.map((col) => (
-            <th key={col} onClick={() => onSort?.(col)}>
-              {col !== "__actions" ? col : ""}
-              {sortBy === col && col !== "__actions" && (
+            <th key={col.key} onClick={() => onSort?.(col.key)}>
+              {col.key !== "__actions" ? col.label : ""}
+              {sortBy === col.key && col.key !== "__actions" && (
                 sortOrder === "asc" ? (
                   <i className="fas fa-arrow-up" aria-label="Sort ascending"></i>
                 ) : (
@@ -109,5 +114,5 @@ const rows = useMemo(() => {
   );
 }
 
-// memoize component to prevent unnecessary re-renders when props are shallowly equal
+// Memoize for performance
 export default React.memo(TableGeneric) as unknown as typeof TableGeneric;
