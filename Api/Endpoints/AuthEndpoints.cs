@@ -5,16 +5,15 @@ using Api.Dtos;
 using Api.Services;
 using Api.Repositories.UnitOfWork;
 
-
-
 namespace Api.Endpoints
 {
     public static class AuthEndpoints
     {
         public static void MapAuthEndpoints(this WebApplication app)
         {
-            // Use default authorization (JWT)
+            // Map authentication routes (JWT-based)
             #region Register
+            // Register a user and create the matching role profile in one DB transaction
             app.MapPost("/register", async (
                 IValidationService validator,
                 RegisterUserDto dto,
@@ -23,7 +22,7 @@ namespace Api.Endpoints
                 IUnitOfWork unitOfWork
             ) =>
             {
-                // Basic validation: email format and password constraints
+                // Quick input checks
                 if (!validator.IsValidEmail(dto.Email))
                     return Results.BadRequest("Invalid email format.");
                 if (!validator.IsValidPassword(dto.Password))
@@ -33,11 +32,10 @@ namespace Api.Endpoints
                 if (!Enum.TryParse<UserRole>(dto.Role, true, out UserRole role))
                     return Results.BadRequest("Invalid role. Allowed values: Client, Trainer, Admin.");
 
-                // Use a database transaction to ensure user + role-specific record are created atomically.
-                // If any operation fails, the transaction should be rolled back automatically when disposed
-                // (or explicitly on exception).
-                using var transaction = await db.Database.BeginTransactionAsync(); // Start transaction
+                // Start DB transaction to keep user and profile writes atomic
+                using var transaction = await db.Database.BeginTransactionAsync();
 
+                // Build and persist user
                 var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
                 var user = new User
                 {
@@ -49,11 +47,9 @@ namespace Api.Endpoints
                     Role = role
                 };
 
-                // Use the UnitOfWork to persist the user. This abstracts repository logic and helps
-                // with testing and separation of concerns.
-                await unitOfWork.Users.AddUserAsync(user); // Save user and set Id
+                await unitOfWork.Users.AddUserAsync(user);
 
-                // Create related domain record depending on role.
+                // Create role-specific profile
                 if (role == UserRole.Client)
                 {
                     var client = new Client
@@ -77,15 +73,16 @@ namespace Api.Endpoints
                     await unitOfWork.Users.UpdateUserAsync(user);
                 }
 
-                // Commit after both user and role-specific records are saved.
-                await transaction.CommitAsync(); // Commit transaction
+                // Commit transaction after all writes succeed
+                await transaction.CommitAsync();
 
-                // Return Created with location and a simple success message.
+                // Return 201 with resource location
                 return Results.Created($"/users/{user.Id}", $"User {user.Username} with id {user.Id} registered successfully.");
             });
             #endregion
 
             #region Login
+            // Authenticate user and issue access/refresh tokens
             app.MapPost("/login", async (
                 HttpContext httpContext,
                 IJwtService jwtService,
@@ -94,25 +91,25 @@ namespace Api.Endpoints
                 IUnitOfWork unitOfWork
             ) =>
             {
-                // Fetch user and validate credentials via UnitOfWork / repository.
+                // Lookup and verify credentials
                 var user = await unitOfWork.Users.GetUserByUsernameAsync(dto.Username);
                 if (user is null || !await unitOfWork.Users.ValidateUserCredentialsAsync(dto.Username, dto.Password))
                     return Results.Unauthorized();
                 if (!await unitOfWork.Users.IsUserActiveAsync(dto.Username))
                     return Results.Forbid();
 
-                // Ensure JWT configuration is present; fail early if misconfigured.
+                // Read JWT settings
                 var jwtKey = config["Jwt:Key"];
                 var jwtIssuer = config["Jwt:Issuer"];
                 if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
                     return Results.Problem("JWT configuration missing.");
 
-                // Token lifetime configuration with sensible defaults.
+                // Token lifetimes
                 var accessTokenMinutes = config.GetValue<int?>("Jwt:AccessTokenMinutes") ?? 30;
                 var refreshTokenDays = config.GetValue<int?>("Jwt:RefreshTokenDays") ?? 7;
                 var ipAddress = ResolveClientIp(httpContext);
 
-                // Generate access + refresh token pair. IJwtService handles signing and refresh storage.
+                // Create token pair
                 var tokenPair = await jwtService.GenerateTokenPairAsync(
                     user,
                     jwtKey,
@@ -121,41 +118,37 @@ namespace Api.Endpoints
                     TimeSpan.FromDays(refreshTokenDays),
                     ipAddress);
 
-
-                // Set HttpOnly cookie for refresh token. Important security notes:
-                // - HttpOnly prevents JS access to the cookie.
-                // - Secure should be true in production (HTTPS enforced).
-                // - SameSite=None allows cross-site usage (required if frontend and API are on different sites),
-                //   but it is less strict; ensure you understand the implications and set cookie Domain if needed.
+                // Store refresh token in HttpOnly cookie
+                var isHttps = httpContext.Request.IsHttps;
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = true,            // ensure HTTPS in production
-                    SameSite = SameSiteMode.None, // allow cross-site (e.g., frontend hosted separately)
+                    Secure = isHttps,
+                    SameSite = isHttps ? SameSiteMode.None : SameSiteMode.Lax,
                     Expires = tokenPair.RefreshTokenExpiresUtc,
                     Path = "/"
                 };
                 httpContext.Response.Cookies.Append("refreshToken", tokenPair.RefreshToken, cookieOptions);
 
-
+                // Return access token
                 return Results.Ok(new { accessToken = tokenPair.AccessToken, accessTokenExpiresUtc = tokenPair.AccessTokenExpiresUtc });
             }).RequireRateLimiting("login");
             #endregion
 
             #region Refresh
-            // Refresh reads the refresh token from the HttpOnly cookie (no token in request body).
-            // It rotates the refresh token and issues a new access token. On failure, clears cookie.
+            // Rotate the refresh token from cookie and return a fresh access token
             app.MapPost("/refresh", async (
                 HttpContext httpContext,
                 IConfiguration config,
                 IJwtService jwtService
             ) =>
              {
+                // Read refresh token from cookie
                 var refreshToken = httpContext.Request.Cookies["refreshToken"];
                 if (string.IsNullOrWhiteSpace(refreshToken))
                     return Results.Json(new { message = "Refresh token missing." }, statusCode: StatusCodes.Status401Unauthorized);
 
-                // Ensure JWT settings exist.
+                // Read JWT settings
                 var jwtKey = config["Jwt:Key"];
                 var jwtIssuer = config["Jwt:Issuer"];
                 if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
@@ -163,7 +156,10 @@ namespace Api.Endpoints
                 var accessTokenMinutes = config.GetValue<int?>("Jwt:AccessTokenMinutes") ?? 30;
                 var refreshTokenDays = config.GetValue<int?>("Jwt:RefreshTokenDays") ?? 7;
 
-                // Attempt to refresh; IJwtService should validate token, check revocation, and rotate token.
+                // Cache HTTPS flag for cookie options
+                var isHttps = httpContext.Request.IsHttps;
+
+                // Try to validate and rotate refresh token
                 var result = await jwtService.RefreshTokenAsync(
                     refreshToken,
                     jwtKey,
@@ -172,39 +168,66 @@ namespace Api.Endpoints
                     TimeSpan.FromDays(refreshTokenDays),
                     ResolveClientIp(httpContext));
 
-                // If refresh failed, clear cookie to avoid reuse on client and return 401.
+                // On failure, clear cookie and return 401
                 if (!result.Success || result.Tokens is null)
                 {
-                    httpContext.Response.Cookies.Append("refreshToken", "", new CookieOptions { HttpOnly = true, Secure = true, Expires = DateTime.UtcNow.AddDays(-1), Path = "/" });
+                    httpContext.Response.Cookies.Append("refreshToken", "", new CookieOptions {
+                        HttpOnly = true,
+                        Secure = isHttps,
+                        SameSite = isHttps ? SameSiteMode.None : SameSiteMode.Lax,
+                        Expires = DateTime.UtcNow.AddDays(-1),
+                        Path = "/"
+                    });
                     return Results.Json(new { message = result.Error ?? "Unable to refresh token." }, statusCode: StatusCodes.Status401Unauthorized);
                 }
 
                 var tokens = result.Tokens;
 
-                // Set rotated refresh token cookie (token rotation).
+                // Write rotated refresh token cookie
                 httpContext.Response.Cookies.Append("refreshToken", tokens.RefreshToken, new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.None,
+                    SameSite = isHttps ? SameSiteMode.None : SameSiteMode.Lax,
+                    Secure = isHttps,
                     Expires = tokens.RefreshTokenExpiresUtc,
                     Path = "/"
                 });
 
-                // Return new access token to the client.
+                // Return new access token
                 return Results.Ok(new { accessToken = tokens.AccessToken, accessTokenExpiresUtc = tokens.AccessTokenExpiresUtc });
             });
             #endregion
 
             #region Logout
-            // Logout clears the refresh token cookie on the client.
-            // Consider also revoking the refresh token server-side if stored.
-            app.MapPost("/logout", (HttpContext httpContext) =>
+            // Remove the refresh token cookie from the client and revoke it server-side
+            app.MapPost("/logout", async (HttpContext httpContext, IJwtService jwtService) =>
             {
+                var isHttps = httpContext.Request.IsHttps;
+                var refreshToken = httpContext.Request.Cookies["refreshToken"];
+                if (!string.IsNullOrWhiteSpace(refreshToken))
+                {
+                    // Try to extract userId from JWT or session if available, otherwise skip userId check
+                    // If you have userId in claims, extract it here:
+                    int? userId = null;
+                    if (httpContext.User.Identity?.IsAuthenticated == true)
+                    {
+                        var userIdClaim = httpContext.User.Claims.FirstOrDefault(c => c.Type == "userid");
+                        if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var parsedId))
+                            userId = parsedId;
+                    }
+                    // If userId is not available, you may want to look up by token only (less secure)
+                    if (userId.HasValue)
+                    {
+                        await jwtService.RevokeRefreshTokenAsync(userId.Value, refreshToken, httpContext.Connection.RemoteIpAddress?.ToString());
+                    }
+                    // Optionally: If userId is not available, you could try to revoke by token only
+                }
+                // Expire cookie immediately
                 httpContext.Response.Cookies.Append("refreshToken", "", new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = true,
+                    Secure = isHttps,
+                    SameSite = isHttps ? SameSiteMode.None : SameSiteMode.Lax,
                     Expires = DateTime.UtcNow.AddDays(-1),
                     Path = "/"
                 });
@@ -212,8 +235,7 @@ namespace Api.Endpoints
             });
             #endregion
 
-            // ResolveClientIp attempts to determine the client's IP in proxy scenarios using X-Forwarded-For header.
-            // This is useful for binding refresh tokens to client IP to make token theft harder.
+            // Best-effort client IP (prefers X-Forwarded-For; falls back to remote address)
             static string? ResolveClientIp(HttpContext context)
             {
                 if (context.Request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor))

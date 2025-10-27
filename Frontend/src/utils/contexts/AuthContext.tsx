@@ -1,4 +1,4 @@
-// Context to manage authentication state and handle token rotation globally
+// Auth context with in-memory tokens and auto-refresh
 import React, {
   createContext,
   useCallback,
@@ -20,25 +20,23 @@ interface AuthContextType {
   logout: () => void;
   refreshUser: () => Promise<void>;
   ensureAccessToken: () => Promise<string | null>;
-  // true after initial silent auth check (refresh attempt) finished
+  // Set after the first silent refresh attempt finishes
   initialized: boolean;
 }
-// Keep only access token + expiry in-memory
+// In-memory access token + expiry only
 type AuthTokens = {
   accessToken: string;
   accessTokenExpiresUtc: string;
 };
 
-
-
 const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
   token: null,
   currentUser: null,
-  setCurrentUser: () => {},
-  login: () => {},
-  logout: () => {},
-  refreshUser: async () => {},
+  setCurrentUser: () => { },
+  login: () => { },
+  logout: () => { },
+  refreshUser: async () => { },
   ensureAccessToken: async () => null,
   initialized: false,
 });
@@ -46,53 +44,18 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // start with no tokens in memory (no localStorage)
   const [tokens, setTokens] = useState<AuthTokens | null>(null);
   const [currentUser, setCurrentUser] = useState<UserDto | null>(null);
   const [initialized, setInitialized] = useState(false);
   const tokensRef = useRef<AuthTokens | null>(tokens);
   const refreshTimeoutRef = useRef<number | null>(null);
+  const refreshPromiseRef = useRef<Promise<AuthTokens | null> | null>(null);
 
-  // Keep tokensRef in sync
-  useEffect(() => {
-    tokensRef.current = tokens;
-  }, [tokens]);
+  useEffect(() => { tokensRef.current = tokens; }, [tokens]);
 
-  // In-memory only: do not persist refresh token or access token to localStorage
   const persistTokens = useCallback((next: AuthTokens | null) => {
     setTokens(next);
   }, []);
-
-  // On first load, attempt a silent refresh using the HttpOnly cookie.
-  // If the refresh succeeds we populate the in-memory access token so the user stays logged in after a full page reload.
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const updated = await refreshAuthToken(); // sends cookie via credentials: "include"
-        if (!mounted || !updated) return;
-        persistTokens({
-          accessToken: updated.accessToken,
-          accessTokenExpiresUtc: updated.accessTokenExpiresUtc,
-        });
-      } catch {
-        // Silent failure: remain logged out (do not call logout() here to avoid clearing cookie aggressively)
-      } finally {
-        // signal that initial auth check completed (success or failure)
-        if (mounted) setInitialized(true);
-      }
-    })();
-    return () => { mounted = false; };
-  }, [persistTokens]);
-
-  // ensure login sets initialized so UI can react immediately after user logs in
-  const wrappedLogin = useCallback((nextTokens: AccessTokenDto) => {
-    persistTokens({
-      accessToken: nextTokens.accessToken,
-      accessTokenExpiresUtc: nextTokens.accessTokenExpiresUtc,
-    });
-    setInitialized(true);
-  }, [persistTokens]);
 
   const clearRefreshTimeout = useCallback(() => {
     if (refreshTimeoutRef.current !== null) {
@@ -103,98 +66,112 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = useCallback(() => {
     clearRefreshTimeout();
-    // best-effort: notify backend to clear HttpOnly refresh cookie on the API origin
+    // Fire-and-forget server logout
     try {
-      void fetch(`${API_BASE_URL}/logout`, { method: "POST", credentials: "include" });
+      fetch(`${API_BASE_URL}/logout`, { method: "POST", credentials: "include" }).catch(() => {});
     } catch {}
     persistTokens(null);
     setCurrentUser(null);
   }, [clearRefreshTimeout, persistTokens]);
 
-  // expose wrappedLogin instead of raw login so initialized flag is set
-  const login = wrappedLogin;
+  const scheduleRefresh = useCallback((t: AuthTokens | null) => {
+    clearRefreshTimeout();
+    if (!t) return;
+    const msUntilExpiry = new Date(t.accessTokenExpiresUtc).getTime() - Date.now();
+    const safetyWindowMs = 10_000; // Refresh 10s early
+    const delay = Math.max(0, msUntilExpiry - safetyWindowMs);
+    refreshTimeoutRef.current = window.setTimeout(() => {
+      void refreshAccessToken();
+    }, delay) as unknown as number;
+  }, [clearRefreshTimeout]);
 
   const refreshAccessToken = useCallback(async (): Promise<AuthTokens | null> => {
-    try {
-      // The backend reads the refresh token from the HttpOnly cookie; call refresh endpoint (no token in JS)
-      const updated = await refreshAuthToken();
-      // updated must include accessToken and accessTokenExpiresUtc
-      persistTokens({
-        accessToken: updated.accessToken,
-        accessTokenExpiresUtc: updated.accessTokenExpiresUtc,
-      });
-      return {
-        accessToken: updated.accessToken,
-        accessTokenExpiresUtc: updated.accessTokenExpiresUtc,
-      };
-    } catch (error) {
-      logout();
-      throw error;
+    if (refreshPromiseRef.current) {
+      return await refreshPromiseRef.current;
     }
-  }, [logout, persistTokens]);
+    const p = (async () => {
+      try {
+        const updated = await refreshAuthToken();
+        if (!updated) {
+          // No valid refresh cookie; clear tokens
+          persistTokens(null);
+          return null;
+        }
+        const next: AuthTokens = {
+          accessToken: updated.accessToken,
+          accessTokenExpiresUtc: updated.accessTokenExpiresUtc,
+        };
+        persistTokens(next);
+        scheduleRefresh(next);
+        return next;
+      } catch (e) {
+        // On failure, log out once
+        logout();
+        throw e;
+      } finally {
+        refreshPromiseRef.current = null;
+      }
+    })();
+    refreshPromiseRef.current = p;
+    return await p;
+  }, [logout, persistTokens, scheduleRefresh]);
+
+  // Try refresh on mount; never surface errors
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        await refreshAccessToken().catch(() => null);
+      } finally {
+        if (mounted) setInitialized(true);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [refreshAccessToken]);
+
+  const wrappedLogin = useCallback((nextTokens: AccessTokenDto) => {
+    const t: AuthTokens = {
+      accessToken: nextTokens.accessToken,
+      accessTokenExpiresUtc: nextTokens.accessTokenExpiresUtc,
+    };
+    persistTokens(t);
+    scheduleRefresh(t);
+    setInitialized(true);
+  }, [persistTokens, scheduleRefresh]);
+
+  const login = wrappedLogin;
 
   const ensureAccessToken = useCallback(async (): Promise<string | null> => {
     const current = tokensRef.current;
-    if (!current) return null;
-
-    const expiresAt = Date.parse(current.accessTokenExpiresUtc);
-    const now = Date.now();
-    const skewMs = 30_000; // refresh 30 seconds before expiry
-
-    if (Number.isNaN(expiresAt) || expiresAt - skewMs <= now) {
+    if (!current) {
       const refreshed = await refreshAccessToken();
       return refreshed?.accessToken ?? null;
     }
-
+    const expiresAt = new Date(current.accessTokenExpiresUtc).getTime();
+    const needsRefresh = expiresAt - Date.now() < 10_000;
+    if (needsRefresh) {
+      const refreshed = await refreshAccessToken();
+      return refreshed?.accessToken ?? null;
+    }
     return current.accessToken;
   }, [refreshAccessToken]);
 
   const refreshUser = useCallback(async () => {
-    const accessToken = await ensureAccessToken();
-    if (!accessToken) {
+    const token = await ensureAccessToken();
+    if (!token) {
       setCurrentUser(null);
       return;
     }
-
-    try {
-      const user = await fetchCurrentUser(accessToken);
-      setCurrentUser(user);
-    } catch {
-      setCurrentUser(null);
-    }
+    const me = await fetchCurrentUser(token);
+    setCurrentUser(me);
   }, [ensureAccessToken]);
 
   useEffect(() => {
-    clearRefreshTimeout();
-    if (!tokens) {
-      return;
-    }
-
-    const expiresAt = Date.parse(tokens.accessTokenExpiresUtc);
-    if (Number.isNaN(expiresAt)) {
-      return;
-    }
-
-    const leadMs = 60_000; // refresh one minute before expiry
-    const delay = Math.max(1_000, expiresAt - Date.now() - leadMs);
-    const timeoutId = window.setTimeout(() => {
-      refreshAccessToken().catch(() => {
-        // refreshAccessToken will handle logout on failure
-      });
-    }, delay);
-    refreshTimeoutRef.current = timeoutId;
-
-    return () => {
-      clearRefreshTimeout();
-    };
-  }, [tokens, refreshAccessToken, clearRefreshTimeout]);
+    scheduleRefresh(tokens);
+  }, [tokens, scheduleRefresh]);
 
   useEffect(() => {
-    if (tokens) {
-      refreshUser();
-    } else {
-      setCurrentUser(null);
-    }
+    if (tokens) { void refreshUser(); }
   }, [tokens, refreshUser]);
 
   const contextValue = useMemo<AuthContextType>(() => ({
@@ -210,8 +187,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }), [tokens, currentUser, login, logout, refreshUser, ensureAccessToken, initialized]);
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };

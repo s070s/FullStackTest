@@ -1,13 +1,12 @@
 import type { UserDto, RegisterUserDto, LoginUserDto, CreateUserDto, UpdateUserDto } from "../data/userdtos";
 import type { ClientUpdateDto } from "../data/clientdtos";
 import type { TrainerUpdateDto,TrainerDto } from "../data/trainerdtos";
-// Base URL of your API - uses environment variable or falls back to production URL
+
+// API base URL from env; defaults to production URL
 export const API_BASE_URL = import.meta.env.VITE_API_DEV_URL || import.meta.env.VITE_API_URL;
 
-
-
-//#region Authentication API Functions
-// Register a new user
+//#region Auth
+// Register user
 export async function registerUser(data: RegisterUserDto): Promise<UserDto> {
   const response = await fetch(`${API_BASE_URL}/register`, {
     method: "POST",
@@ -21,7 +20,7 @@ export async function registerUser(data: RegisterUserDto): Promise<UserDto> {
   return response.json();
 }
 
-// Authenticate a user (login and get JWT token)
+// Login; returns access token
 export async function authenticateUser(data: LoginUserDto): Promise<{ accessToken: string; accessTokenExpiresUtc: string }> {
   const res = await fetch(`${API_BASE_URL}/login`, {
     method: "POST",
@@ -36,28 +35,31 @@ export async function authenticateUser(data: LoginUserDto): Promise<{ accessToke
   return res.json();
 }
 
-export async function refreshAuthToken(): Promise<{ accessToken: string; accessTokenExpiresUtc: string }> {
+// Refresh access token using refresh cookie
+export async function refreshAuthToken(): Promise<{ accessToken: string; accessTokenExpiresUtc: string } | null> {
   const res = await fetch(`${API_BASE_URL}/refresh`, {
     method: "POST",
-    credentials: "include" // crucial: send HttpOnly refresh cookie
+    credentials: "include"
   });
+  if (res.status === 401) return null;
   if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(txt || "Unable to refresh token");
+    const msg = await res.text().catch(() => "");
+    throw new Error(msg || `Refresh failed (${res.status}).`);
   }
   return res.json();
 }
-// Used to fetch data from a protected api endpoint using JWT token after login
+
+// Fetch helper with Bearer token
 export async function fetchWithAuth(
   endpoint: string,
   token: string,
   options: RequestInit = {}
 ) {
-  // ensure 'credentials' has the correct RequestCredentials type
+  // Ensure credentials type
   const opts: RequestInit = { ...options, credentials: "include" as RequestCredentials };
   const isFormData = opts.body instanceof FormData;
 
-  // Convert headers to plain object if needed
+  // Normalize headers
   let baseHeaders: Record<string, string> = {};
 
   if (opts.headers instanceof Headers) {
@@ -72,8 +74,10 @@ export async function fetchWithAuth(
     baseHeaders = { ...(opts.headers as Record<string, string>) };
   }
 
+  // Attach Authorization header if token
   if (token) baseHeaders["Authorization"] = `Bearer ${token}`;
 
+  // Set JSON Content-Type when not sending FormData
   const hasContentType = Object.keys(baseHeaders).some(k => k.toLowerCase() === "content-type");
   if (!isFormData && !hasContentType) {
     baseHeaders["Content-Type"] = "application/json";
@@ -87,11 +91,8 @@ export async function fetchWithAuth(
 }
 //#endregion
 
-
-
-
-//#region Admin Only User Management API Functions
-// Admin:Fetch all users with Pagination and Sorting
+//#region Admin users
+// List users (paged)
 export async function adminFetchAllUsers(
   token: string,
   options?: {
@@ -116,7 +117,7 @@ export async function adminFetchAllUsers(
   return response.json();
 }
 
-//Admin:Fetch all User Statistics
+// Get user stats
 export async function adminFetchUserStatistics(token: string): Promise<any> {
   const response = await fetchWithAuth("/users/statistics", token);
   if (!response.ok) {
@@ -126,7 +127,7 @@ export async function adminFetchUserStatistics(token: string): Promise<any> {
   return response.json();
 }
 
-//Admin:Create a new User
+// Create user
 export async function adminCreateUser(token: string, data: CreateUserDto): Promise<UserDto> {
   const response = await fetchWithAuth("/users", token, {
     method: "POST",
@@ -140,7 +141,7 @@ export async function adminCreateUser(token: string, data: CreateUserDto): Promi
   return response.json();
 }
 
-//Admin:Delete a user by ID
+// Delete user
 export async function adminDeleteUser(token: string, userId: number): Promise<void> {
   const response = await fetchWithAuth(`/users/${userId}`, token, {
     method: "DELETE",
@@ -151,7 +152,7 @@ export async function adminDeleteUser(token: string, userId: number): Promise<vo
   }
 }
 
-//Admin:Update a user by ID
+// Update user
 export async function adminUpdateUser(
   token: string,
   userId: number,
@@ -170,7 +171,7 @@ export async function adminUpdateUser(
 }
 //#endregion
 
-//#region User Profile API Functions
+//#region Profile
 export async function fetchCurrentUser(token: string): Promise<UserDto> {
   const response = await fetchWithAuth("/users/me", token);
   if (!response.ok) {
@@ -179,19 +180,20 @@ export async function fetchCurrentUser(token: string): Promise<UserDto> {
   }
   return response.json();
 }
-// Upload User Profile Photo
+
+// Upload profile photo
 export async function uploadProfilePhoto(
   token: string,
   userId: number,
   file: File
 ): Promise<void> {
   const formData = new FormData();
-  formData.append("photo", file); // must match backend field name
+  formData.append("photo", file); // field name must match backend
 
   const response = await fetchWithAuth(`/users/${userId}/upload-photo`, token, {
     method: "POST",
     body: formData,
-    headers: {}, // don't set Content-Type
+    headers: {}, // let browser set Content-Type
   });
 
   if (!response.ok) {
@@ -200,7 +202,7 @@ export async function uploadProfilePhoto(
   }
 }
 
-// Update User Profile
+// Update profile
 export async function updateUserProfile(
   token: string,
   userId: number,
@@ -219,9 +221,8 @@ export async function updateUserProfile(
 }
 //#endregion
 
-
-
-//#region Client Dashboard Specific API Functions
+//#region Client dashboard
+// List trainers (paged)
 export async function readAllTrainersPaginated(token: string, page: number, pageSize: number, sortBy?: string, sortOrder?: "asc" | "desc"): Promise<{ trainers: TrainerDto[]; total: number }>
 {
   const params = new URLSearchParams();
@@ -238,7 +239,8 @@ export async function readAllTrainersPaginated(token: string, page: number, page
   }
   return response.json();
 }
-// Subscribe a client to a trainer
+
+// Subscribe client to trainer
 export async function subscribeToTrainer(token: string, userId: number, trainerId: number): Promise<void> {
   const response = await fetchWithAuth(`/clients/${userId}/subscribe/${trainerId}`, token, {
     method: "POST",
@@ -248,7 +250,8 @@ export async function subscribeToTrainer(token: string, userId: number, trainerI
     throw new Error(errorText || "Failed to subscribe to trainer.");
   }
 }
-// Unsubscribe a client from a trainer
+
+// Unsubscribe client from trainer
 export async function unsubscribeFromTrainer(token: string, userId: number, trainerId: number): Promise<void> {
   const response = await fetchWithAuth(`/clients/${userId}/unsubscribe/${trainerId}`, token, {
     method: "POST",
@@ -259,7 +262,7 @@ export async function unsubscribeFromTrainer(token: string, userId: number, trai
   }
 }
 
-// Get list of trainer IDs the client is subscribed to
+// Get subscribed trainer IDs
 export async function getSubscribedTrainerIds(token: string, userId: number): Promise<number[]> {
   const response = await fetchWithAuth(`/clients/${userId}/subscriptions`, token);
   if (!response.ok) throw new Error("Failed to fetch subscribed trainers.");

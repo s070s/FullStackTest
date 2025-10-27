@@ -441,3 +441,7 @@ Api/wwwroot/uploads/
 
 # Frontend environment variables
 Frontend/.env
+
+
+#VSCodeCounter
+.VSCodeCounter/
