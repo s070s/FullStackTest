@@ -6,6 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Services
 {
+    #region Interface
+    /// <summary>
+    /// Service for validating various user inputs and states.
+    /// </summary>
     public interface IValidationService
     {
         /// <summary>
@@ -53,7 +57,9 @@ namespace Api.Services
         /// </summary>
         bool IsValidTrainerProfileUpdate(UpdateTrainerProfileDto dto);
     }
-
+    #endregion
+    #region Implementation
+    /// <inheritdoc />
     public class ValidationService : IValidationService
     {
         private readonly AppDbContext _dbContext;
@@ -175,4 +181,6 @@ namespace Api.Services
             return true;
         }
     }
+    #endregion
+
 }
