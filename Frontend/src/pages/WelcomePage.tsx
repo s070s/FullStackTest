@@ -1,3 +1,4 @@
+/** Welcome Page */
 import React from 'react';
 
 const WelcomePage: React.FC = () => {

@@ -13,7 +13,7 @@ const Dashboard: React.FC = () => {
 
     const payload = parseJwt(token);
     const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]; // Adjust this if your JWT uses a different claim name
-
+    /** Conditional Logic for Dashboards */
     if (role === 'Client') {
         return <ClientDashboard />;
     } else if (role === 'Trainer') {

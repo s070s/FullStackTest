@@ -82,6 +82,7 @@ const AdminDashboard: React.FC = () => {
             <section>
                 <h3>User Management</h3>
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    {/** Pager Page Size*/}
                     <Dropdown
                         label="Page Size"
                         name="pageSize"
@@ -89,7 +90,7 @@ const AdminDashboard: React.FC = () => {
                         options={PAGE_SIZES.map(s => ({ value: s.toString(), label: s.toString() }))}
                         onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
                     />
-
+                    {/** Page Navigation Controls */}
                     <Button onClick={() => setPage(page - 1)} disabled={page <= 1}>
                         <i className="fas fa-chevron-left" aria-label="Previous page"></i>
                     </Button>
@@ -97,6 +98,7 @@ const AdminDashboard: React.FC = () => {
                     <Button onClick={() => setPage(page + 1)} disabled={page >= totalPages}>
                         <i className="fas fa-chevron-right" aria-label="Next page"></i>
                     </Button>
+                    {/** Create and Delete User Buttons */}
                     <Button onClick={() => setOpenCreateDialog(true)}>
                         <i className="fas fa-user-plus" aria-label="Add User"></i>
                     </Button>
@@ -115,7 +117,7 @@ const AdminDashboard: React.FC = () => {
                     >
                         <i className="fas fa-user-minus" aria-label="Delete User"></i>
                     </Button>
-
+                    {/** Create User Button */}
                     <GenericFormDialog<CreateUserDto>
                         open={openCreateDialog}
                         onClose={() => setOpenCreateDialog(false)}
@@ -144,6 +146,7 @@ const AdminDashboard: React.FC = () => {
                     />
 
                 </div>
+                {/** Users Table */}
                 {loading ? (
                     <LoadingSpinner />
                 ) : (
@@ -155,12 +158,14 @@ const AdminDashboard: React.FC = () => {
                         selectable
                         selectedRowId={selectedUserId}
                         onRowSelect={row => setSelectedUserId(row?.id ?? null)}
+                        //render user names as links that open the edit dialog
                         renderCell={renderCell}
                     />
                 )}
                 {error && (
                     <div style={{ color: "red", marginTop: "1rem" }}>{error}</div>
                 )}
+                {/** Edit User Dialog */}
                 <GenericFormDialog<UpdateUserDto>
                     open={!!editUser}
                     onClose={() => setEditUser(null)}
@@ -198,7 +203,7 @@ const AdminDashboard: React.FC = () => {
             </section>
             <section>
                 <h3>User Statistics</h3>
-                {/*Display user statistics here in span elements, call the api once upon clicking the button*/}
+                {/* call the endpoint that fetches user statistics once upon clicking the button */}
                 <Button
                     onClick={async () => {
                         setStatsLoading(true); // Start spinner
@@ -214,6 +219,7 @@ const AdminDashboard: React.FC = () => {
                 >
                     Fetch User Statistics
                 </Button>
+                {/** Display user statistics or loading spinner */}
                 <div id="user-statistics" style={{ marginTop: "1rem" }}>
                     {statsLoading ? (
                         <LoadingSpinner />

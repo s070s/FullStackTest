@@ -170,6 +170,7 @@ const TrainerBrowser: React.FC = () => {
     return (
         <div>
             <h2>Find Trainers</h2>
+            {/** Pager Page Size*/}
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                 <Dropdown
                     label="Page Size"
@@ -178,7 +179,7 @@ const TrainerBrowser: React.FC = () => {
                     options={PAGE_SIZES.map(s => ({ value: s.toString(), label: s.toString() }))}
                     onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
                 />
-
+                {/** Page Navigation Controls */}
                 <Button onClick={() => setPage(page - 1)} disabled={page <= 1}>
                     <i className="fas fa-chevron-left" aria-label="Previous page"></i>
                 </Button>
@@ -187,6 +188,7 @@ const TrainerBrowser: React.FC = () => {
                     <i className="fas fa-chevron-right" aria-label="Next page"></i>
                 </Button>
             </div>
+            {/** Trainer Table */}
             {loading ? (
                 <LoadingSpinner />
             ) : (
@@ -205,6 +207,7 @@ const TrainerBrowser: React.FC = () => {
             {success && (
                 <div style={{ color: "green", marginTop: "1rem" }}>{success}</div>
             )}
+            {/** Back to Dashboard Button (obsolete? it already exists on the navbar) */}
             <Button onClick={() => navigate("/dashboard")}>
                 Back to Dashboard
             </Button>

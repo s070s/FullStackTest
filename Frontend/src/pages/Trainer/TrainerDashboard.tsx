@@ -2,11 +2,12 @@ import React from 'react';
 import { useState } from "react";
 import Button from "../../components/Button";
 import GenericFormDialog from "../../components/GenericFormDialog";
+import LoadingSpinner from '../../components/LoadingSpinner';
 import { updateUserProfile } from "../../utils/api/api";
 import type { TrainerUpdateDto } from "../../utils/data/trainerdtos";
 import { useAuth } from "../../utils/contexts/AuthContext";
 
-
+/** Dashboard when logged in as a Trainer */
 const TrainerDashboard: React.FC = () => {
     const { currentUser, refreshUser, ensureAccessToken } = useAuth();
 
@@ -39,6 +40,7 @@ const TrainerDashboard: React.FC = () => {
         <div>
             <h2>Trainer Dashboard</h2>
             <p>Welcome, {currentUser?.trainerProfile?.firstName} {currentUser?.trainerProfile?.lastName}! Manage your clients and workouts here.</p>
+            {/** Change Profile Settings Button and Form */}
             <Button onClick={() => setDialogOpen(true)}>Change Profile Settings</Button>
             <GenericFormDialog<TrainerUpdateDto>
                 open={dialogOpen}
@@ -73,8 +75,10 @@ const TrainerDashboard: React.FC = () => {
                 fields={profileFields}
                 title="Edit Profile"
             />
+            {/** Error Message */}
             {error && <div style={{ color: "red" }}>{error}</div>}
-            {loading && <div>Updating...</div>}
+            {/** Loading Spinner for Profile Updates */}
+            {loading && <LoadingSpinner />}
             <section>
                 <h3>Manage your Clients and Workouts here.</h3>
                 <ul>

@@ -59,13 +59,14 @@ const NavMenu: React.FC = () => {
                 <div className="grid-container">
                     {isLoggedIn && currentUser && (
                         <div>
+                            {/** User Avatar (Click to upload new photo) */}
                             <img
                                 src={
                                     currentUser.role === "Client" && currentUser.clientProfile?.profilePhotoUrl
                                         ? `${API_BASE_URL}${currentUser.clientProfile.profilePhotoUrl}?t=${Date.now()}`
                                         : currentUser.role === "Trainer" && currentUser.trainerProfile?.profilePhotoUrl
-                                        ? `${API_BASE_URL}${currentUser.trainerProfile.profilePhotoUrl}?t=${Date.now()}`
-                                        : "/default-avatar.png"
+                                            ? `${API_BASE_URL}${currentUser.trainerProfile.profilePhotoUrl}?t=${Date.now()}`
+                                            : "/default-avatar.png"
                                 }
                                 alt="Profile"
                                 width={40}
@@ -83,6 +84,7 @@ const NavMenu: React.FC = () => {
                             />
                         </div>
                     )}
+                    {/** NavMenu when Logged Out*/}
                     {!isLoggedIn && (
                         <>
                             <Button onClick={() => handleNavigate("/login")}>
@@ -93,16 +95,20 @@ const NavMenu: React.FC = () => {
                             </Button>
                         </>
                     )}
+                    {/** NavMenu when Logged in*/}
                     {isLoggedIn && (
                         <>
+                        {/** If Role is Client include the Trainer Browser */}
                             {currentUser?.role === "Client" && (
                                 <Button onClick={() => handleNavigate("/trainers")}>
                                     Find Trainers
                                 </Button>
                             )}
+                            {/** Include Main Dashboard(which in turn routes per Role) */}
                             <Button onClick={() => handleNavigate("/dashboard")}>
                                 Dashboard
                             </Button>
+                            {/** Logout Button */}
                             <Button onClick={handleLogout}>
                                 Logout
                             </Button>

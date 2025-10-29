@@ -1,4 +1,4 @@
-// Context to determine if the device is touch-capable or desktop
+//**  Context to determine if the device is touch-capable or desktop */
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 type DeviceType = "touch" | "desktop";

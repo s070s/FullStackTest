@@ -1,4 +1,4 @@
-// Auth context with in-memory tokens and auto-refresh
+//** Auth context with in-memory tokens and auto-refresh */
 import React, {
   createContext,
   useCallback,

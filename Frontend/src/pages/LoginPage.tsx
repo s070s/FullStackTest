@@ -1,3 +1,4 @@
+/** Registration Page */
 import React, { useState } from 'react';
 import { authenticateUser } from "../utils/api/api";
 import Button from '../components/Button';

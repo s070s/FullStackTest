@@ -1,3 +1,6 @@
+
+/** API calls */
+
 import type { UserDto, RegisterUserDto, LoginUserDto, CreateUserDto, UpdateUserDto } from "../data/userdtos";
 import type { ClientUpdateDto } from "../data/clientdtos";
 import type { TrainerUpdateDto,TrainerDto } from "../data/trainerdtos";

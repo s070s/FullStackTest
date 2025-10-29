@@ -1,3 +1,5 @@
+/** Registration Page */
+
 import React, { useState } from "react";
 import { registerUser } from "../utils/api/api";
 import type { RegisterUserDto } from "../utils/data/userdtos";
@@ -22,7 +24,7 @@ const RegisterPage: React.FC = () => {
   ];
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
   // Handle input changes for form fields
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -49,8 +51,10 @@ const RegisterPage: React.FC = () => {
       {success ? (
         <div>Success! You can now log in.</div>
       ) : loading ? (
+        /** Loading Spinner while the form is submitted*/
         <LoadingSpinner />
       ) : (
+        /** Registration Form */
         <form onSubmit={handleSubmit}>
           <InputField
             label="Username"
@@ -79,6 +83,7 @@ const RegisterPage: React.FC = () => {
             placeholder="Enter your password"
             showPasswordToggle={true}
           />
+          {/** Role Selection */}
           <Dropdown
             label="Role"
             name="role"
@@ -86,6 +91,7 @@ const RegisterPage: React.FC = () => {
             options={roleOptions}
             onChange={handleChange}
           />
+          {/** Submit Button */}
           <Button type="submit" className="primary-button full-width">
             Register
           </Button>

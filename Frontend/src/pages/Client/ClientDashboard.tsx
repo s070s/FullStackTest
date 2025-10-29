@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth } from "../../utils/contexts/AuthContext";
 import Button from "../../components/Button";
 import GenericFormDialog from "../../components/GenericFormDialog";
+import LoadingSpinner from '../../components/LoadingSpinner';
 import { updateUserProfile } from "../../utils/api/api";
 import type { ClientUpdateDto } from "../../utils/data/clientdtos";
 
@@ -51,6 +52,7 @@ const ClientDashboard: React.FC = () => {
                     <span>Age:{currentUser?.clientProfile?.age}</span><br />
                     <span>Email: {currentUser?.email}</span>
                 </div>
+                {/** Change Client Profile Information Button */}
                 <Button
                     onClick={() => {
                         if (currentUser?.clientProfile) setDialogOpen(true);
@@ -60,7 +62,7 @@ const ClientDashboard: React.FC = () => {
                     Change Profile Information
                 </Button>
             </section>
-
+            {/** Change Client Profile Information Form */}
             <GenericFormDialog<ClientUpdateDto>
                 open={dialogOpen}
                 onClose={() => { setDialogOpen(false); setError(null); }}
@@ -97,11 +99,10 @@ const ClientDashboard: React.FC = () => {
                 fields={profileFields}
                 title="Edit Profile"
             />
+            {/** Error Message */}
             {error && <div style={{ color: "red" }}>{error}</div>}
-            {loading && <div>Updating...</div>}
-
-
-
+            {/** Loading Spinner for Profile Updates */}
+            {loading && <LoadingSpinner />}
 
             <section>
                 <h3>Progress</h3>
