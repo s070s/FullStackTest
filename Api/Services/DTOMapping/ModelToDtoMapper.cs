@@ -4,12 +4,21 @@ using Api.Models.Enums;
 
 namespace Api.Services.Mapping
 {
+
+    #region Interface
+    /// <summary>
+    /// Defines methods for mapping domain models to Data Transfer Objects (DTOs).
+    /// </summary>
     public interface IModelToDtoMapper
     {
         ClientDto? ToClientDto(Client? src);
         TrainerDto? ToTrainerDto(Trainer? src);
     }
+    #endregion
 
+    #region Implementation
+
+    ///<inheritdoc/>
     public class ModelToDtoMapper : IModelToDtoMapper
     {
         public ClientDto? ToClientDto(Client? src)
@@ -85,4 +94,8 @@ namespace Api.Services.Mapping
             };
         }
     }
+    #endregion
+
+
+
 }

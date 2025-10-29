@@ -7,6 +7,11 @@ using Api.Models.Enums;
 
 namespace Api.Repositories
 {
+
+    #region Interface
+    /// <summary>
+    /// Repository for managing User entities and related operations.
+    /// </summary>
     public interface IUserRepository
     {
         /// <summary>
@@ -84,7 +89,9 @@ namespace Api.Repositories
         /// </summary>
         Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env);
     }
-
+    #endregion
+    #region Implementation
+    /// <inheritdoc/>
     public class UserRepository : IUserRepository
     {
         private readonly AppDbContext _db;
@@ -97,7 +104,6 @@ namespace Api.Repositories
 
         }
 
-        // Uploads a new profile photo for the user, deletes old photo if exists
         /// <inheritdoc />
         public async Task<(bool success, string? message, string? photoUrl)> UploadUserProfilePhotoAsync(int userId, IFormFile file, IWebHostEnvironment env)
         {
@@ -184,7 +190,7 @@ namespace Api.Repositories
             if (user == null) return null;
 
             TrainerDto? trainerProfile = _mapper.ToTrainerDto(user.TrainerProfile);
-            ClientDto? clientProfile =  _mapper.ToClientDto(user.ClientProfile);
+            ClientDto? clientProfile = _mapper.ToClientDto(user.ClientProfile);
 
             return new UserDto
             {
@@ -422,4 +428,6 @@ namespace Api.Repositories
             return user != null && user.IsActive;
         }
     }
+    #endregion
+
 }

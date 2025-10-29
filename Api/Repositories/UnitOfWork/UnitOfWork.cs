@@ -3,8 +3,12 @@ using Api.Services.Mapping;
 
 namespace Api.Repositories.UnitOfWork
 {
-    // Interface for Unit of Work pattern.
-    // Exposes repositories and a method to persist changes.
+
+    #region Interface
+    /// <summary>
+    /// Interface for Unit of Work pattern.
+    /// Exposes repositories and a method to persist changes.
+    /// </summary>
     public interface IUnitOfWork
     {
         IClientRepository Clients { get; }    // Access to Client repository
@@ -12,9 +16,9 @@ namespace Api.Repositories.UnitOfWork
         IUserRepository Users { get; }        // Access to User repository
         Task<int> SaveChangesAsync();         // Persists all changes to the database
     }
-
-    // Concrete implementation of the Unit of Work pattern.
-    // Manages repositories and coordinates saving changes.
+    #endregion
+    #region Implementation
+    /// <inheritdoc/>
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _db; // EF Core database context
@@ -34,7 +38,9 @@ namespace Api.Repositories.UnitOfWork
             Users = new UserRepository(db, _mapper);
         }
 
-        // Saves all changes made in the context to the database asynchronously.
+        ///<inheritdoc/>
         public async Task<int> SaveChangesAsync() => await _db.SaveChangesAsync();
     }
+    #endregion
+
 }

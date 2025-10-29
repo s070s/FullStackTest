@@ -4,6 +4,7 @@ using Api.Models.BaseClasses;
 
 namespace Api.Services
 {
+    #region Interface
     /// <summary>
     /// Service for handling entity lifecycle events, such as updating timestamps.
     /// </summary>
@@ -16,10 +17,9 @@ namespace Api.Services
         /// <param name="changeTracker">The ChangeTracker from the DbContext.</param>
         void UpdateTimestamps(ChangeTracker changeTracker);
     }
-
-    /// <summary>
-    /// Implementation of IDbContextLifecycleService for updating entity timestamps.
-    /// </summary>
+    #endregion
+    #region Implementation
+    /// <inheritdoc/>
     public class DbContextLifecycleService : IDbContextLifecycleService
     {
         /// <inheritdoc/>
@@ -43,4 +43,5 @@ namespace Api.Services
             }
         }
     }
+    #endregion
 }

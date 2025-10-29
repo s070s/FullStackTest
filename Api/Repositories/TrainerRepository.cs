@@ -5,7 +5,13 @@ using Api.Dtos;
 
 namespace Api.Repositories
 {
-    // Interface for Trainer repository, defines contract for Trainer data operations
+
+
+
+    #region Interface
+    /// <summary>
+    /// Repository for managing Trainer entities and related operations.
+    /// </summary>
     public interface ITrainerRepository
     {
         /// <summary>
@@ -33,8 +39,9 @@ namespace Api.Repositories
         /// </summary>
         Task<Trainer?> GetTrainerByIdAsync(int trainerId);
     }
-
-    // Concrete implementation of ITrainerRepository using Entity Framework Core
+    #endregion
+    #region Implementation
+    /// <inheritdoc />
     public class TrainerRepository : ITrainerRepository
     {
         private readonly AppDbContext _db;
@@ -112,4 +119,10 @@ namespace Api.Repositories
             return await _db.Trainers.AsNoTracking().SingleOrDefaultAsync(t => t.Id == trainerId);
         }
     }
+    #endregion
+
+
+
+
+
 }

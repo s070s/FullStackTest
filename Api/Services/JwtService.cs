@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
+#region TokenPair
 /// <summary>
 /// Represents a pair of access and refresh tokens along with their expiry metadata.
 /// </summary>
@@ -16,7 +17,8 @@ public record TokenPair(
     string RefreshToken,
     DateTime RefreshTokenExpiresUtc
 );
-
+#endregion
+#region Interface
 /// <summary>
 /// Service interface for issuing and managing JWT access tokens and refresh tokens.
 /// </summary>
@@ -56,9 +58,11 @@ public interface IJwtService
         CancellationToken cancellationToken = default);
 }
 
-/// <summary>
-/// Implementation of <see cref="IJwtService"/> for issuing short-lived JWT access tokens and managing long-lived refresh tokens.
-/// </summary>
+#endregion
+#region Implementation
+
+
+///<inheritdoc/>
 public class JwtService : IJwtService
 {
     private readonly AppDbContext _dbContext;
@@ -259,3 +263,5 @@ public class JwtService : IJwtService
 
     private readonly record struct RefreshTokenEnvelope(string Token, string TokenHash, RefreshToken Entity);
 }
+#endregion
+

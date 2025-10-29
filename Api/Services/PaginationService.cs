@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
+    #region Interface
 /// <summary>
 /// Service interface for applying sorting and pagination to IQueryable queries.
 /// </summary>
@@ -26,7 +27,9 @@ public interface IPaginationService
     /// <returns>The paginated query.</returns>
     IQueryable<T> ApplyPagination<T>(IQueryable<T> query, int? page, int? pageSize);
 }
-
+    #endregion
+    #region Implementation
+///<inheritdoc/>
 public class PaginationService : IPaginationService
 {
     /// <inheritdoc/>
@@ -73,3 +76,8 @@ public class PaginationService : IPaginationService
         return query.Skip((currentPage - 1) * currentPageSize).Take(currentPageSize);
     }
 }
+    #endregion
+
+
+
+

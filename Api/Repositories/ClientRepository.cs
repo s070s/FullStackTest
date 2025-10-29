@@ -6,7 +6,12 @@ using Api.Models.Enums;
 
 namespace Api.Repositories
 {
-    // Interface for client repository operations
+
+
+    #region Interface
+    /// <summary>
+    /// Repository for managing Client entities and related operations.
+    /// </summary>
     public interface IClientRepository
     {
         /// <summary>
@@ -33,8 +38,9 @@ namespace Api.Repositories
         /// </summary>
         Task<bool> UnsubscribeFromTrainerAsync(int clientId, int trainerId);
     }
-
-    // Implementation of the client repository
+    #endregion
+    #region Implementation
+    /// <inheritdoc />
     public class ClientRepository : IClientRepository
     {
         private readonly AppDbContext _db;
@@ -127,4 +133,8 @@ namespace Api.Repositories
             return true;
         }
     }
+    #endregion
+
+
+
 }
