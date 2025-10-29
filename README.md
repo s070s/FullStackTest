@@ -409,14 +409,15 @@ VITE_API_URL=https://fullstacktest-nokq.onrender.com/api
 username:admin
 password:admin1234567
 
-## 10. Development URLs for Reference
+## 10. Development URLs Reference
 Frontend:http://localhost:5173/
 API:http://localhost:5203
 
-## 11. Production URLs for Reference
+## 11. Production URLs Reference
 Frontend:https://full-stack-test-beta.vercel.app/
 API:https://fullstacktest-nokq.onrender.com/api
 
 ## 12. Other Notes
 -Uploading Static Files is not supported on Production as persistent storage on Render(the service where the api is deployed) requires a subscription beyond the free plan
 -The deployed API on Render slows down after 15 mins of inactivity due to the free tier.
+-Opening the Deployed Site on browsers like Brave with privacy features that affect third party cookies causes issues with the issuing of Refresh Cookies and therefore gives a 401 error on the /refresh endpoint. On Chrome that is not the case.
