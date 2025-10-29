@@ -11,13 +11,14 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
 
 
 
 var builder = WebApplication.CreateBuilder(args);
 #region Database Config
 //Database Connection String
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Data Source=app.db";
 
 //Register DbContext
@@ -57,6 +58,19 @@ builder.Services.AddCors(options =>
         });
 });
 #endregion
+
+
+#region Forwarded Headers Configuration
+// Configure Forwarded Headers to work correctly behind reverse proxies
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+#endregion
+
+
 
 #region JWT Authentication
 // JWT Authentication configuration
@@ -175,6 +189,9 @@ using (var scope = app.Services.CreateScope())
 
 
 #region Enable Middleware
+// Enable Forwarded Headers Middleware for reverse proxy support
+app.UseForwardedHeaders();
+
 //Use CORS before MapGet/MapPost calls
 app.UseCors("AllowFrontend");
 
