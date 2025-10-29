@@ -437,5 +437,8 @@ dist-ssr/
 Frontend/.env
 
 
+# wwwroot/uploads folder
+Api/wwwroot/uploads/
+
 #VSCodeCounter
 .VSCodeCounter/
