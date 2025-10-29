@@ -378,13 +378,14 @@ VITE_API_DEV_URL=http://localhost:5203
 
 ## 6. Important For "Production"- API on Render
 -Env vars for API
-ASPNETCORE_ENVIRONMENT=Production
-ConnectionStrings__DefaultConnection="Data Source=app.db"
-Jwt__Issuer="TestApi"
-Frontend__Url="https://full-stack-test-beta.vercel.app"
-Jwt__Key="the-much-longer-secret-key-which-is-at-least-32-characters-long!"
-JWT__AccessTokenMinutes=30
-JWT__RefreshTokenDays=7
+ASPNETCORE_ENVIRONMENT = Production
+ConnectionStrings__DefaultConnection = "Data Source=app.db"
+Jwt__Issuer = "TestApi"
+Frontend__Url = "https://full-stack-test-beta.vercel.app"
+Jwt__Key = "the-much-longer-secret-key-which-is-at-least-32-characters-long!"
+JWT__AccessTokenMinutes = 30
+JWT__RefreshTokenDays = 7
+ASPNETCORE_URLS = http://0.0.0.0:10000
 
 -DockerFile and dockerignore included in the API Root for its deployment
 
