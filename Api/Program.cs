@@ -71,6 +71,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 #endregion
 
 
+#region Register RefreshTokenCookieService
+// Handles setting and removing refresh token cookies
+builder.Services.AddScoped<IRefreshTokenCookieService, RefreshTokenCookieService>();
+#endregion
 
 #region JWT Authentication
 // JWT Authentication configuration

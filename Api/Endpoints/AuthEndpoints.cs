@@ -109,7 +109,8 @@ namespace Api.Endpoints
                 IJwtService jwtService,
                 LoginDto dto,
                 IConfiguration config,
-                IUnitOfWork unitOfWork
+                IUnitOfWork unitOfWork,
+                IRefreshTokenCookieService refreshToken
             ) =>
             {
                 // Lookup and verify credentials
@@ -152,6 +153,9 @@ namespace Api.Endpoints
                 };
                 httpContext.Response.Cookies.Append("refreshToken", tokenPair.RefreshToken, cookieOptions);
 
+                // Set the refresh token cookie
+                refreshToken.SetRefreshToken(httpContext, tokenPair.RefreshToken, tokenPair.RefreshTokenExpiresUtc);
+
                 // Return access token
                 return Results.Ok(new { accessToken = tokenPair.AccessToken, accessTokenExpiresUtc = tokenPair.AccessTokenExpiresUtc });
             }).RequireRateLimiting("login");
@@ -162,76 +166,62 @@ namespace Api.Endpoints
             app.MapPost("/refresh", async (
                 HttpContext httpContext,
                 IConfiguration config,
-                IJwtService jwtService
+                IJwtService jwtService,
+                IRefreshTokenCookieService refreshTokenCookieService
             ) =>
-             {
-                 // Read refresh token from cookie
-                 var refreshToken = httpContext.Request.Cookies["refreshToken"];
-                 if (string.IsNullOrWhiteSpace(refreshToken))
-                     return Results.Json(new { message = "Refresh token missing." }, statusCode: StatusCodes.Status401Unauthorized);
+            {
+                // Read refresh token from cookie
+                var refreshToken = httpContext.Request.Cookies["refreshToken"];
+                if (string.IsNullOrWhiteSpace(refreshToken))
+                    return Results.Json(new { message = "Refresh token missing." }, statusCode: StatusCodes.Status401Unauthorized);
 
-                 // Read JWT settings
-                 var jwtKey = config["Jwt:Key"];
-                 var jwtIssuer = config["Jwt:Issuer"];
-                 if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
-                     return Results.Problem("JWT configuration missing.");
-                 var accessTokenMinutes = config.GetValue<int?>("Jwt:AccessTokenMinutes") ?? 30;
-                 var refreshTokenDays = config.GetValue<int?>("Jwt:RefreshTokenDays") ?? 7;
+                // Read JWT settings
+                var jwtKey = config["Jwt:Key"];
+                var jwtIssuer = config["Jwt:Issuer"];
+                if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer))
+                    return Results.Problem("JWT configuration missing.");
+                var accessTokenMinutes = config.GetValue<int?>("Jwt:AccessTokenMinutes") ?? 30;
+                var refreshTokenDays = config.GetValue<int?>("Jwt:RefreshTokenDays") ?? 7;
 
-                 // Determine if request is over HTTPS
-                 var isHttps = httpContext.Request.IsHttps || string.Equals(httpContext.Request.Headers["X-Forwarded-Proto"], "https", StringComparison.OrdinalIgnoreCase);
+                // Try to validate and rotate refresh token
+                var result = await jwtService.RefreshTokenAsync(
+                    refreshToken,
+                    jwtKey,
+                    jwtIssuer,
+                    TimeSpan.FromMinutes(accessTokenMinutes),
+                    TimeSpan.FromDays(refreshTokenDays),
+                    ResolveClientIp(httpContext));
 
-                 // Try to validate and rotate refresh token
-                 var result = await jwtService.RefreshTokenAsync(
-                     refreshToken,
-                     jwtKey,
-                     jwtIssuer,
-                     TimeSpan.FromMinutes(accessTokenMinutes),
-                     TimeSpan.FromDays(refreshTokenDays),
-                     ResolveClientIp(httpContext));
+                // On failure, clear cookie and return 401
+                if (!result.Success || result.Tokens is null)
+                {
+                    refreshTokenCookieService.RemoveRefreshToken(httpContext);
+                    return Results.Json(new { message = result.Error ?? "Unable to refresh token." }, statusCode: StatusCodes.Status401Unauthorized);
+                }
 
-                 // On failure, clear cookie and return 401
-                 if (!result.Success || result.Tokens is null)
-                 {
-                     httpContext.Response.Cookies.Append("refreshToken", "", new CookieOptions
-                     {
-                         HttpOnly = true,
-                         Secure = isHttps,
-                         SameSite = isHttps ? SameSiteMode.None : SameSiteMode.Lax,
-                         Expires = DateTime.UtcNow.AddDays(-1),
-                         Path = "/"
-                     });
-                     return Results.Json(new { message = result.Error ?? "Unable to refresh token." }, statusCode: StatusCodes.Status401Unauthorized);
-                 }
+                var tokens = result.Tokens;
 
-                 var tokens = result.Tokens;
+                // Write rotated refresh token cookie
+                refreshTokenCookieService.SetRefreshToken(httpContext, tokens.RefreshToken, tokens.RefreshTokenExpiresUtc);
 
-                 // Write rotated refresh token cookie
-                 httpContext.Response.Cookies.Append("refreshToken", tokens.RefreshToken, new CookieOptions
-                 {
-                     HttpOnly = true,
-                     SameSite = isHttps ? SameSiteMode.None : SameSiteMode.Lax,
-                     Secure = isHttps,
-                     Expires = tokens.RefreshTokenExpiresUtc,
-                     Path = "/"
-                 });
-
-                 // Return new access token
-                 return Results.Ok(new { accessToken = tokens.AccessToken, accessTokenExpiresUtc = tokens.AccessTokenExpiresUtc });
-             });
+                // Return new access token
+                return Results.Ok(new { accessToken = tokens.AccessToken, accessTokenExpiresUtc = tokens.AccessTokenExpiresUtc });
+            });
             #endregion
 
             #region Logout
             // Remove the refresh token cookie from the client and revoke it server-side
-            app.MapPost("/logout", async (HttpContext httpContext, IJwtService jwtService) =>
+            app.MapPost("/logout", async (
+                HttpContext httpContext,
+                IJwtService jwtService,
+                IRefreshTokenCookieService refreshTokenCookieService
+            ) =>
             {
-                // Determine if request is over HTTPS
-                var isHttps = httpContext.Request.IsHttps || string.Equals(httpContext.Request.Headers["X-Forwarded-Proto"], "https", StringComparison.OrdinalIgnoreCase); var refreshToken = httpContext.Request.Cookies["refreshToken"];
-                
+                var refreshToken = httpContext.Request.Cookies["refreshToken"];
+
                 if (!string.IsNullOrWhiteSpace(refreshToken))
                 {
                     // Try to extract userId from JWT or session if available, otherwise skip userId check
-                    // If you have userId in claims, extract it here:
                     int? userId = null;
                     if (httpContext.User.Identity?.IsAuthenticated == true)
                     {
@@ -246,15 +236,8 @@ namespace Api.Endpoints
                     }
                     // Optionally: If userId is not available, you could try to revoke by token only
                 }
-                // Expire cookie immediately
-                httpContext.Response.Cookies.Append("refreshToken", "", new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = isHttps,
-                    SameSite = isHttps ? SameSiteMode.None : SameSiteMode.Lax,
-                    Expires = DateTime.UtcNow.AddDays(-1),
-                    Path = "/"
-                });
+                // Expire cookie immediately using the service
+                refreshTokenCookieService.RemoveRefreshToken(httpContext);
                 return Results.Ok(new { message = "Logged out" });
             });
             #endregion
