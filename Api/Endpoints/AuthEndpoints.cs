@@ -110,7 +110,7 @@ namespace Api.Endpoints
                 LoginDto dto,
                 IConfiguration config,
                 IUnitOfWork unitOfWork,
-                IRefreshTokenCookieService refreshToken
+                IRefreshTokenCookieService refreshTokenService
             ) =>
             {
                 // Lookup and verify credentials
@@ -154,7 +154,7 @@ namespace Api.Endpoints
                 httpContext.Response.Cookies.Append("refreshToken", tokenPair.RefreshToken, cookieOptions);
 
                 // Set the refresh token cookie
-                refreshToken.SetRefreshToken(httpContext, tokenPair.RefreshToken, tokenPair.RefreshTokenExpiresUtc);
+                refreshTokenService.SetRefreshToken(httpContext, tokenPair.RefreshToken, tokenPair.RefreshTokenExpiresUtc);
 
                 // Return access token
                 return Results.Ok(new { accessToken = tokenPair.AccessToken, accessTokenExpiresUtc = tokenPair.AccessTokenExpiresUtc });
