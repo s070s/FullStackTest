@@ -358,7 +358,7 @@ You can also use the **Frontend: Dev & Debug** compound configuration to start b
 .env file (at the root of the Frontend React Project)
 VITE_API_DEV_URL=http://localhost:5203
 
-## 6. Important For "Production"- API on Render
+## 6. Important For "Production"- API
 -Env vars for API
 ASPNETCORE_ENVIRONMENT = Production
 ConnectionStrings__DefaultConnection = "Data Source=app.db"
@@ -383,7 +383,7 @@ ASPNETCORE_URLS = http://0.0.0.0:10000
 
 
 
-## 8. Important For "Production"- Frontend on Vercel
+## 8. Important For "Production"- Frontend
 -Env vars for frontend
 VITE_API_URL=https://fullstacktest-nokq.onrender.com/api
 
