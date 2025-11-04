@@ -1,7 +1,7 @@
 # FullStackTest
 ## 0. Description
 A personal educational project to improve my understanding
-supposedly a way for trainees to support their fitness instructors ala patreon,onlyfans. As of Sept 2025 very WIP
+supposedly a way for trainees to support their fitness instructors ala patreon,onlyfans.
 ## 1. Clone the Repo
 
 Clone this repository to your local machine.
@@ -420,4 +420,3 @@ API:https://fullstacktest-nokq.onrender.com/api
 ## 12. Other Notes
 -Uploading Static Files is not supported on Production as persistent storage on Render(the service where the api is deployed) requires a subscription beyond the free plan
 -The deployed API on Render slows down after 15 mins of inactivity due to the free tier.
--Opening the Deployed Site on browsers like Brave with privacy features that affect third party cookies causes issues with the issuing of Refresh Cookies and therefore gives a 401 error on the /refresh endpoint. On Chrome that is not the case.
