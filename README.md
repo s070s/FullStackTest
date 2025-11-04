@@ -23,13 +23,6 @@ dotnet ef migrations add FirstMigration
 dotnet ef database update
 dotnet run
 ```
-
-### Running the automated tests
-
-```sh
-cd FullStackTest
-dotnet test Api/Api.sln
-```
 ### Frontend
 create on the root of the Frontend Project an .env file
 Frontend/.env
@@ -270,17 +263,6 @@ If using VSCode, you can use the provided `.vscode/tasks.json` to automate commo
                 "Get-ExecutionPolicy -List"
             ],
             "problemMatcher": []
-        },
-        {
-            "label": "Test:API",
-            "type": "shell",
-            "command": "dotnet",
-            "args": [
-                "test",
-                "Api.Tests/Api.Tests.csproj"
-            ],
-            "group": "test",
-            "problemMatcher": []
         }
     ],
     "inputs": [
@@ -412,11 +394,3 @@ password:admin1234567
 ## 10. Development URLs Reference
 Frontend:http://localhost:5173/
 API:http://localhost:5203
-
-## 11. Production URLs Reference
-Frontend:https://full-stack-test-beta.vercel.app/
-API:https://fullstacktest-nokq.onrender.com/api
-
-## 12. Other Notes
--Uploading Static Files is not supported on Production as persistent storage on Render(the service where the api is deployed) requires a subscription beyond the free plan
--The deployed API on Render slows down after 15 mins of inactivity due to the free tier.

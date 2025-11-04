@@ -173,7 +173,8 @@ namespace Api.Endpoints
                 // Read refresh token from cookie
                 var refreshToken = httpContext.Request.Cookies["refreshToken"];
                 if (string.IsNullOrWhiteSpace(refreshToken))
-                    return Results.Json(new { message = "Refresh token missing." }, statusCode: StatusCodes.Status401Unauthorized);
+                    return Results.Json(null);
+
 
                 // Read JWT settings
                 var jwtKey = config["Jwt:Key"];

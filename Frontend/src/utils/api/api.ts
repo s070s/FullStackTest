@@ -1,12 +1,11 @@
 
 /** API calls */
-
 import type { UserDto, RegisterUserDto, LoginUserDto, CreateUserDto, UpdateUserDto } from "../data/userdtos";
 import type { ClientUpdateDto } from "../data/clientdtos";
 import type { TrainerUpdateDto,TrainerDto } from "../data/trainerdtos";
 
 // API base URL from env; defaults to production URL
-export const API_BASE_URL = import.meta.env.VITE_API_DEV_URL || import.meta.env.VITE_API_URL;
+export const API_BASE_URL = import.meta.env.VITE_API_DEV_URL;
 
 //#region Auth
 // Register user

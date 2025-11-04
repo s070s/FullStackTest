@@ -432,6 +432,7 @@ dist-ssr/
 *.Database.*
 *.db-shm
 *.db-wal
+Api/Migrations/
 
 # Frontend environment variables
 Frontend/.env
