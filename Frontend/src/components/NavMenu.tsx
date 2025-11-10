@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 import { useAuth } from "../utils/contexts/AuthContext";
 import { uploadProfilePhoto, fetchCurrentUser, API_BASE_URL } from "../utils/api/api";
+import { useDevice } from "../utils/contexts/DeviceContext";
 
 /**
  * NavMenu
@@ -13,7 +14,8 @@ import { uploadProfilePhoto, fetchCurrentUser, API_BASE_URL } from "../utils/api
  * - Relies on AuthContext for user/token actions and keeps presentation responsibilities to CSS.
  */
 const NavMenu: React.FC = () => {
-    const [hidden, setHidden] = useState(false);
+    const deviceType = useDevice(); // Either "touch" or "desktop"
+    const [hidden, setHidden] = useState(() => deviceType === "touch");//if touch device at start initialize navmenu hidden == true
     const navigate = useNavigate();
     const { isLoggedIn, logout, currentUser, setCurrentUser, ensureAccessToken } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);

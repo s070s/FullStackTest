@@ -366,8 +366,7 @@ input[type="reset"]:disabled {
 .nav-menu__handle {
   position: fixed;
   left: 180px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 25%;
   width: 20px;
   height: 40px;
   background: var(--secondary-blue);
