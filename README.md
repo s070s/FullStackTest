@@ -17,6 +17,7 @@ Open a terminal and run the following commands step by step:
 ```sh
 cd FullStackTest
 cd Api
+dotnet tool install --global dotnet-ef --version 9.0.8 //version dependent on the .NET version
 dotnet restore
 dotnet build
 dotnet ef migrations add FirstMigration
