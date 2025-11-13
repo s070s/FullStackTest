@@ -1,10 +1,14 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from "../../utils/contexts/AuthContext";
 import Button from "../../components/Button";
 import GenericFormDialog from "../../components/GenericFormDialog";
 import LoadingSpinner from '../../components/LoadingSpinner';
+import CollapsibleList from '../../components/CollapsibleList';
+//api calls (condense in one line)
 import { updateUserProfile } from "../../utils/api/api";
+import {getSubscribedTrainerIds} from "../../utils/api/api";
+//dtos
 import type { ClientUpdateDto } from "../../utils/data/clientdtos";
 
 
@@ -14,15 +18,38 @@ const ClientDashboard: React.FC = () => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+
+    const [subscribedTrainerIds, setSubscribedTrainerIds] = useState<number[]>([]); // Track subscribed trainer IDs
+
+
+
+    useEffect(() => {
+        let isMounted = true;
+        const fetchSubscriptions = async () => {
+            if (!currentUser) return;
+            try {
+                const accessToken = await ensureAccessToken();
+                if (!accessToken) return;
+                const ids = await getSubscribedTrainerIds(accessToken, currentUser.id);
+                if (isMounted) setSubscribedTrainerIds(ids);
+            } catch (err: any) {
+                if (isMounted) setError(err?.message ?? "Failed to fetch subscriptions.");
+            }
+        };
+        fetchSubscriptions();
+        return () => { isMounted = false; };
+    }, [currentUser, ensureAccessToken]);
+
+
+
+
     const experienceOptions = [
         { value: "Beginner", label: "Beginner" },
         { value: "Occasional", label: "Occasional" },
         { value: "Regular", label: "Regular" },
         { value: "Athlete", label: "Athlete" },
     ];
-
-
-
     const profileFields: { name: keyof ClientUpdateDto; label?: string; type?: string; required?: boolean; options?: typeof experienceOptions }[] = [
         { name: "firstName", label: "First Name", required: true },
         { name: "lastName", label: "Last Name", required: true },
@@ -39,8 +66,11 @@ const ClientDashboard: React.FC = () => {
         { name: "experienceLevel", label: "Experience Level", options: experienceOptions },
     ];
     if (!currentUser?.clientProfile) {
-        return <div>Loading profile...</div>;
+        return <div>Loading profile...</div>;//TODO Add LoadingSpinner Component
     }
+
+
+
     return (
         <div>
             <h2>Client Dashboard</h2>
@@ -105,12 +135,12 @@ const ClientDashboard: React.FC = () => {
             {loading && <LoadingSpinner />}
 
             <section>
-                <h3>Progress</h3>
+                <h3>Messages</h3>
                 <div>
-                    <span>Workouts Completed: [0]</span><br />
-                    <span>Calories Burned: [0]</span>
+                    <span>No new messages.</span>
                 </div>
             </section>
+
             <section>
                 <h3>Upcoming Workouts</h3>
                 <ul>
@@ -118,11 +148,18 @@ const ClientDashboard: React.FC = () => {
                     <li>[Workout Name] - [Date]</li>
                 </ul>
             </section>
+
             <section>
-                <h3>Messages</h3>
+                <h3>Progress</h3>
                 <div>
-                    <span>No new messages.</span>
+                    <span>Workouts Completed: [0]</span><br />
+                    <span>Calories Burned: [0]</span>
                 </div>
+            </section>
+
+            <section>
+                <h3>Trainers</h3>
+                <CollapsibleList title="Subscribed" items={subscribedTrainerIds} initiallyExpanded={false} />
             </section>
         </div>
     );
